@@ -1,0 +1,40 @@
+import { notFound, redirect } from "next/navigation";
+import { Locale, localePrefix, isLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n-dictionaries";
+import { getSessionUser } from "@/lib/auth";
+import AuthForm from "@/components/AuthForm";
+
+export default async function AuthPage({
+  params,
+  searchParams,
+}: {
+  params: { locale: string };
+  searchParams: { next?: string };
+}) {
+  if (!isLocale(params.locale)) notFound();
+  const locale = params.locale as Locale;
+  const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
+
+  const user = await getSessionUser();
+  if (user) {
+    const next = searchParams.next;
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      redirect(next);
+    }
+    redirect(`${prefix}/account`);
+  }
+
+  return (
+    <div className="relative overflow-hidden py-[56px] max-sm:py-[40px]"
+      style={{
+        background:
+          "radial-gradient(circle_at_15%_12%,rgba(21,200,184,0.12),transparent_30%), radial-gradient(circle_at_88%_10%,rgba(52,84,209,0.10),transparent_28%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+      }}
+    >
+      <div className="container-page">
+        <AuthForm dict={dict} />
+      </div>
+    </div>
+  );
+}

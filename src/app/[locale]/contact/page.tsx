@@ -1,0 +1,61 @@
+import { notFound } from "next/navigation";
+import { Locale, isLocale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/i18n-dictionaries";
+import ContactForm from "@/components/ContactForm";
+import Reveal from "@/components/Reveal";
+
+export default async function ContactPage({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) notFound();
+  const locale = params.locale as Locale;
+  const dict = getDictionary(locale);
+
+  const infoCards = [
+    { icon: "📞", label: dict.contact.phone, value: dict.footer.phone, href: `tel:${dict.footer.phone.replace(/[^\d]/g, "")}` },
+    { icon: "✉️", label: dict.contact.email, value: "hello@figurize.shop", href: "mailto:hello@figurize.shop" },
+    { icon: "📍", label: dict.contact.address, value: dict.contact.addressText },
+    { icon: "🕘", label: dict.contact.hours, value: dict.contact.hoursText },
+  ];
+
+  return (
+    <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
+      style={{
+        background:
+          "radial-gradient(circle_at_12%_8%,rgba(21,200,184,0.10),transparent_30%), radial-gradient(circle_at_90%_14%,rgba(52,84,209,0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+      }}
+    >
+      <div className="container-page">
+        <div className="text-center">
+          <span className="inline-block bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-4 py-1.5 text-[12px] font-[950]">
+            {dict.contact.kicker}
+          </span>
+          <h1 className="mt-4 text-[clamp(28px,4vw,44px)] font-[1000] text-[var(--text)]">{dict.contact.title}</h1>
+          <p className="mt-2 text-[14px] font-[750] text-[var(--muted)]">{dict.contact.subtitle}</p>
+        </div>
+
+        <Reveal>
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {infoCards.map((c) => (
+              <div key={c.label} className="bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-5 text-center hover:shadow-[0_16px_42px_rgba(20,45,90,0.10)] hover:-translate-y-1 transition-all duration-300">
+                <div className="w-[52px] h-[52px] mx-auto rounded-[15px] flex items-center justify-center text-[24px] product-img-bg border border-[var(--soft-line)]">
+                  {c.icon}
+                </div>
+                <p className="mt-3 text-[12.5px] font-[900] text-[var(--muted)]">{c.label}</p>
+                {c.href ? (
+                  <a href={c.href} className="mt-1 block text-[14px] font-[1000] text-[var(--text)] hover:text-[var(--primary)] transition-colors" dir="ltr">
+                    {c.value}
+                  </a>
+                ) : (
+                  <p className="mt-1 text-[14px] font-[1000] text-[var(--text)]">{c.value}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="mt-8 max-w-[640px] mx-auto">
+          <ContactForm dict={dict} />
+        </div>
+      </div>
+    </div>
+  );
+}

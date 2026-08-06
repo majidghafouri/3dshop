@@ -9,8 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        primary: "#3454D1",
+        sky: "#169ED9",
+        teal: "#15C8B8",
+        ink: "#0D1633",
+        bodytext: "#53647C",
+        soft: "#EEF7FF",
+        line: "#DBE8F7",
+      },
+      fontFamily: {
+        sans: [
+          "Vazirmatn",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
+      },
+      transitionDuration: {
+        220: "220ms",
+        250: "250ms",
       },
     },
   },

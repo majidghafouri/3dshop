@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Users & Auth ----------
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  email     String?
+  locale    String   @default("fa")
+  role      Role     @default(USER)
+  cart      Cart?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OtpCode {
+  id        String    @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  consumed  Boolean   @default(false)
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([phone, createdAt])
+}
+
+// ---------- Catalog ----------
+
+model Category {
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  parentId     String?
+  image        String?
+  sortOrder    Int                   @default(0)
+  isActive     Boolean               @default(true)
+  parent       Category?             @relation("CategoryTree", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryTree")
+  translations CategoryTranslation[]
+  products     Product[]
+  createdAt    DateTime              @default(now())
+}
+
+model CategoryTranslation {
+  id          String   @id @default(cuid())
+  categoryId  String
+  locale      String
+  name        String
+  description String?
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+}
+
+model Product {
+  id            String              @id @default(cuid())
+  slug          String              @unique
+  sku           String?             @unique
+  categoryId    String?
+  brand         String?
+  price         Int
+  compareAtPrice Int?
+  stock         Int                 @default(0)
+  isActive      Boolean             @default(true)
+  isFeatured    Boolean             @default(false)
+  isSpecial     Boolean             @default(false)
+  hasDiscount   Boolean             @default(false)
+  heightCm      String?
+  material      String?
+  weightGrams   Int?
+  images        String[]
+  category      Category?           @relation(fields: [categoryId], references: [id])
+  translations  ProductTranslation[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([categoryId])
+  @@index([brand])
+}
+
+model ProductTranslation {
+  id              String  @id @default(cuid())
+  productId       String
+  locale          String
+  name            String
+  shortDescription String?
+  description     String?
+  features        String? @db.Text
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locale])
+}
+
+// ---------- Cart ----------
+
+model Cart {
+  id        String     @id @default(cuid())
+  token     String?    @unique
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([token])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+// ---------- Orders ----------
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  ZARINPAL
+  SNAPPAY
+  CASH_ON_DELIVERY
+  GATEWAY_PLACEHOLDER
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  orderNumber   Int          @unique @default(autoincrement())
+  userId        String
+  status        OrderStatus  @default(PENDING)
+  paymentMethod PaymentMethod
+  fullName      String
+  phone         String
+  address       String
+  postalCode    String?
+  note          String?
+  subtotal      Int
+  shipping      Int          @default(0)
+  discount      Int          @default(0)
+  total         Int
+  items         OrderItem[]
+  user          User         @relation(fields: [userId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
