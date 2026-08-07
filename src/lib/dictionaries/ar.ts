@@ -368,6 +368,7 @@ export const ar: typeof fa = {
       material: "الخامة",
       weight: "الوزن (غرام)",
       priceToman: "السعر (تومان)",
+      discountPct: "نسبة الخصم",
       activeLabel: "نشط",
       featured: "مميز",
       special: "خاص",

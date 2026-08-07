@@ -74,7 +74,7 @@ export async function queryProducts(filters: ProductFilters) {
     };
   }
 
-  let orderBy: Prisma.ProductOrderByWithRelationInput;
+  let orderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[];
   switch (sort) {
     case "price_asc":
       orderBy = { price: "asc" };
@@ -83,7 +83,7 @@ export async function queryProducts(filters: ProductFilters) {
       orderBy = { price: "desc" };
       break;
     case "discount":
-      orderBy = { compareAtPrice: "desc" };
+      orderBy = [{ hasDiscount: "desc" }, { compareAtPrice: "desc" }];
       break;
     case "popular":
       orderBy = { createdAt: "desc" };

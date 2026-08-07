@@ -79,6 +79,11 @@ export default async function AdminProductsPage({
                   {prod.compareAtPrice && (
                     <span className="block text-[11px] text-[var(--muted-4)] line-through">{prod.compareAtPrice.toLocaleString("en-US")}</span>
                   )}
+                  {prod.hasDiscount && prod.compareAtPrice && prod.compareAtPrice > prod.price && (
+                    <span className="inline-block mt-1 rounded-full px-2 py-0.5 text-[10.5px] font-[950] bg-[var(--danger-soft)] text-[var(--danger)]">
+                      {Math.round(((prod.compareAtPrice - prod.price) / prod.compareAtPrice) * 100)}% OFF
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-[950] ${prod.stock > 0 ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--neutral-soft)] text-[var(--muted-3)]"}`}>

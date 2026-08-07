@@ -37,6 +37,7 @@ type ProductFormDict = {
   category: string;
   priceToman: string;
   compareAt: string;
+  discountPct: string;
   stock: string;
   height: string;
   material: string;
@@ -101,10 +102,43 @@ export default function ProductForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const computePct = (price: string, compareAt: string): string => {
+    const p = Number(price);
+    const c = Number(compareAt);
+    if (!p || !c || c <= p) return "";
+    return String(Math.round(((c - p) / c) * 1000) / 10);
+  };
+
+  const computePrice = (pct: string, compareAt: string): string => {
+    const c = Number(compareAt);
+    const d = Number(pct);
+    if (!c || !d) return compareAt;
+    return String(Math.max(0, Math.round(c * (1 - d / 100))));
+  };
+
+  const [pct, setPct] = useState<string>(
+    initial ? computePct(initial.price, initial.compareAtPrice ?? "") : ""
+  );
+
   const set = (k: keyof ProductData, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
   const setLoc = (k: "name" | "shortDescription" | "description", loc: string, v: string) =>
     setForm((f) => ({ ...f, [k]: { ...f[k], [loc]: v } }));
+
+  const onChangePrice = (v: string) => {
+    set("price", v);
+    setPct(computePct(v, form.compareAtPrice ?? ""));
+  };
+
+  const onChangeCompareAt = (v: string) => {
+    set("compareAtPrice", v);
+    setPct(computePct(form.price, v));
+  };
+
+  const onChangePct = (v: string) => {
+    setPct(v);
+    set("price", computePrice(v, form.compareAtPrice ?? ""));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,11 +220,23 @@ export default function ProductForm({
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.priceToman} *</span>
-            <input value={form.price} onChange={(e) => set("price", e.target.value)} type="number" className={inputCls} />
+            <input value={form.price} onChange={(e) => onChangePrice(e.target.value)} type="number" className={inputCls} />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.compareAt}</span>
-            <input value={form.compareAtPrice ?? ""} onChange={(e) => set("compareAtPrice", e.target.value)} type="number" className={inputCls} />
+            <input value={form.compareAtPrice ?? ""} onChange={(e) => onChangeCompareAt(e.target.value)} type="number" className={inputCls} />
+          </label>
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.discountPct}</span>
+            <input
+              value={pct}
+              onChange={(e) => onChangePct(e.target.value)}
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              className={inputCls}
+            />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.stock}</span>

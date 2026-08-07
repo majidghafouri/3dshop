@@ -368,6 +368,7 @@ export const en: typeof fa = {
       material: "Material",
       weight: "Weight (g)",
       priceToman: "Price (toman)",
+      discountPct: "Discount %",
       activeLabel: "Active",
       featured: "Featured",
       special: "Special",

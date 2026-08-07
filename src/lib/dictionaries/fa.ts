@@ -366,6 +366,7 @@ export const fa = {
       material: "جنس",
       weight: "وزن (گرم)",
       priceToman: "قیمت (تومان)",
+      discountPct: "درصد تخفیف",
       activeLabel: "فعال",
       featured: "پیشنهادی",
       special: "ویژه",
