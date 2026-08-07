@@ -8,6 +8,7 @@ import ImageGallery from "@/components/ImageGallery";
 import PurchasePanel from "@/components/PurchasePanel";
 import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
+import ProductMusicPlayer from "@/components/ProductMusicPlayer";
 
 export async function generateMetadata({
   params,
@@ -232,6 +233,15 @@ export default async function ProductDetailPage({
           </div>
         )}
       </div>
+
+      {p.musicUrl && (
+        <ProductMusicPlayer
+          url={p.musicUrl}
+          title={p.musicTitle ?? p.name}
+          label={dict.products.detail.music}
+          credit={dict.products.detail.musicCredit}
+        />
+      )}
     </div>
   );
 }

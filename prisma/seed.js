@@ -32,6 +32,33 @@ const CATEGORIES = [
 // eslint-disable-next-line no-unused-vars
 const U = (s) => s;
 
+const PRODUCT_MUSIC = {
+  "baby-yoda-grogu": "Enchanted Valley",
+  "baby-yoda-robotic-25": "Infados",
+  "baby-yoda-robotic-40": "Wholesome",
+  "spider-man-miles-morales": "Prelude and Action",
+  "spider-man-peter-parker-spiderverse": "Crypto",
+  "walle-disney": "Carefree",
+  "assassins-creed-3-conner": "Five Armies",
+  "assassins-creed-bayek": "Lotus",
+  "assassins-creed-altair": "Crusade",
+  "assassins-creed-aya": "Ritual",
+  "godzilla-vs-kong": "Strength of the Titans",
+  "tintin-and-milou": "Sneaky Adventure",
+  "mandalorian-and-child": "Galway",
+  "hannibal-lecter-neca": "Darkest Child",
+  "sulley-monsters-inc": "Monkeys Spinning Monkeys",
+  "war-machine-mk1-zd": "Danger Storm",
+  "iron-man-mk5-zd": "Heroic Age",
+  "alien-xenomorph-neca": "Unseen Horrors",
+  "john-wick-mafex": "Volatile Reaction",
+  "venom-play-arts": "Corruption",
+  "kakashi-hatake-40cm": "Eastern Thought",
+  "kratos-god-of-war": "Achilles",
+  "geralt-witcher-3": "Rynos Theme",
+  "darth-vader-kaidoyo": "Dark Times",
+};
+
 const PRODUCTS = [
   {
     slug: "baby-yoda-grogu",
@@ -715,6 +742,8 @@ async function main() {
         material: p.material,
         weightGrams: p.weight,
         images: p.images,
+        musicUrl: p.musicUrl ?? `/music/${p.slug}.mp3`,
+        musicTitle: p.musicTitle ?? PRODUCT_MUSIC[p.slug] ?? null,
       },
       create: {
         slug: p.slug,
@@ -732,6 +761,8 @@ async function main() {
         material: p.material,
         weightGrams: p.weight,
         images: p.images,
+        musicUrl: p.musicUrl ?? `/music/${p.slug}.mp3`,
+        musicTitle: p.musicTitle ?? PRODUCT_MUSIC[p.slug] ?? null,
       },
     });
     const product = await prisma.product.findUnique({ where: { slug: p.slug } });

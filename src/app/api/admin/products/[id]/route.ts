@@ -19,6 +19,8 @@ type ProductPayload = {
   material?: string;
   weightGrams?: number;
   images?: string[];
+  musicUrl?: string;
+  musicTitle?: string;
   name?: Record<string, string>;
   shortDescription?: Record<string, string>;
   description?: Record<string, string>;
@@ -61,6 +63,8 @@ export async function PATCH(
   if (body.material !== undefined) data.material = body.material || null;
   if (body.weightGrams !== undefined) data.weightGrams = body.weightGrams ?? null;
   if (body.images !== undefined) data.images = body.images?.filter(Boolean) ?? [];
+  if (body.musicUrl !== undefined) data.musicUrl = body.musicUrl?.trim() || null;
+  if (body.musicTitle !== undefined) data.musicTitle = body.musicTitle?.trim() || null;
 
   await prisma.$transaction(async (tx) => {
     if (body.name) {

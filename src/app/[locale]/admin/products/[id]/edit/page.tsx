@@ -47,6 +47,8 @@ export default async function EditProductPage({
     material: product.material ?? "",
     weightGrams: product.weightGrams ? String(product.weightGrams) : "",
     images: product.images.join("\n"),
+    musicUrl: product.musicUrl ?? "",
+    musicTitle: product.musicTitle ?? "",
     categorySlug: product.categoryId
       ? (await prisma.category.findUnique({ where: { id: product.categoryId! } }))?.slug ?? ""
       : "",

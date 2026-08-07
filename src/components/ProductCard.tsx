@@ -3,6 +3,7 @@ import { Locale, localePrefix, formatPrice, formatDiscountPercent } from "@/lib/
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { ProductItem } from "@/lib/shop";
 import AddToCartButton from "@/components/AddToCartButton";
+import Marquee from "@/components/Marquee";
 
 export default function ProductCard({
   product,
@@ -20,7 +21,7 @@ export default function ProductCard({
   const isDiscount = product.hasDiscount || percent !== null;
 
   return (
-    <div className="group relative bg-[var(--surface)] border border-[var(--line)] rounded-[24px] overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_18px_48px_rgba(20,45,90,0.12)] hover:border-[var(--line-9)]">
+    <div className="group relative bg-[var(--surface)] border border-[var(--line)] rounded-[24px] overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_18px_48px_rgba(20,45,90,0.12)] hover:border-[var(--line-9)]">
       <Link href={href} className="block">
         <div className="relative aspect-square overflow-hidden product-img-bg">
           {image ? (
@@ -60,7 +61,7 @@ export default function ProductCard({
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-1 flex-col">
         {product.brand && (
           <span className="text-[11.5px] font-[950] text-[var(--muted)] tracking-wide">
             {product.brand}
@@ -73,7 +74,7 @@ export default function ProductCard({
         </Link>
 
         <div className="mt-3 flex items-end justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[16.5px] font-[1000] text-[var(--primary)]">
                 {formatPrice(product.price, locale).split(" ")[0]}
@@ -89,13 +90,16 @@ export default function ProductCard({
             )}
           </div>
           {product.stock > 0 && product.stock <= 5 && (
-            <span className="text-[10.5px] font-[950] text-[var(--warning-strong)] bg-[var(--warning-soft)] border border-[var(--warning-soft-3)] rounded-full px-2 py-0.5 whitespace-nowrap">
+            <Marquee
+              maxWidth={116}
+              className="text-[10.5px] font-[950] text-[var(--warning-strong)] bg-[var(--warning-soft)] border border-[var(--warning-soft-3)] rounded-full px-2 py-0.5"
+            >
               {dict.products.lowStock}
-            </span>
+            </Marquee>
           )}
         </div>
 
-        <div className="mt-3.5">
+        <div className="mt-auto pt-3.5">
           <AddToCartButton
             productId={product.id}
             stock={product.stock}

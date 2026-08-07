@@ -64,6 +64,11 @@ export default async function AdminProductsPage({
                     <div className="min-w-0">
                       <p className="text-[13.5px] font-[950] text-[var(--text)] line-clamp-1">{prod.translations[0]?.name ?? prod.slug}</p>
                       <p className="text-[11px] font-[850] text-[var(--muted)]" dir="ltr">{prod.slug}</p>
+                      {prod.musicUrl && (
+                        <p className="text-[11px] font-[850] text-[var(--primary)] truncate" dir="ltr">
+                          ♫ {prod.musicTitle ?? prod.musicUrl}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </td>

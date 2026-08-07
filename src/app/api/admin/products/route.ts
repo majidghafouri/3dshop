@@ -18,6 +18,8 @@ type ProductPayload = {
   material?: string;
   weightGrams?: number;
   images?: string[];
+  musicUrl?: string;
+  musicTitle?: string;
   name?: Record<string, string>;
   shortDescription?: Record<string, string>;
   description?: Record<string, string>;
@@ -70,6 +72,8 @@ export async function POST(req: NextRequest) {
       material: body.material ?? null,
       weightGrams: body.weightGrams ?? null,
       images: body.images?.filter(Boolean) ?? [],
+      musicUrl: body.musicUrl?.trim() || null,
+      musicTitle: body.musicTitle?.trim() || null,
       translations: {
         create: locales.map((loc) => ({
           locale: loc,

@@ -17,6 +17,8 @@ export type ProductItem = {
   material: string | null;
   weightGrams: number | null;
   images: string[];
+  musicUrl: string | null;
+  musicTitle: string | null;
   name: string;
   shortDescription: string | null;
   description: string | null;
@@ -41,6 +43,8 @@ export type LocaleProduct = {
   material: string | null;
   weightGrams: number | null;
   images: string[];
+  musicUrl: string | null;
+  musicTitle: string | null;
   createdAt: Date;
   translations: {
     locale: string;
@@ -88,6 +92,8 @@ export function mapProduct(product: LocaleProduct): ProductItem {
     material: product.material,
     weightGrams: product.weightGrams,
     images: product.images,
+    musicUrl: product.musicUrl,
+    musicTitle: product.musicTitle,
     name: t?.name ?? "",
     shortDescription: t?.shortDescription ?? null,
     description: t?.description ?? null,

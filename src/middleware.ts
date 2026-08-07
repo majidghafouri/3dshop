@@ -22,7 +22,11 @@ export function middleware(req: NextRequest) {
   // Rewrite unprefixed paths to the default (Farsi) locale tree
   const response = hasLocale
     ? NextResponse.next()
-    : NextResponse.rewrite(new URL(`/${defaultLocale}${pathname}`, req.url));
+    : (() => {
+        const url = req.nextUrl.clone();
+        url.pathname = `/${defaultLocale}${pathname}`;
+        return NextResponse.rewrite(url);
+      })();
 
   const locale = hasLocale ? (firstSegment as (typeof locales)[number]) : defaultLocale;
   response.cookies.set("locale", locale, { path: "/" });

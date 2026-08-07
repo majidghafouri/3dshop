@@ -132,6 +132,8 @@ export const en: typeof fa = {
       secureOrder: "Secure checkout",
       inStockNow: "In stock now",
       notFound: "Product not found",
+      music: "Background music",
+      musicCredit: "Kevin MacLeod · incompetech.com · CC-BY 4.0",
     },
   },
   brands: {
@@ -370,6 +372,9 @@ export const en: typeof fa = {
       featured: "Featured",
       special: "Special",
       images: "Images (one per line)",
+      music: "Background music",
+      musicUrl: "Music file URL",
+      musicTitle: "Track title",
       translations: "Translations",
       name: "Name",
       shortDesc: "Short description",

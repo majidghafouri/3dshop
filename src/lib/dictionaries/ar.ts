@@ -132,6 +132,8 @@ export const ar: typeof fa = {
       secureOrder: "شراء آمن",
       inStockNow: "متوفر في المخزون",
       notFound: "المنتج غير موجود",
+      music: "موسيقى الخلفية",
+      musicCredit: "Kevin MacLeod · incompetech.com · CC-BY 4.0",
     },
   },
   brands: {
@@ -370,6 +372,9 @@ export const ar: typeof fa = {
       featured: "مميز",
       special: "خاص",
       images: "الصور (صورة في كل سطر)",
+      music: "موسيقى الخلفية",
+      musicUrl: "رابط ملف الموسيقى",
+      musicTitle: "اسم المقطع",
       translations: "الترجمات",
       name: "الاسم",
       shortDesc: "وصف قصير",

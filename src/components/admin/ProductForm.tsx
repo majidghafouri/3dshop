@@ -19,6 +19,8 @@ type ProductData = {
   material?: string;
   weightGrams?: string;
   images: string;
+  musicUrl?: string;
+  musicTitle?: string;
   categorySlug?: string;
   name: Record<string, string>;
   shortDescription: Record<string, string>;
@@ -43,6 +45,9 @@ type ProductFormDict = {
   featured: string;
   special: string;
   images: string;
+  music: string;
+  musicUrl: string;
+  musicTitle: string;
   translations: string;
   name: string;
   shortDesc: string;
@@ -85,6 +90,8 @@ export default function ProductForm({
       material: "",
       weightGrams: "",
       images: "",
+      musicUrl: "",
+      musicTitle: "",
       categorySlug: "",
       name: { fa: "", en: "", ar: "" },
       shortDescription: { fa: "", en: "", ar: "" },
@@ -122,6 +129,8 @@ export default function ProductForm({
       material: form.material?.trim() || undefined,
       weightGrams: form.weightGrams ? Number(form.weightGrams) : undefined,
       images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
+      musicUrl: form.musicUrl?.trim() || undefined,
+      musicTitle: form.musicTitle?.trim() || undefined,
       categorySlug: form.categorySlug || undefined,
       name: form.name,
       shortDescription: form.shortDescription,
@@ -223,6 +232,20 @@ export default function ProductForm({
           placeholder={"https://.../main.jpg\nhttps://.../detail.jpg"}
           className={inputCls}
         />
+      </div>
+
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
+        <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.music}</h3>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.musicUrl}</span>
+            <input value={form.musicUrl ?? ""} onChange={(e) => set("musicUrl", e.target.value)} placeholder="/music/baby-yoda-grogu.mp3" className={inputCls} />
+          </label>
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.musicTitle}</span>
+            <input value={form.musicTitle ?? ""} onChange={(e) => set("musicTitle", e.target.value)} placeholder="Enchanted Valley" className={inputCls} />
+          </label>
+        </div>
       </div>
 
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">

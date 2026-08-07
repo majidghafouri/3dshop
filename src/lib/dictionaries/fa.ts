@@ -130,6 +130,8 @@ export const fa = {
       secureOrder: "خرید امن",
       inStockNow: "در انبار موجود است",
       notFound: "محصول مورد نظر پیدا نشد",
+      music: "موسیقی پس‌زمینه",
+      musicCredit: "Kevin MacLeod · incompetech.com · CC-BY 4.0",
     },
   },
   brands: {
@@ -368,6 +370,9 @@ export const fa = {
       featured: "پیشنهادی",
       special: "ویژه",
       images: "تصاویر (هر خط یک تصویر)",
+      music: "موسیقی پس‌زمینه",
+      musicUrl: "آدرس فایل موسیقی",
+      musicTitle: "نام آهنگ",
       translations: "ترجمه‌ها",
       name: "نام",
       shortDesc: "توضیح کوتاه",

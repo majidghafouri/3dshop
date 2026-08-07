@@ -9,6 +9,7 @@ import { buildNav } from "@/lib/nav";
 import Logo from "@/components/Logo";
 import LangSwitcher from "@/components/LangSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
+import MusicToggle from "@/components/MusicToggle";
 import { useCart } from "@/components/CartProvider";
 
 type User = { phone: string; role: string } | null;
@@ -86,7 +87,7 @@ export default function Header({
                     </svg>
                   </button>
                   {openDropdown === item.label && (
-                    <div className="absolute top-full right-1/2 translate-x-1/2 ltr:translate-x-[-50%] pt-3 w-[260px]">
+                    <div className="absolute top-full right-1/2 translate-x-1/2 pt-3 w-[260px]">
                       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-2.5 shadow-[0_22px_70px_rgba(27,54,115,0.14)]">
                         {item.children.map((c) => (
                           <Link
@@ -121,6 +122,7 @@ export default function Header({
         {/* Right actions */}
         {!isAdmin && (
         <div className="flex items-center justify-end gap-2.5 max-xl:gap-2">
+          <MusicToggle />
           <ThemeToggle />
           <LangSwitcher locale={locale} dict={dict} />
 
@@ -182,6 +184,7 @@ export default function Header({
 
         {isAdmin && (
           <div className="flex items-center justify-end gap-2.5">
+            <MusicToggle />
             <ThemeToggle />
             <Link
               href={accountHref}
