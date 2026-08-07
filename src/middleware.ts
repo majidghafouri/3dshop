@@ -6,9 +6,10 @@ const PUBLIC_FILE = /\.(.*)$/;
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Skip API, static files
+  // Skip API, static files, docs
   if (
     pathname.startsWith("/api") ||
+    pathname.startsWith("/docs") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     PUBLIC_FILE.test(pathname)
