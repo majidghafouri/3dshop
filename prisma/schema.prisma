@@ -109,6 +109,14 @@ model ProductTranslation {
   @@unique([productId, locale])
 }
 
+// ---------- Site theming ----------
+
+model SiteTheme {
+  id        Int      @id @default(1)
+  palette   Json
+  updatedAt DateTime @updatedAt
+}
+
 // ---------- Cart ----------
 
 model Cart {

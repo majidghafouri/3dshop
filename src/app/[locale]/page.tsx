@@ -55,7 +55,7 @@ export default async function HomePage({
         className="relative isolate overflow-hidden py-[64px] max-sm:py-[44px] min-h-[calc(100vh-76px)] scroll-mt-[76px] flex items-center"
         style={{
           background:
-            "radial-gradient(circle at 78% 24%, rgba(21,200,184,0.18), transparent 26%), radial-gradient(circle at 17% 28%, rgba(52,84,209,0.14), transparent 32%), linear-gradient(135deg, var(--bg-tint) 0%, var(--bg-tint) 52%, var(--bg-tint) 100%)",
+            "radial-gradient(circle at 78% 24%, rgba(var(--teal-rgb),0.18), transparent 26%), radial-gradient(circle at 17% 28%, rgba(var(--primary-rgb),0.14), transparent 32%), linear-gradient(135deg, var(--bg-tint) 0%, var(--bg-tint) 52%, var(--bg-tint) 100%)",
         }}
       >
         {/* grid pattern */}
@@ -63,7 +63,7 @@ export default async function HomePage({
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(52,84,209,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52,84,209,0.05) 1px, transparent 1px)",
+              "linear-gradient(rgba(var(--primary-rgb),0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--primary-rgb),0.05) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
             maskImage:
               "linear-gradient(180deg,var(--black) 0%,rgba(0,0,0,.5) 65%,transparent 100%)",
@@ -79,7 +79,7 @@ export default async function HomePage({
             height: 570,
             left: -150,
             bottom: -210,
-            background: "radial-gradient(circle, rgba(21,200,184,0.22), transparent 64%)",
+            background: "radial-gradient(circle, rgba(var(--teal-rgb),0.22), transparent 64%)",
           }}
         />
 
@@ -87,7 +87,7 @@ export default async function HomePage({
           {/* Left */}
           <div className="max-w-[620px]">
             <div
-              className="anim-fade-up inline-flex items-center gap-2.5 border border-[rgba(21,200,184,0.34)] bg-[rgba(232,255,252,0.74)] text-[var(--success-3)] rounded-full px-3.5 py-2 font-[950] text-[13.5px]"
+              className="anim-fade-up inline-flex items-center gap-2.5 border border-[rgba(var(--teal-rgb),0.34)] bg-[rgba(232,255,252,0.74)] text-[var(--success-3)] rounded-full px-3.5 py-2 font-[950] text-[13.5px]"
               style={{ animationDelay: "0.08s" }}
             >
               <span className="w-[10px] h-[10px] rounded-full bg-[var(--teal)] anim-pulse-dot" />
@@ -115,7 +115,7 @@ export default async function HomePage({
 
             {/* stat bar */}
             <div
-              className="anim-fade-up mt-6 grid grid-cols-[auto_minmax(0,1fr)] p-[14px_16px] border border-[rgba(52,84,209,0.18)] rounded-[24px] items-center gap-4"
+              className="anim-fade-up mt-6 grid grid-cols-[auto_minmax(0,1fr)] p-[14px_16px] border border-[rgba(var(--primary-rgb),0.18)] rounded-[24px] items-center gap-4"
               style={{
                 animationDelay: "0.2s",
                 background:
@@ -205,7 +205,7 @@ export default async function HomePage({
 
               {/* product image */}
               {spotlight && (
-                <div className="mt-4 relative rounded-[24px] overflow-hidden product-img-bg aspect-[4/3] border border-[var(--line-5)] shadow-[0_14px_40px_rgba(24,54,100,0.12)]">
+                <div className="mt-4 relative rounded-[24px] overflow-hidden product-img-bg aspect-square border border-[var(--line-5)] shadow-[0_14px_40px_rgba(24,54,100,0.12)]">
                   {spotlight.images[0] ? (
                     <img
                       src={spotlight.images[0]}
@@ -236,7 +236,7 @@ export default async function HomePage({
                 <Link
                   href={`${prefix}/products/${spotlight.slug}`}
                   className="mt-4 flex items-center justify-between w-full text-white rounded-[18px] p-[13px_16px] transition-all duration-300 hover:-translate-y-0.5"
-                  style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))", boxShadow: "0 14px 34px rgba(52,84,209,0.28)" }}
+                  style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))", boxShadow: "0 14px 34px rgba(var(--primary-rgb),0.28)" }}
                 >
                   <span className="font-[950] text-[14px]">
                     {mapProduct(spotlight).name}
@@ -318,7 +318,7 @@ export default async function HomePage({
         className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px] section-bg-light"
         style={{
           background:
-            "radial-gradient(circle_at_12%_18%,rgba(21,200,184,0.105),transparent_30%), radial-gradient(circle_at_90%_30%,rgba(52,84,209,0.075),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+            "radial-gradient(circle_at_12%_18%,rgba(var(--teal-rgb),0.105),transparent_30%), radial-gradient(circle_at_90%_30%,rgba(var(--primary-rgb),0.075),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
         }}
       >
         <div className="container-page">
@@ -341,7 +341,7 @@ export default async function HomePage({
                   href={`${prefix}/category/${cat.slug}`}
                   className="group flex flex-col items-center justify-center text-center gap-4 bg-[var(--glass-90)] border border-[var(--line)] rounded-[28px] p-7 min-h-[150px] backdrop-blur-[10px] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_58px_rgba(24,54,100,0.12)] hover:border-[var(--line-10)]"
                 >
-                  <span className="w-[52px] h-[52px] rounded-[17px] bg-gradient-to-br from-[var(--primary)] to-[var(--teal)] flex items-center justify-center text-white text-[24px] shadow-[0_14px_34px_rgba(52,84,209,0.28)] group-hover:scale-110 transition-transform duration-300">
+                  <span className="w-[52px] h-[52px] rounded-[17px] bg-gradient-to-br from-[var(--primary)] to-[var(--teal)] flex items-center justify-center text-white text-[24px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.28)] group-hover:scale-110 transition-transform duration-300">
                     {cat.image ? (
                       <img src={cat.image} alt="" className="w-7 h-7 object-contain" />
                     ) : (
@@ -371,7 +371,7 @@ export default async function HomePage({
         className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px]"
         style={{
           background:
-            "radial-gradient(circle at 86% 8%, rgba(52,84,209,0.06), transparent 30%), linear-gradient(180deg,var(--white),var(--bg-tint))",
+            "radial-gradient(circle at 86% 8%, rgba(var(--primary-rgb),0.06), transparent 30%), linear-gradient(180deg,var(--white),var(--bg-tint))",
         }}
       >
         <div className="container-page">
@@ -409,7 +409,7 @@ export default async function HomePage({
       <section id="start" className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px]"
         style={{
           background:
-            "radial-gradient(circle at 68% 38%, rgba(52,84,209,0.075), transparent 38%), radial-gradient(circle at 28% 68%, rgba(21,200,184,0.09), transparent 34%), linear-gradient(135deg, var(--bg-tint) 0%, var(--bg-tint) 42%, var(--bg-tint) 100%)",
+            "radial-gradient(circle at 68% 38%, rgba(var(--primary-rgb),0.075), transparent 38%), radial-gradient(circle at 28% 68%, rgba(var(--teal-rgb),0.09), transparent 34%), linear-gradient(135deg, var(--bg-tint) 0%, var(--bg-tint) 42%, var(--bg-tint) 100%)",
         }}
       >
         <div className="container-page">
@@ -418,7 +418,7 @@ export default async function HomePage({
               className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center rounded-[36px] p-10 max-sm:p-7 text-white shadow-[0_22px_70px_rgba(27,54,115,0.14)]"
               style={{
                 background:
-                  "radial-gradient(circle at 20% 20%, rgba(21,200,184,0.28), transparent 35%), linear-gradient(135deg, var(--text), var(--primary-2))",
+                  "radial-gradient(circle at 20% 20%, rgba(var(--teal-rgb),0.28), transparent 35%), linear-gradient(135deg, var(--text), var(--primary-2))",
               }}
             >
               <div>

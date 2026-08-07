@@ -25,7 +25,7 @@ export default function ImageGallery({ images, name }: { images: string[]; name:
               type="button"
               onClick={() => setActive(i)}
               className={`shrink-0 w-[76px] h-[76px] rounded-[16px] overflow-hidden border-2 transition-all duration-200 ${
-                i === active ? "border-[var(--primary)] shadow-[0_8px_20px_rgba(52,84,209,0.25)]" : "border-[var(--line)] hover:border-[var(--line-strong)]"
+                i === active ? "border-[var(--primary)] shadow-[0_8px_20px_rgba(var(--primary-rgb),0.25)]" : "border-[var(--line)] hover:border-[var(--line-strong)]"
               }`}
             >
               <img src={img} alt="" className="w-full h-full object-cover" />

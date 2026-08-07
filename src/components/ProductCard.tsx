@@ -40,7 +40,7 @@ export default function ProductCard({
           {/* Badges */}
           <div className="absolute top-3 rtl:right-3 ltr:left-3 flex flex-col gap-2 items-start">
             {isDiscount && (
-              <span className="bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[11.5px] font-[950] rounded-full px-2.5 py-1 shadow-[0_8px_20px_rgba(21,200,184,0.3)]">
+              <span className="bg-gradient-to-br from-[var(--teal-2)] to-[var(--primary)] text-white text-[11.5px] font-[950] rounded-full px-2.5 py-1 shadow-[0_8px_20px_rgba(var(--teal-rgb),0.3)]">
                 {percent !== null ? `٪${percent}` : dict.products.discount}
               </span>
             )}

@@ -114,7 +114,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     <div className="mx-auto w-full max-w-[440px]">
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-8 shadow-[0_18px_54px_rgba(20,45,90,0.10)]">
         <div className="text-center">
-          <div className="mx-auto w-[64px] h-[64px] rounded-[20px] flex items-center justify-center text-white text-[26px] shadow-[0_12px_30px_rgba(52,84,209,0.35)]"
+          <div className="mx-auto w-[64px] h-[64px] rounded-[20px] flex items-center justify-center text-white text-[26px] shadow-[0_12px_30px_rgba(var(--primary-rgb),0.35)]"
             style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--teal))" }}>
             {step === "phone" ? "📱" : "🔐"}
           </div>
@@ -146,7 +146,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(52,84,209,0.25)]"
+              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
               style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
             >
               {busy ? dict.common.loading : dict.auth.sendCode}
@@ -202,7 +202,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             <button
               type="submit"
               disabled={busy || digits.some((d) => !d)}
-              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(52,84,209,0.25)]"
+              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
               style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
             >
               {busy ? dict.common.loading : dict.auth.verifyCode}

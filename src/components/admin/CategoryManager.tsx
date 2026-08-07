@@ -88,7 +88,7 @@ export default function CategoryManager({ categories, dict }: CategoryManagerPro
         <button
           type="submit"
           disabled={busy || !form.slug || !form.fa}
-          className="rounded-[12px] text-white font-[950] px-4 py-2.5 text-[13px] shadow-[0_8px_20px_rgba(52,84,209,0.25)] disabled:opacity-50"
+          className="rounded-[12px] text-white font-[950] px-4 py-2.5 text-[13px] shadow-[0_8px_20px_rgba(var(--primary-rgb),0.25)] disabled:opacity-50"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {busy ? "..." : `+ ${dict.add}`}

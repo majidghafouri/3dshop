@@ -23,7 +23,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
-          "radial-gradient(circle_at_12%_8%,rgba(21,200,184,0.10),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+          "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
       <div className="container-page">
@@ -63,7 +63,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
         <div className="mt-12 text-center">
           <Link
             href={`${prefix}/products`}
-            className="inline-flex rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+            className="inline-flex rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
             style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
           >
             {dict.cta.button}

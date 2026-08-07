@@ -40,7 +40,7 @@ export default function ContactForm({ dict }: { dict: Dictionary }) {
       </div>
       <button
         type="submit"
-        className="mt-4 rounded-[16px] text-white font-[950] px-7 py-3.5 text-[14px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+        className="mt-4 rounded-[16px] text-white font-[950] px-7 py-3.5 text-[14px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
         style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
       >
         {dict.contact.form.submit}

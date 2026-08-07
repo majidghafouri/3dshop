@@ -37,7 +37,7 @@ export default function CartClient({
         <p className="mt-2 text-[14px] font-[750] text-[var(--muted)]">{dict.cart.emptyDesc}</p>
         <Link
           href={`${prefix}/products`}
-          className="inline-flex mt-6 rounded-[16px] text-white font-[950] px-7 py-3.5 text-[14.5px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+          className="inline-flex mt-6 rounded-[16px] text-white font-[950] px-7 py-3.5 text-[14.5px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {dict.cart.goShopping}
@@ -161,7 +161,7 @@ export default function CartClient({
         </div>
         <Link
           href={`${prefix}/checkout`}
-          className="mt-6 w-full flex items-center justify-center gap-2 rounded-[16px] text-white font-[950] py-4 text-[15px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+          className="mt-6 w-full flex items-center justify-center gap-2 rounded-[16px] text-white font-[950] py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {dict.cart.checkout}

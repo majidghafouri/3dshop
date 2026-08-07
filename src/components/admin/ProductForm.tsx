@@ -323,7 +323,7 @@ export default function ProductForm({
       <button
         type="submit"
         disabled={busy}
-        className="rounded-[14px] text-white font-[950] px-6 py-3.5 text-[14px] shadow-[0_12px_30px_rgba(52,84,209,0.25)] disabled:opacity-50 hover:-translate-y-0.5 transition-all"
+        className="rounded-[14px] text-white font-[950] px-6 py-3.5 text-[14px] shadow-[0_12px_30px_rgba(var(--primary-rgb),0.25)] disabled:opacity-50 hover:-translate-y-0.5 transition-all"
         style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
       >
         {busy ? dict.saving : isEdit ? dict.saveChanges : dict.create}

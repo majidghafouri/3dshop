@@ -90,7 +90,7 @@ export default async function ProductsPage({
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
-          "radial-gradient(circle_at_12%_8%,rgba(21,200,184,0.10),transparent_30%), radial-gradient(circle_at_92%_12%,rgba(52,84,209,0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+          "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), radial-gradient(circle_at_92%_12%,rgba(var(--primary-rgb),0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
       <div className="container-page">
@@ -163,7 +163,7 @@ export default async function ProductsPage({
                           href={mkPageHref(p)}
                           className={`w-10 h-10 rounded-full flex items-center justify-center text-[13.5px] font-[950] transition-colors ${
                             p === result.page
-                              ? "text-white shadow-[0_10px_26px_rgba(52,84,209,0.3)]"
+                              ? "text-white shadow-[0_10px_26px_rgba(var(--primary-rgb),0.3)]"
                               : "border border-[var(--line-2)] bg-[var(--surface)] text-[var(--text-3)] hover:text-[var(--primary)] hover:border-[var(--line-strong)]"
                           }`}
                           style={p === result.page ? { backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" } : undefined}

@@ -30,6 +30,7 @@ export default async function AdminLayout({
     { href: "/products", label: dict.admin.nav.products, icon: "🗃️" },
     { href: "/categories", label: dict.admin.nav.categories, icon: "🗂️" },
     { href: "/orders", label: dict.admin.nav.orders, icon: "📦" },
+    { href: "/appearance", label: dict.admin.nav.appearance, icon: "🎨" },
   ];
 
   return (

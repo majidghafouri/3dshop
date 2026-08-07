@@ -326,6 +326,7 @@ export const ar: typeof fa = {
       products: "المنتجات",
       categories: "الفئات",
       orders: "الطلبات",
+      appearance: "المظهر",
     },
     dashboard: {
       title: "لوحة المعلومات",
@@ -401,6 +402,20 @@ export const ar: typeof fa = {
     orders: {
       title: "الطلبات",
       noOrders: "لا توجد طلبات بعد.",
+    },
+    appearance: {
+      title: "مظهر الموقع",
+      subtitle: "غيّر الألوان الرئيسية للموقع — اختر نموذجًا جاهزًا أو خصّص الألوان بنفسك.",
+      presets: "النماذج الجاهزة",
+      custom: "ألوان مخصصة",
+      light: "الوضع الفاتح",
+      dark: "الوضع الداكن",
+      primary: "اللون الرئيسي",
+      sky: "اللون الثانوي (التدرج)",
+      teal: "لون النجاح / الأخضر",
+      apply: "تطبيق التغييرات",
+      saved: "تم حفظ الألوان بنجاح",
+      error: "تعذّر حفظ الألوان",
     },
   },
 };

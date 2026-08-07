@@ -47,7 +47,7 @@ export default function CheckoutClient({
         <p className="mt-2 text-[14px] font-[750] text-[var(--muted)]">{dict.checkout.pleaseLogin}</p>
         <Link
           href={`${prefix}/auth?next=${encodeURIComponent(`${prefix}/checkout`)}`}
-          className="inline-flex mt-6 rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+          className="inline-flex mt-6 rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {dict.checkout.loginNow}
@@ -70,7 +70,7 @@ export default function CheckoutClient({
         <div className="mt-6 flex gap-3 justify-center">
           <Link
             href={`${prefix}/account`}
-            className="rounded-[16px] text-white font-[950] px-6 py-3.5 text-[14px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] transition-all duration-300"
+            className="rounded-[16px] text-white font-[950] px-6 py-3.5 text-[14px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] transition-all duration-300"
             style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
           >
             {dict.checkout.toAccount}
@@ -195,7 +195,7 @@ export default function CheckoutClient({
         <button
           type="submit"
           disabled={busy || loading || items.length === 0}
-          className="mt-6 w-full flex items-center justify-center gap-2 rounded-[16px] text-white font-[950] py-4 text-[15px] shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 transition-all duration-300"
+          className="mt-6 w-full flex items-center justify-center gap-2 rounded-[16px] text-white font-[950] py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 transition-all duration-300"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {busy ? dict.common.loading : dict.checkout.placeOrder}

@@ -89,7 +89,7 @@ export default function ProductMusicPlayer({
           type="button"
           onClick={togglePlay}
           aria-label={state.playing ? "pause" : "play"}
-          className="grid place-items-center w-[38px] h-[38px] shrink-0 rounded-full text-white shadow-[0_8px_20px_rgba(52,84,209,0.3)] transition-transform hover:scale-105"
+          className="grid place-items-center w-[38px] h-[38px] shrink-0 rounded-full text-white shadow-[0_8px_20px_rgba(var(--primary-rgb),0.3)] transition-transform hover:scale-105"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           {state.playing ? (

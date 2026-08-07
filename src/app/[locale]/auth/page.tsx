@@ -29,7 +29,7 @@ export default async function AuthPage({
     <div className="relative overflow-hidden py-[56px] max-sm:py-[40px]"
       style={{
         background:
-          "radial-gradient(circle_at_15%_12%,rgba(21,200,184,0.12),transparent_30%), radial-gradient(circle_at_88%_10%,rgba(52,84,209,0.10),transparent_28%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+          "radial-gradient(circle_at_15%_12%,rgba(var(--teal-rgb),0.12),transparent_30%), radial-gradient(circle_at_88%_10%,rgba(var(--primary-rgb),0.10),transparent_28%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
       <div className="container-page">

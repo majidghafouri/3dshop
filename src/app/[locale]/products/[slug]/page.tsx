@@ -67,7 +67,7 @@ export default async function ProductDetailPage({
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
-          "radial-gradient(circle_at_90%_6%,rgba(52,84,209,0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+          "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
       <div className="container-page">

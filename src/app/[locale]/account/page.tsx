@@ -42,7 +42,7 @@ export default async function AccountPage({
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
-          "radial-gradient(circle_at_12%_8%,rgba(21,200,184,0.10),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+          "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
       <div className="container-page">

@@ -146,7 +146,7 @@ export default function Header({
               <path d="M9 10V6a3 3 0 0 1 6 0v4" />
             </svg>
             {count > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--sky)] text-white text-[11px] font-[950] flex items-center justify-center shadow-[0_6px_16px_rgba(52,84,209,0.4)]">
+              <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--sky)] text-white text-[11px] font-[950] flex items-center justify-center shadow-[0_6px_16px_rgba(var(--primary-rgb),0.4)]">
                 {count}
               </span>
             )}
@@ -196,6 +196,7 @@ export default function Header({
           <div className="flex items-center justify-end gap-2.5">
             <MusicToggle />
             <ThemeToggle />
+            <LangSwitcher locale={locale} dict={dict} />
             <Link
               href={accountHref}
               aria-label={dict.nav.account}

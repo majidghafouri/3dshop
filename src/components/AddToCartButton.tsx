@@ -65,7 +65,7 @@ export default function AddToCartButton({
         variant === "outline"
           ? "border border-[var(--line-2)] bg-[var(--surface)] text-[var(--primary)] hover:border-[var(--line-stronger)] hover:shadow-[0_14px_42px_rgba(27,54,115,0.1)] hover:-translate-y-0.5"
           : "text-white hover:-translate-y-0.5"
-      } ${variant === "solid" ? "shadow-[0_14px_34px_rgba(52,84,209,0.25)] hover:shadow-[0_18px_42px_rgba(52,84,209,0.33)]" : ""} ${className}`}
+      } ${variant === "solid" ? "shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:shadow-[0_18px_42px_rgba(var(--primary-rgb),0.33)]" : ""} ${className}`}
       style={
         variant === "solid" || variant === "full"
           ? { backgroundImage: "linear-gradient(135deg, var(--primary), var(--sky))" }

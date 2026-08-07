@@ -33,7 +33,7 @@ export default async function AdminProductsPage({
         <h2 className="text-[18px] font-[1000] text-[var(--text)]">{p.title} ({products.length})</h2>
         <Link
           href={`${prefix}/admin/products/new`}
-          className="rounded-[14px] text-white font-[950] px-5 py-2.5 text-[13px] shadow-[0_10px_26px_rgba(52,84,209,0.25)] transition-all hover:-translate-y-0.5"
+          className="rounded-[14px] text-white font-[950] px-5 py-2.5 text-[13px] shadow-[0_10px_26px_rgba(var(--primary-rgb),0.25)] transition-all hover:-translate-y-0.5"
           style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
         >
           + {p.new}

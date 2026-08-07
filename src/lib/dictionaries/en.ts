@@ -326,6 +326,7 @@ export const en: typeof fa = {
       products: "Products",
       categories: "Categories",
       orders: "Orders",
+      appearance: "Appearance",
     },
     dashboard: {
       title: "Dashboard",
@@ -401,6 +402,20 @@ export const en: typeof fa = {
     orders: {
       title: "Orders",
       noOrders: "No orders yet.",
+    },
+    appearance: {
+      title: "Site Appearance",
+      subtitle: "Change the site's main colors — pick a preset or customize the colors yourself.",
+      presets: "Presets",
+      custom: "Custom colors",
+      light: "Light mode",
+      dark: "Dark mode",
+      primary: "Primary color",
+      sky: "Secondary color (gradient)",
+      teal: "Success / green color",
+      apply: "Apply changes",
+      saved: "Colors saved successfully",
+      error: "Failed to save colors",
     },
   },
 };
