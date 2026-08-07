@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, localePrefix } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { buildNav } from "@/lib/nav";
@@ -28,6 +28,7 @@ export default function Header({
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const { count } = useCart();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isAdmin = pathname.includes("/admin");
 
   const nav = buildNav(dict, locale);
@@ -36,11 +37,20 @@ export default function Header({
   const accountHref = user ? `${prefix}/account` : `${prefix}/auth`;
   const matches = (href?: string) => {
     if (!href) return false;
-    const target = href.split("?")[0];
+    const qIndex = href.indexOf("?");
+    const target = qIndex === -1 ? href : href.slice(0, qIndex);
     if (target === `${prefix}/` || target === prefix || target === "") {
       return pathname === `${prefix}/` || pathname === prefix || pathname === "";
     }
-    return pathname.startsWith(target);
+    if (!pathname.startsWith(target)) return false;
+    if (qIndex !== -1) {
+      const q = new URLSearchParams(href.slice(qIndex + 1));
+      return Array.from(q.entries()).every(([k, v]) => searchParams.get(k) === v);
+    }
+    // A plain link like /products must not stay highlighted on a filtered
+    // variant that has its own nav item (e.g. /products?discount=1).
+    if (searchParams.get("discount") === "1") return false;
+    return true;
   };
 
   return (
