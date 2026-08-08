@@ -5,25 +5,25 @@ const prisma = new PrismaClient();
 const CATEGORIES = [
   {
     slug: "anime-figure",
-    image: "https://zitazi.com/wp-content/uploads/2026/07/20211066900-01.jpg",
+    image: "/uploads/products/20211066900-01.jpg",
     name: { fa: "فیگور انیمه", en: "Anime Figures", ar: "تماثيل أنمي" },
     desc: { fa: "فیگورهای انیمه اورجینال", en: "Original anime figures", ar: "تماثيل أنمي أصلية" },
   },
   {
     slug: "gaming-figure",
-    image: "https://zitazi.com/wp-content/uploads/2026/02/201001019418.jpg",
+    image: "/uploads/categories/gaming.svg",
     name: { fa: "فیگور گیمینگ", en: "Gaming Figures", ar: "تماثيل الألعاب" },
     desc: { fa: "فیگورهای بازی‌های ویدیویی", en: "Video game figures", ar: "تماثيل ألعاب الفيديو" },
   },
   {
     slug: "movies-series",
-    image: "https://zitazi.com/wp-content/uploads/2024/03/starwars-2-edited.jpg",
+    image: "/uploads/products/starwars-2-edited.jpg",
     name: { fa: "فیگور سینمایی و سریالی", en: "Movies & Series", ar: "تماثيل السينما والمسلسلات" },
     desc: { fa: "فیگورهای شخصیت‌های سینما و سریال", en: "Movie and series characters", ar: "شخصيات السينما والمسلسلات" },
   },
   {
     slug: "disney-pixar",
-    image: "https://zitazi.com/wp-content/uploads/2022/04/WALL.E.gif-07.gif",
+    image: "/uploads/products/WALL.E.gif-07.gif",
     name: { fa: "فیگور دیزنی و پیکسار", en: "Disney & Pixar", ar: "تماثيل ديزني وبيكسار" },
     desc: { fa: "فیگورهای دیزنی و پیکسار", en: "Disney and Pixar figures", ar: "تماثيل ديزني وبيكسار" },
   },
@@ -74,8 +74,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 180,
     images: [
-      "https://zitazi.com/wp-content/uploads/2023/08/2020480785-01.jpg",
-      "https://zitazi.com/wp-content/uploads/2023/08/2020480785-02.jpg",
+      "/uploads/products/2020480785-01.jpg",
+      "/uploads/products/2020480785-02.jpg",
     ],
     name: { fa: "اکشن فیگور بیبی یودا (گرگو)", en: "Baby Yoda (Grogu) Action Figure", ar: "تمثال بيبي يودا (جروجو)" },
     short: {
@@ -101,8 +101,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 210,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/11/2021923437.jpg",
-      "https://zitazi.com/wp-content/uploads/2025/11/2021923437-01.jpg",
+      "/uploads/products/2021923437.jpg",
+      "/uploads/products/2021923437-01.jpg",
     ],
     name: { fa: "اکشن فیگور اسپایدرمن مایلز مورالس", en: "Spider-Man Miles Morales Action Figure", ar: "تمثال سبايدرمان مايلز موراليس" },
     short: {
@@ -129,7 +129,7 @@ const PRODUCTS = [
     material: "Plastic / Electronics",
     weight: 620,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/04/%D8%A8%DB%8C%D8%A8%DB%8C-%DB%8C%D9%88%D8%AF%D8%A7-%D8%B1%D8%A8%D8%A7%D8%AA%DB%8C%DA%A9-%D9%87%D8%A7%D8%B3%D8%A8%D8%B1%D9%88-%D8%B3%D8%B1%DB%8C-Star-Wars-%D8%AF%D8%A7%D8%B1%D8%A7%DB%8C-25-%D8%A7%D9%81%DA%A9%D8%AA-%D8%B5%D9%88%D8%AA%DB%8C-%D9%88-%D8%AD%D8%B1%DA%A9%D8%AA%DB%8C-102.jpg",
+      "/uploads/products/____-____-______-______-___-Star-Wars-_____-25-____-____-_-_____-102.jpg",
     ],
     name: { fa: "بیبی یودای رباتیک هاسبرو (۲۵ افکت صوتی و حرکتی)", en: "Robotic Baby Yoda Hasbro (25 Sounds & Movements)", ar: "بيبي يودا الروبوتي من هاسبرو (25 مؤثرًا)" },
     short: {
@@ -155,7 +155,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 140,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/04/WALL.E.gif-07.gif",
+      "/uploads/products/WALL.E.gif-07.gif",
     ],
     name: { fa: "اکشن فیگور دیزنی وال-ای", en: "Disney WALL-E Action Figure", ar: "تمثال ديزني وال-إي" },
     short: {
@@ -181,8 +181,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 190,
     images: [
-      "https://zitazi.com/wp-content/uploads/2024/08/2020701813-02.jpg",
-      "https://zitazi.com/wp-content/uploads/2024/08/2020701813-01.jpg",
+      "/uploads/products/2020701813-02.jpg",
+      "/uploads/products/2020701813-01.jpg",
     ],
     name: { fa: "اکشن فیگور پیتر پارکر (اسپایدر ورس)", en: "Peter Parker Action Figure (Into the Spider-Verse)", ar: "تمثال بيتر باركر (إلى سبايدر-فرس)" },
     short: {
@@ -207,7 +207,7 @@ const PRODUCTS = [
     material: "Plastic / Electronics",
     weight: 700,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/07/%D8%A8%DB%8C%D8%A8%DB%8C-%DB%8C%D9%88%D8%AF%D8%A7-%D8%B1%D8%A8%D8%A7%D8%AA%DB%8C%DA%A9-%D9%87%D8%A7%D8%B3%D8%A8%D8%B1%D9%88-%D8%B3%D8%B1%DB%8C-Star-Wars-105.jpg",
+      "/uploads/products/____-____-______-______-___-Star-Wars-105.jpg",
     ],
     name: { fa: "بیبی یودای رباتیک هاسبرو (۴۰ افکت صوتی و حرکتی)", en: "Robotic Baby Yoda Hasbro (40 Sounds & Movements)", ar: "بيبي يودا الروبوتي هاسبرو (40 مؤثرًا)" },
     short: {
@@ -233,9 +233,9 @@ const PRODUCTS = [
     material: "PVC",
     weight: 240,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/02/202078492-01%D9%BE.jpg",
-      "https://zitazi.com/wp-content/uploads/2022/02/202078492-03.jpg",
-      "https://zitazi.com/wp-content/uploads/2022/02/202078492-04.jpg",
+      "/uploads/products/202078492-01_.jpg",
+      "/uploads/products/202078492-03.jpg",
+      "/uploads/products/202078492-04.jpg",
     ],
     name: { fa: "اکشن فیگور اساسین کرید ۳ کانر", en: "Assassin's Creed 3 Conner Action Figure", ar: "تمثال أساسنز كريد 3 كونر" },
     short: {
@@ -261,7 +261,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 320,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/04/godzila-1.jpg",
+      "/uploads/products/godzila-1.jpg",
     ],
     name: { fa: "اکشن فیگور گودزیلا علیه کونگ ۲۰۲۱", en: "Godzilla vs Kong 2021 Action Figure", ar: "تمثال جودزيلا ضد كونغ 2021" },
     short: {
@@ -286,7 +286,7 @@ const PRODUCTS = [
     material: "Resin",
     weight: 280,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/06/%D9%81%DB%8C%DA%AF%D9%88%D8%B1-%D8%AA%D9%86-%D8%AA%D9%86-%D9%88-%D9%85%DB%8C%D9%84%D9%88-%D8%AC%D8%B9%D8%A8%D9%87-%D9%86%D8%A7%D8%B1%D9%86%D8%AC%DB%8C-4.jpg",
+      "/uploads/products/_____-__-__-_-____-____-______-4.jpg",
     ],
     name: { fa: "فیگور تنتن و میلو با سطل", en: "Tintin & Milou Figure with Bucket", ar: "تمثال تان تان وميلو مع دلو" },
     short: {
@@ -312,8 +312,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 380,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/08/201000179875-01.jpg",
-      "https://zitazi.com/wp-content/uploads/2022/08/201000179875-08.jpg",
+      "/uploads/products/201000179875-01.jpg",
+      "/uploads/products/201000179875-08.jpg",
     ],
     name: { fa: "فیگور اساسین کرید بایک (ارتفاع ۳۲ سانتی‌متر)", en: "Assassin's Creed Bayek Figure (32cm)", ar: "تمثال أساسنز كريد بايك (32 سم)" },
     short: {
@@ -338,7 +338,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 260,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/12/%D9%81%DB%8C%DA%AF%D9%88%D8%B1-%D8%A7%D8%B3%D8%A7%D8%B3%DB%8C%D9%86-%D9%86%D8%A7%D9%82%D9%88%D8%B3-%D9%85%D8%AF%D9%84-Altair-Assassins-Creed.jpg",
+      "/uploads/products/_____-______-_____-___-Altair-Assassins-Creed.jpg",
     ],
     name: { fa: "فیگور اساسین کرید ناقوس آلتایر", en: "Assassin's Creed Altair Figure", ar: "تمثال أساسنز کريد ألتير" },
     short: {
@@ -365,7 +365,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 200,
     images: [
-      "https://zitazi.com/wp-content/uploads/2024/03/starwars-2-edited.jpg",
+      "/uploads/products/starwars-2-edited.jpg",
     ],
     name: { fa: "فیگور هاسبرو ماندالوریان و کودک (بسته دوتایی)", en: "Hasbro Mandalorian & The Child 2-Pack", ar: "تمثال الماندلوري والطفل (مجموعة من قطعتين)" },
     short: {
@@ -391,7 +391,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 220,
     images: [
-      "https://zitazi.com/wp-content/uploads/2026/02/%D8%A7%DA%A9%D8%B4%D9%86-%D9%81%DB%8C%DA%AF%D9%88%D8%B1-%D9%87%D8%A7%D9%86%DB%8C%D8%A8%D8%A7%D9%84-%D9%84%DA%A9%D8%AA%D8%B1-NECA-Dr.-Hannibal-Lecter-Prison-Escape-03.jpg",
+      "/uploads/products/____-_____-_______-____-NECA-Dr.-Hannibal-Lecter-Prison-Escape-03.jpg",
     ],
     name: { fa: "اکشن فیگور هانیبال لکتر NECA", en: "NECA Hannibal Lecter Action Figure", ar: "تمثال هانيبال ليكتر من NECA" },
     short: {
@@ -416,8 +416,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 300,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/07/c3268513629735759e88d51060c3b2766e423fd8-1732904918.jpg",
-      "https://zitazi.com/wp-content/uploads/2025/07/68f8fdd8acab5150a5b890580f400b51.jpg",
+      "/uploads/products/c3268513629735759e88d51060c3b2766e423fd8-1732904918.jpg",
+      "/uploads/products/68f8fdd8acab5150a5b890580f400b51.jpg",
     ],
     name: { fa: "فیگور پایه‌دار سالیوان (کارخانه هیولاها)", en: "Sulley Figure with Base (Monsters Inc)", ar: "تمثال سولي مع قاعدة (شركة المرعبين)" },
     short: {
@@ -443,8 +443,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 230,
     images: [
-      "https://zitazi.com/wp-content/uploads/2024/12/201000757558-06.jpg",
-      "https://zitazi.com/wp-content/uploads/2024/12/2020757558-02.jpg",
+      "/uploads/products/201000757558-06.jpg",
+      "/uploads/products/2020757558-02.jpg",
     ],
     name: { fa: "اکشن فیگور وار ماشین Mk1 (ZD Toys)", en: "War Machine Mk1 Action Figure (ZD Toys)", ar: "تمثال وار ماشين Mk1 (ZD Toys)" },
     short: {
@@ -470,8 +470,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 230,
     images: [
-      "https://zitazi.com/wp-content/uploads/2024/12/201000757520-01.jpg",
-      "https://zitazi.com/wp-content/uploads/2024/12/2020757520-02.jpg",
+      "/uploads/products/201000757520-01.jpg",
+      "/uploads/products/2020757520-02.jpg",
     ],
     name: { fa: "اکشن فیگور آیرون من Mk5 (ZD Toys)", en: "Iron Man Mk5 Action Figure (ZD Toys)", ar: "تمثال آيرون مان Mk5 (ZD Toys)" },
     short: {
@@ -497,8 +497,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 250,
     images: [
-      "https://zitazi.com/wp-content/uploads/2022/09/2020195623-02.jpg",
-      "https://zitazi.com/wp-content/uploads/2022/09/2020195623-01.jpg",
+      "/uploads/products/2020195623-02.jpg",
+      "/uploads/products/2020195623-01.jpg",
     ],
     name: { fa: "اکشن فیگور بیگانه (زنومورف) نکا", en: "Alien Xenomorph Action Figure (NECA)", ar: "تمثال الكائن الغريب (زينومورف) من NECA" },
     short: {
@@ -524,7 +524,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 200,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/01/%D8%A7%DA%A9%D8%B4%D9%86-%D9%81%DB%8C%DA%AF%D9%88%D8%B1-%D8%AC%D8%A7%D9%86-%D9%88%DB%8C%DA%A9-Mafex-%D9%85%D8%AF%D9%84-Chapter-2-04.jpg",
+      "/uploads/products/____-_____-___-___-Mafex-___-Chapter-2-04.jpg",
     ],
     name: { fa: "اکشن فیگور جان ویک مافکس (فصل ۲)", en: "John Wick Mafex Action Figure (Chapter 2)", ar: "تمثال جون ويك من مافكس (الفصل 2)" },
     short: {
@@ -552,7 +552,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 420,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/01/%D8%A7%DA%A9%D8%B4%D9%86-%D9%81%DB%8C%DA%AF%D9%88%D8%B1-%D9%BE%D9%84%DB%8C-%D8%A2%D8%B1%D8%AA%D8%B3-%D9%85%D8%AF%D9%84-Venom-Marvel-101.jpg",
+      "/uploads/products/____-_____-___-____-___-Venom-Marvel-101.jpg",
     ],
     name: { fa: "اکشن فیگور ونوم (پلی آرتس)", en: "Venom Action Figure (Play Arts)", ar: "تمثال فينوم (بلاي آرتس)" },
     short: {
@@ -577,8 +577,8 @@ const PRODUCTS = [
     material: "PVC",
     weight: 280,
     images: [
-      "https://zitazi.com/wp-content/uploads/2024/10/2020727194.jpg",
-      "https://zitazi.com/wp-content/uploads/2024/10/aya-4-edited.jpg",
+      "/uploads/products/2020727194.jpg",
+      "/uploads/products/aya-4-edited.jpg",
     ],
     name: { fa: "اکشن فیگور اساسین کرید اوریجینز ایا", en: "Assassin's Creed Origins Aya Action Figure", ar: "تمثال أساسنز كريد أوريجنز آيا" },
     short: {
@@ -606,7 +606,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 500,
     images: [
-      "https://zitazi.com/wp-content/uploads/2026/07/20211066900-01.jpg",
+      "/uploads/products/20211066900-01.jpg",
     ],
     name: { fa: "فیگور کاکاشی هاتاکه (ارتفاع ۴۰ سانتی‌متر)", en: "Kakashi Hatake Figure (40cm)", ar: "تمثال كاكاشي هاتاكي (40 سم)" },
     short: {
@@ -632,7 +632,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 240,
     images: [
-      "https://zitazi.com/wp-content/uploads/2026/02/201001019418.jpg",
+      "/uploads/products/201001019418.jpg111.jpg",
     ],
     name: { fa: "فیگور کریتوس (God of War Ascension)", en: "Kratos Figure (God of War Ascension)", ar: "تمثال كراتوس (غود أوف وور)" },
     short: {
@@ -659,7 +659,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 250,
     images: [
-      "https://zitazi.com/wp-content/uploads/2025/12/2021939034.jpg",
+      "/uploads/products/2021939034.jpg",
     ],
     name: { fa: "فیگور گرالت (The Witcher Wild Hunt 3)", en: "Geralt Figure (The Witcher Wild Hunt 3)", ar: "تمثال جيرالت (ذا ويتشر)" },
     short: {
@@ -684,7 +684,7 @@ const PRODUCTS = [
     material: "PVC",
     weight: 230,
     images: [
-      "https://zitazi.com/wp-content/uploads/2026/07/20101067849-02.jpg",
+      "/uploads/products/20101067849-02.jpg",
     ],
     name: { fa: "اکشن فیگور دارث ویدر (جنگ ستارگان)", en: "Darth Vader Action Figure (Star Wars)", ar: "تمثال دارث فيدر (حرب النجوم)" },
     short: {
