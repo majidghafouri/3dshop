@@ -5,6 +5,7 @@ import prisma from "@/lib/db";
 import { mapProduct, productInclude } from "@/lib/shop";
 import Reveal from "@/components/Reveal";
 import ProductGrid from "@/components/ProductGrid";
+import SpotlightCarousel from "@/components/SpotlightCarousel";
 import { isLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
@@ -35,7 +36,6 @@ export default async function HomePage({
     }),
   ]);
 
-  const spotlight = featured[0];
   const cats = categories.map((c) => ({
     id: c.id,
     slug: c.slug,
@@ -182,69 +182,15 @@ export default async function HomePage({
             </p>
           </div>
 
-          {/* Right: spotlight card */}
+          {/* Right: rotating spotlight carousel */}
           <div className="anim-visual-float hidden sm:block relative">
-            <div className="anim-float-in relative bg-[var(--glass-92)] border border-[var(--line-7)] rounded-[34px] p-5 max-w-[520px] mx-auto"
-              style={{ boxShadow: "0 22px 70px rgba(27,54,115,0.14)", animationDelay: "0.18s" }}
-            >
-              {/* header */}
-              <div
-                className="text-white rounded-[24px] p-[15px_17px] flex items-center justify-between"
-                style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--teal))" }}
-              >
-                <div>
-                  <p className="font-[950] text-[14.5px]">Figurize</p>
-                  <p className="text-[rgba(255,255,255,0.85)] font-[750] text-[12px] mt-0.5">
-                    {dict.products.inStock} · {dict.products.detail.guarantee}
-                  </p>
-                </div>
-                <span className="w-10 h-10 bg-white/17 border border-white/22 rounded-[15px] flex items-center justify-center text-[19px]">
-                  🎁
-                </span>
-              </div>
-
-              {/* product image */}
-              {spotlight && (
-                <div className="mt-4 relative rounded-[24px] overflow-hidden product-img-bg aspect-square border border-[var(--line-5)] shadow-[0_14px_40px_rgba(24,54,100,0.12)]">
-                  {spotlight.images[0] ? (
-                    <img
-                      src={spotlight.images[0]}
-                      alt={mapProduct(spotlight).name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : null}
-                  <span className="absolute top-3 rtl:left-3 ltr:right-3 bg-[var(--success-soft)] text-[var(--success)] rounded-full text-[11px] font-[950] px-2.5 py-1">
-                    Original
-                  </span>
-                </div>
-              )}
-
-              {/* product info + stats */}
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="anim-pop-soft bg-[var(--surface)] border border-[var(--line-5)] rounded-[18px] p-[12px] text-center" style={{ animationDelay: "1.4s" }}>
-                  <p className="text-[10.5px] font-[850] text-[var(--muted-5)]">{dict.common.search}</p>
-                  <p className="text-[13px] font-[1000] text-[var(--text)] mt-1">500+</p>
-                </div>
-                <div className="anim-pop-soft bg-[var(--surface)] border border-[var(--line-5)] rounded-[18px] p-[12px] text-center" style={{ animationDelay: "1.5s" }}>
-                  <p className="text-[10.5px] font-[850] text-[var(--muted-5)]">{dict.products.detail.fastDelivery}</p>
-                  <p className="text-[13px] font-[1000] text-[var(--text)] mt-1">{dict.trustBar.shipping}</p>
-                </div>
-              </div>
-
-              {/* CTA */}
-              {spotlight && (
-                <Link
-                  href={`${prefix}/products/${spotlight.slug}`}
-                  className="mt-4 flex items-center justify-between w-full text-white rounded-[18px] p-[13px_16px] transition-all duration-300 hover:-translate-y-0.5"
-                  style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))", boxShadow: "0 14px 34px rgba(var(--primary-rgb),0.28)" }}
-                >
-                  <span className="font-[950] text-[14px]">
-                    {mapProduct(spotlight).name}
-                  </span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="rtl:rotate-180"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
-                </Link>
-              )}
-            </div>
+            {featured.length > 0 && (
+              <SpotlightCarousel
+                products={featured.slice(0, 6).map((p) => mapProduct(p))}
+                dict={dict}
+                prefix={prefix}
+              />
+            )}
           </div>
         </div>
       </section>
