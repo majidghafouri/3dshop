@@ -7,6 +7,7 @@ import { queryProducts, getProductBrands } from "@/lib/product-query";
 import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
 import Reveal from "@/components/Reveal";
+import { trackEvent } from "@/lib/analytics";
 
 export async function generateMetadata({
   params,
@@ -39,6 +40,13 @@ export default async function CategoryPage({
   });
   if (!cat) notFound();
   const name = cat.translations[0]?.name ?? cat.slug;
+
+  await trackEvent({
+    type: "CATEGORY_VIEW",
+    categorySlug: cat.slug,
+    path: `${prefix}/category/${cat.slug}`,
+    locale,
+  });
 
   const sp = searchParams;
   const get = (k: string) => {

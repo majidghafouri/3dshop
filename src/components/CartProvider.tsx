@@ -9,6 +9,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import { trackClient } from "@/lib/client-analytics";
 
 export type CartProduct = {
   id: string;
@@ -76,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         (i: CartItem) => i.product.id === productId
       );
       if (added) setLastAdded(added);
+      trackClient("ADD_TO_CART", { productId });
       return true;
     } catch {
       return false;
@@ -99,16 +101,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const removeItem = useCallback(async (itemId: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== itemId));
-    try {
-      const res = await fetch(`/api/cart/items/${itemId}`, { method: "DELETE" });
-      const json = await res.json();
-      if (json.ok) setItems(json.data.items ?? []);
-    } catch {
-      // ignore
-    }
-  }, []);
+  const removeItem = useCallback(
+    async (itemId: string) => {
+      const removed = items.find((i) => i.id === itemId);
+      setItems((prev) => prev.filter((i) => i.id !== itemId));
+      try {
+        const res = await fetch(`/api/cart/items/${itemId}`, { method: "DELETE" });
+        const json = await res.json();
+        if (json.ok) setItems(json.data.items ?? []);
+        if (removed) trackClient("REMOVE_FROM_CART", { productId: removed.product.id });
+      } catch {
+        // ignore
+      }
+    },
+    [items]
+  );
 
   const { count, subtotal } = useMemo(() => {
     return {

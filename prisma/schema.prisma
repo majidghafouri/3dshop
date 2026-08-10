@@ -192,3 +192,52 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
 }
+
+// ---------- Analytics ----------
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  PRODUCT_VIEW
+  CATEGORY_VIEW
+  SEARCH
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  CHECKOUT_START
+  ORDER_PLACED
+}
+
+model AnalyticsEvent {
+  id           String              @id @default(cuid())
+  type         AnalyticsEventType
+  path         String              @default("/")
+  locale       String?
+  productId    String?
+  categorySlug String?
+  query        String?
+  userId       String?
+  sessionId    String?
+  referrer     String?
+  userAgent    String?
+  ip           String?
+  createdAt    DateTime            @default(now())
+
+  @@index([type, createdAt])
+  @@index([createdAt])
+  @@index([productId])
+  @@index([categorySlug])
+  @@index([sessionId])
+}
+
+// ---------- Settings / credentials ----------
+// Key-value store for API keys, tokens and config (payment gateway, analytics, SMTP, ...).
+
+model Setting {
+  key       String   @id
+  value     String
+  isSecret  Boolean  @default(true)
+  group     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+}

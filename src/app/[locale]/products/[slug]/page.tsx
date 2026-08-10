@@ -9,6 +9,7 @@ import PurchasePanel from "@/components/PurchasePanel";
 import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
 import ProductMusicPlayer from "@/components/ProductMusicPlayer";
+import { trackEvent } from "@/lib/analytics";
 
 export async function generateMetadata({
   params,
@@ -43,6 +44,13 @@ export default async function ProductDetailPage({
 
   const p = mapProduct(product);
   const percent = formatDiscountPercent(p.price, p.compareAtPrice);
+
+  await trackEvent({
+    type: "PRODUCT_VIEW",
+    productId: p.id,
+    path: `${prefix}/products/${p.slug}`,
+    locale,
+  });
 
   const related = await prisma.product.findMany({
     where: {

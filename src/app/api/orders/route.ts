@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { getSessionUserFromRequest } from "@/lib/auth";
+import { trackEvent, getRequestMeta } from "@/lib/analytics";
 
 export async function GET(req: NextRequest) {
   const user = await getSessionUserFromRequest(req);
@@ -98,6 +99,16 @@ export async function POST(req: NextRequest) {
     });
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
     return created;
+  });
+
+  const meta = getRequestMeta(req);
+  await trackEvent({
+    type: "ORDER_PLACED",
+    path: "/checkout",
+    userId: user.id,
+    ip: meta.ip,
+    userAgent: meta.userAgent,
+    referrer: meta.referrer,
   });
 
   return ok({ order }, 201);

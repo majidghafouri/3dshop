@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Dictionary } from "@/lib/i18n-dictionaries";
+import { trackClient } from "@/lib/client-analytics";
 
 export default function ProductFilters({
   dict,
@@ -60,7 +61,9 @@ export default function ProductFilters({
   };
 
   const applySearch = () => {
-    push(buildParams({ search: search.trim() || null }));
+    const q = search.trim();
+    if (q) trackClient("SEARCH", { query: q });
+    push(buildParams({ search: q || null }));
   };
 
   const clearAll = () => {

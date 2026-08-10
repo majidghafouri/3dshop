@@ -27,10 +27,12 @@ export default async function AdminLayout({
 
   const LINKS = [
     { href: "", label: dict.admin.nav.dashboard, icon: "📊" },
+    { href: "/analytics", label: dict.admin.nav.analytics, icon: "📈" },
     { href: "/products", label: dict.admin.nav.products, icon: "🗃️" },
     { href: "/categories", label: dict.admin.nav.categories, icon: "🗂️" },
     { href: "/orders", label: dict.admin.nav.orders, icon: "📦" },
     { href: "/appearance", label: dict.admin.nav.appearance, icon: "🎨" },
+    { href: "/settings", label: dict.admin.nav.settings, icon: "🔑" },
   ];
 
   return (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { useCart } from "@/components/CartProvider";
+import { trackClient } from "@/lib/client-analytics";
 
 export default function CheckoutClient({
   dict,
@@ -97,6 +98,7 @@ export default function CheckoutClient({
       return;
     }
     setBusy(true);
+    trackClient("CHECKOUT_START");
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
