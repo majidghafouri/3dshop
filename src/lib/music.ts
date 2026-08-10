@@ -1,5 +1,5 @@
-export const MUSIC_KEY = "figurize-music";
-export const MUSIC_EVENT = "figurize-music-change";
+export const MUSIC_KEY = "figureforge-music";
+export const MUSIC_EVENT = "figureforge-music-change";
 
 export function getMusicEnabled(): boolean {
   if (typeof window === "undefined") return true;

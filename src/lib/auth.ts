@@ -4,10 +4,10 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "figurize-dev-secret-change-in-production"
+  process.env.JWT_SECRET || "figureforge-dev-secret-change-in-production"
 );
 
-export const SESSION_COOKIE = "figurize_session";
+export const SESSION_COOKIE = "figureforge_session";
 
 export type SessionPayload = {
   sub: string;

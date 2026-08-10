@@ -77,7 +77,7 @@ export default function SpotlightCarousel({
                 style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--teal))" }}
               >
                 <div>
-                  <p className="font-[950] text-[14.5px]">Figurize</p>
+                  <p className="font-[950] text-[14.5px]">Figureforge</p>
                   <p className="text-[rgba(255,255,255,0.85)] font-[750] text-[12px] mt-0.5">
                     {dict.products.inStock} · {dict.products.detail.guarantee}
                   </p>

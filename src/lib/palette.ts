@@ -34,8 +34,8 @@ export const DEFAULT_PALETTE: Palette = {
 
 export const PRESETS: PalettePreset[] = [
   {
-    id: "figurize",
-    name: "Figurize",
+    id: "figureforge",
+    name: "Figureforge",
     palette: DEFAULT_PALETTE,
   },
   {

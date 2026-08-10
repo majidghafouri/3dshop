@@ -2,9 +2,9 @@ import { fa } from "./fa";
 
 export const en: typeof fa = {
   meta: {
-    title: "Figurize | Original Action Figures & Collectibles Shop",
+    title: "Figureforge | Original Action Figures & Collectibles Shop",
     description:
-      "Figurize is a specialized shop for original action figures and collectibles. Buy anime, gaming, movie and Disney figures online with fast shipping and authenticity guarantee.",
+      "Figureforge is a specialized shop for original action figures and collectibles. Buy anime, gaming, movie and Disney figures online with fast shipping and authenticity guarantee.",
   },
   nav: {
     home: "Home",
@@ -36,7 +36,7 @@ export const en: typeof fa = {
     titleStart: "Build your world of ",
     titleHighlight: "figures",
     titleEnd: "",
-    lead: "From the collector's shelf to a flawless purchase — Figurize brings the best anime, gaming, movie and Disney figures to your door with authenticity guarantee, fast shipping and fair prices.",
+    lead: "From the collector's shelf to a flawless purchase — Figureforge brings the best anime, gaming, movie and Disney figures to your door with authenticity guarantee, fast shipping and fair prices.",
     ctaPrimary: "Browse Products",
     ctaSecondary: "Popular Brands",
     chips: ["Authenticity guarantee", "Fast shipping", "Professional packaging", "Full support"],
@@ -45,7 +45,7 @@ export const en: typeof fa = {
     note: "7-day return policy after delivery",
   },
   features: {
-    kicker: "Why Figurize?",
+    kicker: "Why Figureforge?",
     title: "Trusted shopping, delightful experience",
     subtitle: "We have built a professional online shopping experience for collectors and figure fans.",
     cards: [
@@ -144,7 +144,7 @@ export const en: typeof fa = {
   cta: {
     eyebrow: "Get started now",
     title: "Complete your figure collection",
-    subtitle: "Join Figurize and enjoy exclusive discounts and fast shipping.",
+    subtitle: "Join Figureforge and enjoy exclusive discounts and fast shipping.",
     button: "Sign up with mobile number",
     chips: ["No upfront payment", "Sign up with mobile number", "24/7 support"],
   },
@@ -156,7 +156,7 @@ export const en: typeof fa = {
   },
   footer: {
     tagline:
-      "Figurize is a specialized shop for action figures and collectibles for collectors and fans. Original figures with authenticity guarantee, fast shipping and full support.",
+      "Figureforge is a specialized shop for action figures and collectibles for collectors and fans. Original figures with authenticity guarantee, fast shipping and full support.",
     columns: {
       shop: "Shop",
       help: "Customer Service",
@@ -178,10 +178,10 @@ export const en: typeof fa = {
       contact: [
         { label: "Contact us", href: "/contact" },
         { label: "About us", href: "/about" },
-        { label: "Figurize blog", href: "/blog" },
+        { label: "Figureforge blog", href: "/blog" },
       ],
     },
-    rights: "© Figurize. All rights reserved.",
+    rights: "© Figureforge. All rights reserved.",
     phone: "+98 21 9100 5599",
   },
   cart: {
@@ -236,6 +236,7 @@ export const en: typeof fa = {
     changePhone: "Change number",
     errorInvalidPhone: "Invalid mobile number",
     errorSendFailed: "Failed to send the code",
+    errorSmsFailed: "Sending the SMS code failed; please try again shortly",
     errorInvalidCode: "The code is incorrect",
     errorExpiredCode: "The code has expired, please try again",
     demoNote: "In development mode the code is logged to the server console.",
@@ -283,15 +284,15 @@ export const en: typeof fa = {
   },
   blog: {
     kicker: "Blog",
-    title: "Figurize Blog",
+    title: "Figureforge Blog",
     subtitle: "News, reviews and guides from the world of figures and collectibles",
     readMore: "Read more",
     related: "Related posts",
   },
   about: {
     kicker: "About us",
-    title: "Figurize; specialized figure shop",
-    p1: "Figurize was founded to give Iranian collectors and fans access to original figures from around the world. We believe every figure tells a story.",
+    title: "Figureforge; specialized figure shop",
+    p1: "Figureforge was founded to give Iranian collectors and fans access to original figures from around the world. We believe every figure tells a story.",
     p2: "All of our products are sourced from reputable brands and their authenticity is guaranteed. We are by your side from selection to delivery.",
     values: [
       { icon: "🎯", title: "Focus on quality", desc: "Only original, high-quality products" },
@@ -302,7 +303,7 @@ export const en: typeof fa = {
   contact: {
     kicker: "Contact us",
     title: "Let's stay in touch",
-    subtitle: "Have a question? The Figurize support team is here for you.",
+    subtitle: "Have a question? The Figureforge support team is here for you.",
     phone: "Support phone",
     email: "Email",
     address: "Address",

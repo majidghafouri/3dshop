@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # =============================================================================
-#  Figurize 3D Shop — zero-to-running setup script
+#  Figureforge 3D Shop — zero-to-running setup script
 #  Run this on a fresh machine after cloning the repo:
 #      git clone https://github.com/majidghafouri/3dshop.git && cd 3dshop
 #      ./setup.sh
 # =============================================================================
 
 # -- config ---------------------------------------------------------------
-DB_NAME="${DB_NAME:-figurize}"
+DB_NAME="${DB_NAME:-figureforge}"
 DB_URL_BASE="${DATABASE_URL_BASE:-postgresql://localhost:5432}"
 DEV_PORT="${DEV_PORT:-3000}"
 YELLOW='\033[1;33m'; GREEN='\033[1;32m'; RED='\033[1;31m'; NC='\033[0m'
@@ -17,7 +17,7 @@ ok()   { echo -e "${GREEN}✔${NC} $1"; }
 warn() { echo -e "${YELLOW}⚠${NC} $1"; }
 die()  { echo -e "${RED}✖${NC} $1"; exit 1; }
 
-echo "==> Figurize setup (figurize 3D shop)"
+echo "==> Figureforge setup (figureforge 3D shop)"
 
 # -- 1. prerequisites ------------------------------------------------------
 command -v node >/dev/null 2>&1 || die "Node.js is required (>= 18). Install from https://nodejs.org"

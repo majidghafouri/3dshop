@@ -41,7 +41,11 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       });
       const json = await res.json();
       if (!json.ok) {
-        setError(dict.auth.errorSendFailed);
+        setError(
+          json.error === "sms_failed"
+            ? dict.auth.errorSmsFailed
+            : dict.auth.errorSendFailed,
+        );
         return;
       }
       setStep("code");

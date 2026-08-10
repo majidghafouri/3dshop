@@ -2,7 +2,7 @@ let audio: HTMLAudioElement | null = null;
 let currentUrl: string | null = null;
 const listeners = new Set<() => void>();
 
-const VOLUME_KEY = "figurize-volume-v2";
+const VOLUME_KEY = "figureforge-volume-v2";
 export const DEFAULT_VOLUME = 0.1;
 
 function loadVolume(): number {

@@ -13,11 +13,11 @@ import { getSiteTheme, buildThemeStyle, DEFAULT_PALETTE } from "@/lib/siteTheme"
 
 export const metadata: Metadata = {
   title: {
-    default: "فیگورایز | خرید فیگور و اکشن فیگور اورجینال",
-    template: "%s | فیگورایز",
+    default: "فیگرفورج | خرید فیگور و اکشن فیگور اورجینال",
+    template: "%s | فیگرفورج",
   },
   description:
-    "فیگورایز؛ فروشگاه تخصصی فیگور و اکشن فیگور. خرید آنلاین فیگور انیمه، گیمینگ، سینمایی و دیزنی با ارسال سریع.",
+    "فیگرفورج؛ فروشگاه تخصصی فیگور و اکشن فیگور. خرید آنلاین فیگور انیمه، گیمینگ، سینمایی و دیزنی با ارسال سریع.",
   icons: { icon: "/favicon.ico" },
 };
 
@@ -38,7 +38,7 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("figurize-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark";}catch(e){document.documentElement.dataset.theme="dark";}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("figureforge-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark";}catch(e){document.documentElement.dataset.theme="dark";}})();`,
           }}
         />
         <style dangerouslySetInnerHTML={{ __html: paletteCss }} />

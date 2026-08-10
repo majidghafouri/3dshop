@@ -2,11 +2,11 @@ import { Locale } from "@/lib/i18n";
 
 export default function Logo({ locale }: { locale: Locale }) {
   const word =
-    locale === "fa" ? "فیگورایز" : locale === "ar" ? "فيجورايز" : "Figurize";
+    locale === "fa" ? "فیگرفورج" : locale === "ar" ? "فيجرفورج" : "Figureforge";
   return (
     <a
       href={locale === "fa" ? "/" : `/${locale}`}
-      aria-label="Figurize"
+      aria-label="Figureforge"
       className="flex items-center gap-2.5 shrink-0 group"
     >
       <span className="relative flex items-center justify-center w-[44px] h-[44px] max-sm:w-[38px] max-sm:h-[38px] rounded-[15px] text-white overflow-hidden transition-transform duration-300 group-hover:scale-105 shadow-[0_10px_24px_rgba(var(--primary-rgb),0.3)]"

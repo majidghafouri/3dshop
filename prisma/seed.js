@@ -701,7 +701,7 @@ const PRODUCTS = [
 ];
 
 async function main() {
-  console.log("Seeding figurize...");
+  console.log("Seeding figureforge...");
 
   for (const c of CATEGORIES) {
     await prisma.category.upsert({

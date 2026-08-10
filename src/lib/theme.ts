@@ -1,6 +1,6 @@
 export type Theme = "dark" | "light";
 
-export const THEME_KEY = "figurize-theme";
+export const THEME_KEY = "figureforge-theme";
 export const DEFAULT_THEME: Theme = "dark";
 
 export function getStoredTheme(): Theme {

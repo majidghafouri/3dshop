@@ -39,7 +39,7 @@ export default function ThemeEditor({ initial, presets, dict }: ThemeEditorProps
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
-    const styleId = "figurize-palette-preview";
+    const styleId = "figureforge-palette-preview";
     let el = document.getElementById(styleId) as HTMLStyleElement | null;
     if (!el) {
       el = document.createElement("style");

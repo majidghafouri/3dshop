@@ -1,6 +1,6 @@
 "use client";
 
-const SESSION_KEY = "figurize_analytics_session";
+const SESSION_KEY = "figureforge_analytics_session";
 
 export type ClientEventType =
   | "PAGE_VIEW"

@@ -11,7 +11,7 @@ export default async function ContactPage({ params }: { params: { locale: string
 
   const infoCards = [
     { icon: "📞", label: dict.contact.phone, value: dict.footer.phone, href: `tel:${dict.footer.phone.replace(/[^\d]/g, "")}` },
-    { icon: "✉️", label: dict.contact.email, value: "hello@figurize.shop", href: "mailto:hello@figurize.shop" },
+    { icon: "✉️", label: dict.contact.email, value: "info@figureforge.ir", href: "mailto:info@figureforge.ir" },
     { icon: "📍", label: dict.contact.address, value: dict.contact.addressText },
     { icon: "🕘", label: dict.contact.hours, value: dict.contact.hoursText },
   ];

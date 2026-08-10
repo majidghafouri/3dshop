@@ -1,9 +1,9 @@
 export const openApiSpec = {
   openapi: "3.0.3",
   info: {
-    title: "Figurize API",
+    title: "Figureforge API",
     description:
-      "REST API for the Figurize figure shop. All responses use the envelope `{ ok: boolean, data?: any, error?: string }`. Authentication is cookie-based via the `figurize_session` cookie (HttpOnly), issued by `POST /api/auth/verify-otp`. Admin endpoints require a user with role `ADMIN`.\n\nTo try authenticated requests from this UI, first sign in on the site, then the session cookie is sent automatically for same-origin calls.",
+      "REST API for the Figureforge figure shop. All responses use the envelope `{ ok: boolean, data?: any, error?: string }`. Authentication is cookie-based via the `figureforge_session` cookie (HttpOnly), issued by `POST /api/auth/verify-otp`. Admin endpoints require a user with role `ADMIN`.\n\nTo try authenticated requests from this UI, first sign in on the site, then the session cookie is sent automatically for same-origin calls.",
     version: "1.0.0",
   },
   servers: [{ url: "/" }],
@@ -22,7 +22,7 @@ export const openApiSpec = {
         tags: ["Auth"],
         summary: "Send a one-time login code",
         description:
-          "Creates the user if missing and stores a 5-digit code (valid 5 minutes). In non-production environments the code is returned as `devCode`.",
+          "Creates the user if missing, stores a 5-digit code (valid 5 minutes) and sends it by standard SMS via Kavenegar (`sms/send`, message includes the code). In non-production environments the code is returned as `devCode` and the SMS is optional.",
         requestBody: {
           required: true,
           content: {
@@ -71,7 +71,7 @@ export const openApiSpec = {
         tags: ["Auth"],
         summary: "Verify the code and sign in",
         description:
-          "Validates the code, sets the `figurize_session` cookie, and merges the guest cart. 5 failed attempts consume the code.",
+          "Validates the code, sets the `figureforge_session` cookie, and merges the guest cart. 5 failed attempts consume the code.",
         requestBody: {
           required: true,
           content: {
@@ -583,7 +583,7 @@ export const openApiSpec = {
       sessionCookie: {
         type: "apiKey",
         in: "cookie",
-        name: "figurize_session",
+        name: "figureforge_session",
         description: "Session JWT issued by POST /api/auth/verify-otp.",
       },
     },
