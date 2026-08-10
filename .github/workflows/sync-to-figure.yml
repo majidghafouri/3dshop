@@ -1,0 +1,22 @@
+name: Sync main to private figure repo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Force-push main to private figure repo
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          git push --force \
+            "https://x-access-token:${SYNC_TOKEN}@github.com/majidghafouri/figure.git" \
+            main:main
