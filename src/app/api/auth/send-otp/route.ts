@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
+const KAVENEGAR_TEMPLATE = "mobileverify";
 
 function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/[^\d]/g, "");
@@ -19,30 +20,18 @@ type KavenegarEnvelope = {
   return?: { status: number; message: string };
 };
 
-function buildOtpMessage(code: string): string {
-  return `کاربر گرامی فیگرفورج،
-
-کد احراز هویت شما:
-
-${code}
-
-@figureforge.ir ${code}`;
-}
-
 async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
   const apiKey = process.env.KAVENEGAR_API_KEY;
   if (!apiKey) throw new Error("KAVENEGAR_API_KEY is not configured");
-  const sender = process.env.KAVENEGAR_SENDER;
-  if (!sender) throw new Error("KAVENEGAR_SENDER is not configured");
   const res = await fetch(
-    `https://api.kavenegar.com/v1/${apiKey}/sms/send.json`,
+    `https://api.kavenegar.com/v1/${apiKey}/verify/lookup.json`,
     {
       method: "POST",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         receptor: phone,
-        sender,
-        message: buildOtpMessage(code),
+        token: code,
+        template: KAVENEGAR_TEMPLATE,
       }),
       cache: "no-store",
     },

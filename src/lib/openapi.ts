@@ -22,7 +22,7 @@ export const openApiSpec = {
         tags: ["Auth"],
         summary: "Send a one-time login code",
         description:
-          "Creates the user if missing, stores a 5-digit code (valid 5 minutes) and sends it by standard SMS via Kavenegar (`sms/send`, message includes the code). In non-production environments the code is returned as `devCode` and the SMS is optional.",
+          "Creates the user if missing, stores a 5-digit code (valid 5 minutes) and sends it by SMS via Kavenegar verify/lookup using the approved `mobileverify` template. In non-production environments the code is returned as `devCode` and the SMS is optional.",
         requestBody: {
           required: true,
           content: {
