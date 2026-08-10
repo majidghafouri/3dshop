@@ -6,6 +6,7 @@ import { queryProducts, getProductBrands } from "@/lib/product-query";
 import { getCategories } from "@/lib/shop";
 import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
+import ProductSearchBar from "@/components/ProductSearchBar";
 import SortSelect from "@/components/SortSelect";
 import Reveal from "@/components/Reveal";
 
@@ -118,6 +119,8 @@ export default async function ProductsPage({
             <SortSelect defaultValue={get("sort") ?? "newest"} options={sortOptions} />
           </div>
         </div>
+
+        <ProductSearchBar dict={dict} />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-[20px] items-start">
           <ProductFilters

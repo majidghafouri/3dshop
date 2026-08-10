@@ -42,3 +42,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env*
+
+# local runtime uploads (dev fallback for /api/admin/upload)
+public/uploads/*.jpg
+public/uploads/*.jpeg
+public/uploads/*.png
+public/uploads/*.webp
+public/uploads/*.gif
+public/uploads/*.avif
+public/uploads/*.mp3
+public/uploads/*.ogg
+public/uploads/*.wav
+public/uploads/*.m4a
+public/uploads/*.aac
+public/uploads/*.webm

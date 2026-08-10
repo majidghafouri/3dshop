@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ImageUploader from "@/components/admin/ImageUploader";
+import AudioUploader from "@/components/admin/AudioUploader";
 
 const LOCALES = ["fa", "en", "ar"] as const;
 
@@ -18,7 +20,7 @@ type ProductData = {
   heightCm?: string;
   material?: string;
   weightGrams?: string;
-  images: string;
+  images: string[];
   musicUrl?: string;
   musicTitle?: string;
   categorySlug?: string;
@@ -29,7 +31,7 @@ type ProductData = {
 
 type CategoryOption = { slug: string; name: string };
 
-type ProductFormDict = {
+export type ProductFormDict = {
   basics: string;
   slug: string;
   sku: string;
@@ -46,8 +48,16 @@ type ProductFormDict = {
   featured: string;
   special: string;
   images: string;
+  imageUpload: string;
+  imageUploading: string;
+  imageRemove: string;
+  imageMoveUp: string;
+  imageMoveDown: string;
   music: string;
   musicUrl: string;
+  musicUpload: string;
+  musicUploading: string;
+  musicRemove: string;
   musicTitle: string;
   translations: string;
   name: string;
@@ -90,7 +100,7 @@ export default function ProductForm({
       heightCm: "",
       material: "",
       weightGrams: "",
-      images: "",
+      images: [],
       musicUrl: "",
       musicTitle: "",
       categorySlug: "",
@@ -120,7 +130,7 @@ export default function ProductForm({
     initial ? computePct(initial.price, initial.compareAtPrice ?? "") : ""
   );
 
-  const set = (k: keyof ProductData, v: string | boolean) =>
+  const set = (k: keyof ProductData, v: string | boolean | string[]) =>
     setForm((f) => ({ ...f, [k]: v }));
   const setLoc = (k: "name" | "shortDescription" | "description", loc: string, v: string) =>
     setForm((f) => ({ ...f, [k]: { ...f[k], [loc]: v } }));
@@ -162,7 +172,7 @@ export default function ProductForm({
       heightCm: form.heightCm?.trim() || undefined,
       material: form.material?.trim() || undefined,
       weightGrams: form.weightGrams ? Number(form.weightGrams) : undefined,
-      images: form.images.split("\n").map((s) => s.trim()).filter(Boolean),
+      images: form.images.filter(Boolean),
       musicUrl: form.musicUrl?.trim() || undefined,
       musicTitle: form.musicTitle?.trim() || undefined,
       categorySlug: form.categorySlug || undefined,
@@ -271,12 +281,10 @@ export default function ProductForm({
 
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
         <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.images}</h3>
-        <textarea
+        <ImageUploader
           value={form.images}
-          onChange={(e) => set("images", e.target.value)}
-          rows={3}
-          placeholder={"https://.../main.jpg\nhttps://.../detail.jpg"}
-          className={inputCls}
+          onChange={(images) => set("images", images)}
+          dict={dict}
         />
       </div>
 
@@ -285,7 +293,11 @@ export default function ProductForm({
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.musicUrl}</span>
-            <input value={form.musicUrl ?? ""} onChange={(e) => set("musicUrl", e.target.value)} placeholder="/music/baby-yoda-grogu.mp3" className={inputCls} />
+            <AudioUploader
+              value={form.musicUrl ?? ""}
+              onChange={(url) => set("musicUrl", url)}
+              dict={dict}
+            />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.musicTitle}</span>

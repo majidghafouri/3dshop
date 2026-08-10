@@ -69,9 +69,21 @@ export async function queryProducts(filters: ProductFilters) {
     where.hasDiscount = true;
   }
   if (search) {
-    where.translations = {
-      some: { locale, name: { contains: search, mode: "insensitive" } },
-    };
+    where.OR = [
+      { brand: { contains: search, mode: "insensitive" } },
+      {
+        translations: {
+          some: { locale, name: { contains: search, mode: "insensitive" } },
+        },
+      },
+      {
+        category: {
+          translations: {
+            some: { locale, name: { contains: search, mode: "insensitive" } },
+          },
+        },
+      },
+    ];
   }
 
   let orderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[];

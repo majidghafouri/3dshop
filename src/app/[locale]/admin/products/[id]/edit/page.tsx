@@ -46,7 +46,7 @@ export default async function EditProductPage({
     heightCm: product.heightCm ?? "",
     material: product.material ?? "",
     weightGrams: product.weightGrams ? String(product.weightGrams) : "",
-    images: product.images.join("\n"),
+    images: product.images,
     musicUrl: product.musicUrl ?? "",
     musicTitle: product.musicTitle ?? "",
     categorySlug: product.categoryId

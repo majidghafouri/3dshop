@@ -10,6 +10,7 @@ import Logo from "@/components/Logo";
 import LangSwitcher from "@/components/LangSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 import MusicToggle from "@/components/MusicToggle";
+import SearchBox from "@/components/SearchBox";
 import { useCart } from "@/components/CartProvider";
 
 type User = { phone: string; role: string } | null;
@@ -132,6 +133,7 @@ export default function Header({
         {/* Right actions */}
         {!isAdmin && (
         <div className="flex items-center justify-end gap-2.5 max-xl:gap-2">
+          <SearchBox locale={locale} dict={dict} />
           <MusicToggle />
           <ThemeToggle />
           <LangSwitcher locale={locale} dict={dict} />
@@ -194,6 +196,7 @@ export default function Header({
 
         {isAdmin && (
           <div className="flex items-center justify-end gap-2.5">
+            <SearchBox locale={locale} dict={dict} />
             <MusicToggle />
             <ThemeToggle />
             <LangSwitcher locale={locale} dict={dict} />
