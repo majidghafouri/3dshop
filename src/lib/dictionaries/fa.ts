@@ -231,6 +231,7 @@ export const fa = {
     verifyCode: "تایید و ورود",
     resend: "ارسال مجدد کد",
     resendIn: "ارسال مجدد تا",
+    clearCode: "پاک کردن کد",
     changePhone: "تغییر شماره",
     errorInvalidPhone: "شماره موبایل معتبر نیست",
     errorSendFailed: "ارسال کد ناموفق بود",

@@ -233,6 +233,7 @@ export const en: typeof fa = {
     verifyCode: "Verify and sign in",
     resend: "Resend code",
     resendIn: "Resend in",
+    clearCode: "Clear code",
     changePhone: "Change number",
     errorInvalidPhone: "Invalid mobile number",
     errorSendFailed: "Failed to send the code",

@@ -62,18 +62,34 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
 
   const handleDigit = (i: number, value: string) => {
     const v = value.replace(/[^\d]/g, "").slice(-1);
-    if (!v) return;
     const next = [...digits];
     next[i] = v;
     setDigits(next);
-    if (i < 4) inputsRef.current[i + 1]?.focus();
-    else inputsRef.current[i]?.blur();
+    if (v && i < 4) inputsRef.current[i + 1]?.focus();
   };
 
   const handleKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[i] && i > 0) {
-      inputsRef.current[i - 1]?.focus();
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const next = [...digits];
+      if (digits[i]) {
+        next[i] = "";
+        setDigits(next);
+      } else if (i > 0) {
+        next[i - 1] = "";
+        setDigits(next);
+        inputsRef.current[i - 1]?.focus();
+      }
     }
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  };
+
+  const clearCode = () => {
+    setDigits(Array(5).fill(""));
+    inputsRef.current[0]?.focus();
   };
 
   const verify = async (e?: React.FormEvent) => {
@@ -98,6 +114,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             ? dict.auth.errorExpiredCode
             : dict.auth.errorInvalidCode
         );
+        inputsRef.current[4]?.focus();
         return;
       }
       const next = searchParams.get("next");
@@ -186,6 +203,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
                   value={d}
                   onChange={(e) => handleDigit(i, e.target.value)}
                   onKeyDown={(e) => handleKey(i, e)}
+                  onFocus={handleFocus}
                   className="w-[52px] h-[60px] text-center border border-[var(--line-2)] rounded-[14px] text-[22px] font-[1000] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
                 />
               ))}
@@ -203,14 +221,24 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={busy || digits.some((d) => !d)}
-              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
-              style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
-            >
-              {busy ? dict.common.loading : dict.auth.verifyCode}
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={clearCode}
+                disabled={busy || digits.every((d) => !d)}
+                className="text-[12.5px] font-[900] text-[var(--muted)] hover:text-[var(--primary)] disabled:opacity-50"
+              >
+                {dict.auth.clearCode}
+              </button>
+              <button
+                type="submit"
+                disabled={busy || digits.some((d) => !d)}
+                className="rounded-[16px] text-white font-[950] px-6 py-3.5 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
+                style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
+              >
+                {busy ? dict.common.loading : dict.auth.verifyCode}
+              </button>
+            </div>
 
             <div className="text-center">
               {cooldown > 0 ? (

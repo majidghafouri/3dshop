@@ -233,6 +233,7 @@ export const ar: typeof fa = {
     verifyCode: "تحقق ودخول",
     resend: "إعادة إرسال الرمز",
     resendIn: "إعادة الإرسال بعد",
+    clearCode: "مسح الرمز",
     changePhone: "تغيير الرقم",
     errorInvalidPhone: "رقم الهاتف غير صحيح",
     errorSendFailed: "فشل إرسال الرمز",
