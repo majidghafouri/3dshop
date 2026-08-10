@@ -8,6 +8,7 @@ import {
   playTrack,
   pausePlayback,
   toggleMute,
+  setVolume,
 } from "@/lib/player";
 
 export default function ProductMusicPlayer({
@@ -24,7 +25,7 @@ export default function ProductMusicPlayer({
   const enabledRef = useRef(true);
   const urlRef = useRef(url);
   const [enabled, setEnabled] = useState(true);
-  const [state, setState] = useState({ playing: false, muted: false });
+  const [state, setState] = useState({ playing: false, muted: false, volume: 1 });
 
   useEffect(() => {
     const initial = getMusicEnabled();
@@ -137,6 +138,19 @@ export default function ProductMusicPlayer({
             </svg>
           )}
         </button>
+
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={state.volume}
+          onChange={(e) => setVolume(Number(e.target.value))}
+          aria-label="volume"
+          title={`${Math.round(state.volume * 100)}%`}
+          className="w-[84px] h-[34px] shrink-0 cursor-pointer"
+          style={{ accentColor: "var(--primary)" }}
+        />
       </div>
     </div>
   );

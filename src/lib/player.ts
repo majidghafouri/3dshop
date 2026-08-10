@@ -2,6 +2,17 @@ let audio: HTMLAudioElement | null = null;
 let currentUrl: string | null = null;
 const listeners = new Set<() => void>();
 
+const VOLUME_KEY = "figurize-volume-v2";
+export const DEFAULT_VOLUME = 0.1;
+
+function loadVolume(): number {
+  if (typeof window === "undefined") return DEFAULT_VOLUME;
+  const raw = window.localStorage.getItem(VOLUME_KEY);
+  if (raw === null) return DEFAULT_VOLUME;
+  const v = Number(raw);
+  return Number.isFinite(v) && v >= 0 && v <= 1 ? v : DEFAULT_VOLUME;
+}
+
 function emit() {
   listeners.forEach((l) => l());
 }
@@ -19,6 +30,7 @@ export function getState() {
     url: currentUrl,
     playing: a ? !a.paused : false,
     muted: a ? a.muted : false,
+    volume: a ? a.volume : loadVolume(),
   };
 }
 
@@ -26,13 +38,23 @@ function getAudio() {
   if (!audio) {
     audio = new Audio();
     audio.preload = "auto";
-    audio.volume = 0.5;
+    audio.volume = loadVolume();
     audio.loop = true;
     audio.addEventListener("play", emit);
     audio.addEventListener("pause", emit);
     audio.addEventListener("volumechange", emit);
   }
   return audio;
+}
+
+export function setVolume(volume: number) {
+  const a = getAudio();
+  const next = Math.min(1, Math.max(0, volume));
+  a.volume = next;
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(VOLUME_KEY, String(next));
+  }
+  emit();
 }
 
 export function playTrack(url: string) {
