@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Locale, localePrefix } from "@/lib/i18n";
+import { Locale, localePrefix, locales, switchLocalePath } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { buildNav } from "@/lib/nav";
 import Logo from "@/components/Logo";
@@ -14,6 +14,12 @@ import SearchBox from "@/components/SearchBox";
 import { useCart } from "@/components/CartProvider";
 
 type User = { phone: string; role: string } | null;
+
+const localeLabels: Record<Locale, string> = {
+  fa: "فارسی",
+  en: "English",
+  ar: "العربية",
+};
 
 export default function Header({
   locale,
@@ -134,9 +140,11 @@ export default function Header({
         {!isAdmin && (
         <div className="flex items-center justify-end gap-2.5 max-xl:gap-2">
           <SearchBox locale={locale} dict={dict} />
-          <MusicToggle />
-          <ThemeToggle />
-          <LangSwitcher locale={locale} dict={dict} />
+          <div className="max-sm:hidden flex items-center gap-2.5 max-xl:gap-2">
+            <MusicToggle />
+            <ThemeToggle />
+            <LangSwitcher locale={locale} dict={dict} />
+          </div>
 
           <Link
             href={cartHref}
@@ -197,9 +205,11 @@ export default function Header({
         {isAdmin && (
           <div className="flex items-center justify-end gap-2.5">
             <SearchBox locale={locale} dict={dict} />
-            <MusicToggle />
+            <div className="max-sm:hidden flex items-center gap-2.5">
+              <MusicToggle />
+              <LangSwitcher locale={locale} dict={dict} />
+            </div>
             <ThemeToggle />
-            <LangSwitcher locale={locale} dict={dict} />
             <Link
               href={accountHref}
               aria-label={dict.nav.account}
@@ -268,6 +278,36 @@ export default function Header({
             >
               {user ? dict.nav.account : dict.nav.login}
             </Link>
+
+            <div className="mt-2 flex items-center justify-around gap-2">
+              <MusicToggle />
+              <ThemeToggle />
+            </div>
+
+            <div className="mt-3">
+              <p className="px-4 text-[12px] font-[950] text-[var(--muted-2)]">
+                {dict.nav.chooseLanguage}
+              </p>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {locales.map((l) => {
+                  const active = l === locale;
+                  return (
+                    <Link
+                      key={l}
+                      href={switchLocalePath(pathname, locale, l)}
+                      onClick={() => setMobileOpen(false)}
+                      className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
+                        active
+                          ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--soft)]"
+                          : "border-[var(--line-2)] text-[var(--text-3)] hover:border-[var(--line-strong)]"
+                      }`}
+                    >
+                      {localeLabels[l]}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
