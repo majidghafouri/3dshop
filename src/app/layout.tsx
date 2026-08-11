@@ -18,7 +18,11 @@ export const metadata: Metadata = {
   },
   description:
     "فیگرفورج؛ فروشگاه تخصصی فیگور و اکشن فیگور. خرید آنلاین فیگور انیمه، گیمینگ، سینمایی و دیزنی با ارسال سریع.",
-  icons: { icon: "/favicon.ico" },
+  icons: [
+    { rel: "icon", type: "image/svg+xml", url: "/logo-icon.svg" },
+    { rel: "icon", type: "image/x-icon", url: "/favicon.ico" },
+    { rel: "apple-touch-icon", url: "/logo-icon.svg" },
+  ],
 };
 
 export default async function RootLayout({

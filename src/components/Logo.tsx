@@ -14,12 +14,7 @@ export default function Logo({ locale }: { locale: Locale }) {
           backgroundImage: "linear-gradient(135deg, var(--primary), var(--sky) 55%, var(--teal))",
         }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="7" y="4" width="10" height="16" rx="2.5" />
-          <circle cx="12" cy="10" r="1.8" fill="white" stroke="none" />
-          <path d="M12 11.8v3.2" strokeWidth="1.6" />
-          <path d="M9.5 15h5" strokeWidth="1.6" />
-        </svg>
+        <img src="/logo-icon.svg" alt={word} className="w-[28px] h-[28px]" />
       </span>
       <span className="text-[26px] max-sm:text-[22px] font-[1000] tracking-tight text-[var(--text)]">
         {word}
