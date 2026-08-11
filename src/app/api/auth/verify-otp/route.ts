@@ -2,20 +2,42 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { setSessionCookie } from "@/lib/auth";
+import { hashPassword, validatePassword } from "@/lib/password";
 import { mergeGuestCart } from "@/lib/cart";
 
 const MAX_ATTEMPTS = 5;
 
+type OtpPurpose = "REGISTER" | "PASSWORD_RESET";
+
 export async function POST(req: NextRequest) {
-  const body = parseJson<{ phone?: string; code?: string }>(await req.text());
+  const body = parseJson<{ phone?: string; code?: string; purpose?: OtpPurpose; password?: string }>(
+    await req.text(),
+  );
   const phone = (body?.phone ?? "").replace(/[^\d]/g, "");
   const code = (body?.code ?? "").replace(/[^\d]/g, "");
+  const purpose = body?.purpose ?? "REGISTER";
+  const password = body?.password ?? "";
 
   if (!/^09\d{9}$/.test(phone)) return fail("invalid_phone");
   if (!/^\d{5}$/.test(code)) return fail("invalid_code");
 
+  if (purpose === "REGISTER") {
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) return fail(pwCheck.error ?? "invalid_password");
+  }
+
+  if (purpose === "PASSWORD_RESET") {
+    const user = await prisma.user.findUnique({
+      where: { phone },
+      select: { password: true },
+    });
+    if (!user || !user.password) return fail("no_password_set", 404);
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) return fail(pwCheck.error ?? "invalid_password");
+  }
+
   const otp = await prisma.otpCode.findFirst({
-    where: { phone, consumed: false },
+    where: { phone, purpose, consumed: false },
     orderBy: { createdAt: "desc" },
   });
   if (!otp) return fail("invalid_code");
@@ -41,12 +63,19 @@ export async function POST(req: NextRequest) {
     data: { consumed: true },
   });
 
-  const isAdminPhone = !!process.env.ADMIN_PHONE && phone === process.env.ADMIN_PHONE.replace(/[^\d]/g, "");
+  const isAdminPhone =
+    !!process.env.ADMIN_PHONE &&
+    phone === process.env.ADMIN_PHONE.replace(/[^\d]/g, "");
+
+  const data: { password?: string | null } = {};
+  if (purpose === "REGISTER" || purpose === "PASSWORD_RESET") {
+    data.password = await hashPassword(password);
+  }
 
   const user = await prisma.user.upsert({
     where: { phone },
-    update: {},
-    create: { phone },
+    update: data,
+    create: { phone, password: data.password ?? null },
   });
 
   if (isAdminPhone && user.role !== "ADMIN") {

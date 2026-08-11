@@ -3,7 +3,7 @@ export const openApiSpec = {
   info: {
     title: "Figureforge API",
     description:
-      "REST API for the Figureforge figure shop. All responses use the envelope `{ ok: boolean, data?: any, error?: string }`. Authentication is cookie-based via the `figureforge_session` cookie (HttpOnly), issued by `POST /api/auth/verify-otp`. Admin endpoints require a user with role `ADMIN`.\n\nTo try authenticated requests from this UI, first sign in on the site, then the session cookie is sent automatically for same-origin calls.",
+      "REST API for the Figureforge figure shop. All responses use the envelope `{ ok: boolean, data?: any, error?: string }`. Authentication is cookie-based via the `figureforge_session` cookie (HttpOnly), issued by `POST /api/auth/login` (password) or `POST /api/auth/verify-otp` (OTP for registration & password reset). Admin endpoints require a user with role `ADMIN`.\n\nTo try authenticated requests from this UI, first sign in on the site, then the session cookie is sent automatically for same-origin calls.",
     version: "1.0.0",
   },
   servers: [{ url: "/" }],
@@ -20,18 +20,19 @@ export const openApiSpec = {
     "/api/auth/send-otp": {
       post: {
         tags: ["Auth"],
-        summary: "Send a one-time login code",
+        summary: "Send a one-time code for registration or password reset",
         description:
-          "Creates the user if missing, stores a 5-digit code (valid 5 minutes) and sends it by SMS via Kavenegar verify/lookup using the approved `mobileverify` template. In non-production environments the code is returned as `devCode` and the SMS is optional.",
+          "Sends a 5-digit code (valid 5 minutes) via SMS/Kavenegar using the `mobileverify` template. For `REGISTER` purpose, the phone must not already have a password (use `/api/auth/login` instead). For `PASSWORD_RESET` purpose, the phone must already have a password. A 3-minute server-side cooldown is enforced per phone+purpose. In non-production environments the code is returned as `devCode` and the SMS is optional.",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["phone"],
+                required: ["phone", "purpose"],
                 properties: {
                   phone: { type: "string", example: "09120000000", description: "Iranian mobile; digits, 0-prefix or 98-prefix accepted" },
+                  purpose: { type: "string", enum: ["REGISTER", "PASSWORD_RESET"], description: "Why the OTP is being requested" },
                 },
               },
             },
@@ -59,8 +60,68 @@ export const openApiSpec = {
               },
             },
           },
+          "429": {
+            description: "OTP cooldown — a code was recently sent for this phone and purpose",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+          },
+          "409": {
+            description: "User already has a password (use login instead)",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+          },
+          "404": {
+            description: "No password set for this phone (cannot reset)",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+          },
           "400": {
             description: "Invalid phone number",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+          },
+        },
+      },
+    },
+    "/api/auth/login": {
+      post: {
+        tags: ["Auth"],
+        summary: "Login with phone and password",
+        description:
+          "Authenticates with an existing password, sets the `figureforge_session` cookie, and merges the guest cart if present.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["phone", "password"],
+                properties: {
+                  phone: { type: "string", example: "09120000000", description: "Iranian mobile; digits, 0-prefix or 98-prefix accepted" },
+                  password: { type: "string", description: "User's password (min 8 characters)" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Signed in; session cookie set",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    ok: { type: "boolean", example: true },
+                    data: {
+                      type: "object",
+                      properties: {
+                        user: { $ref: "#/components/schemas/User" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            description: "Invalid credentials or no password set",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
         },
@@ -69,19 +130,21 @@ export const openApiSpec = {
     "/api/auth/verify-otp": {
       post: {
         tags: ["Auth"],
-        summary: "Verify the code and sign in",
+        summary: "Verify OTP code and set password for register/reset",
         description:
-          "Validates the code, sets the `figureforge_session` cookie, and merges the guest cart. 5 failed attempts consume the code.",
+          "Validates the OTP code matching the given `purpose` (REGISTER or PASSWORD_RESET). On success, stores the hashed `password`, sets the `figureforge_session` cookie, and merges the guest cart. 5 failed attempts consume the code.",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["phone", "code"],
+                required: ["phone", "code", "purpose", "password"],
                 properties: {
                   phone: { type: "string", example: "09120000000" },
                   code: { type: "string", example: "48213", description: "5-digit code" },
+                  purpose: { type: "string", enum: ["REGISTER", "PASSWORD_RESET"], description: "Must match the code that was sent" },
+                  password: { type: "string", description: "Password to set (min 8 characters)" },
                 },
               },
             },
@@ -584,7 +647,7 @@ export const openApiSpec = {
         type: "apiKey",
         in: "cookie",
         name: "figureforge_session",
-        description: "Session JWT issued by POST /api/auth/verify-otp.",
+        description: "Session JWT issued by POST /api/auth/login or POST /api/auth/verify-otp.",
       },
     },
     schemas: {

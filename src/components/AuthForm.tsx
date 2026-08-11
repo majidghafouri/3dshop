@@ -4,17 +4,40 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
+type AuthMode = "login" | "register" | "forgot";
+
 export default function AuthForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mode, setMode] = useState<AuthMode>("login");
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState("");
   const [digits, setDigits] = useState<string[]>(Array(5).fill(""));
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [serverCooldown, setServerCooldown] = useState<number | null>(null);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const modeParam = searchParams.get("mode") as AuthMode | null;
+    if (modeParam === "register" || modeParam === "forgot") {
+      setMode(modeParam);
+      setStep("phone");
+      setPhone("");
+      setDigits(Array(5).fill(""));
+      setPassword("");
+      setConfirmPassword("");
+      setError(null);
+      setDevCode(null);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -24,6 +47,20 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
 
   const validatePhone = (v: string) => /^09\d{9}$/.test(v.replace(/[^\d]/g, ""));
 
+
+  const switchMode = (newMode: AuthMode) => {
+    setMode(newMode);
+    setStep("phone");
+    setPhone("");
+    setDigits(Array(5).fill(""));
+    setPassword("");
+    setConfirmPassword("");
+    setError(null);
+    setDevCode(null);
+    setCooldown(0);
+    setServerCooldown(null);
+  };
+
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
@@ -32,26 +69,39 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       setError(dict.auth.errorInvalidPhone);
       return;
     }
+
+    const purpose = mode === "register" ? "REGISTER" : "PASSWORD_RESET";
+
     setBusy(true);
     try {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalized }),
+        body: JSON.stringify({ phone: normalized, purpose }),
       });
       const json = await res.json();
       if (!json.ok) {
+        if (res.status === 429 && json.retryAfter) {
+          setServerCooldown(json.retryAfter);
+          setCooldown(json.retryAfter);
+        }
         setError(
           json.error === "sms_failed"
             ? dict.auth.errorSmsFailed
-            : dict.auth.errorSendFailed,
+            : json.error === "user_exists_use_login"
+              ? dict.auth.errorUserExists
+              : json.error === "no_password_set"
+                ? dict.auth.errorNoPassword
+                : dict.auth.errorSendFailed,
         );
         return;
       }
       setStep("code");
       setDigits(Array(5).fill(""));
+      setPassword("");
+      setConfirmPassword("");
       if (json.data?.devCode) setDevCode(json.data.devCode);
-      setCooldown(60);
+      setCooldown(serverCooldown ?? 180);
       setTimeout(() => inputsRef.current[0]?.focus(), 50);
     } catch {
       setError(dict.auth.errorSendFailed);
@@ -66,7 +116,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     next[i] = v;
     setDigits(next);
     if (v && i < 4) inputsRef.current[i + 1]?.focus();
-    if (v && i === 4) verify(next.join(""));
+    if (v && i === 4) {
+      verify(next.join(""));
+    }
   };
 
   const handleKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -93,8 +145,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     inputsRef.current[0]?.focus();
   };
 
-  const verify = async (code?: string, e?: React.FormEvent) => {
-    e?.preventDefault();
+  const verify = async (code?: string) => {
     setError(null);
     if (busy) return;
     const value = code ?? digits.join("");
@@ -102,19 +153,45 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       setError(dict.auth.errorInvalidCode);
       return;
     }
+
+    const purpose = mode === "register" ? "REGISTER" : "PASSWORD_RESET";
+    const endpoint = "/api/auth/verify-otp";
+
+    if (mode === "register" || mode === "forgot") {
+      if (!password) {
+        setError(dict.auth.passwordTooShort);
+        passwordRef.current?.focus();
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError(dict.auth.passwordMismatch);
+        confirmPasswordRef.current?.focus();
+        return;
+      }
+    }
+
     setBusy(true);
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.replace(/[^\d]/g, ""), code: value }),
+        body: JSON.stringify({
+          phone: phone.replace(/[^\d]/g, ""),
+          code: value,
+          purpose,
+          password: mode === "register" || mode === "forgot" ? password : undefined,
+        }),
       });
       const json = await res.json();
       if (!json.ok) {
         setError(
           json.error === "expired_code"
             ? dict.auth.errorExpiredCode
-            : dict.auth.errorInvalidCode
+            : json.error === "invalid_password"
+              ? dict.auth.passwordTooShort
+              : json.error === "no_password_set"
+                ? dict.auth.errorNoPassword
+                : dict.auth.errorInvalidCode,
         );
         inputsRef.current[4]?.focus();
         return;
@@ -129,136 +206,371 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     }
   };
 
+  const login = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setError(null);
+    const normalized = phone.replace(/[^\d]/g, "");
+    if (!validatePhone(normalized)) {
+      setError(dict.auth.errorInvalidPhone);
+      return;
+    }
+    if (!password) {
+      setError(dict.auth.passwordTooShort);
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: normalized, password }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        setError(
+          json.error === "invalid_credentials"
+            ? dict.auth.errorInvalidCredentials
+            : json.error === "no_password_set"
+              ? dict.auth.errorNoPassword
+              : dict.auth.errorInvalidCredentials,
+        );
+        return;
+      }
+      const next = searchParams.get("next");
+      router.push(next ?? "/");
+      router.refresh();
+    } catch {
+      setError(dict.auth.errorInvalidCredentials);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const resend = async () => {
     await sendCode();
   };
 
-  return (
-    <div className="mx-auto w-full max-w-[440px]">
-      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-8 shadow-[0_18px_54px_rgba(20,45,90,0.10)]">
-        <div className="text-center">
-          <div className="mx-auto w-[64px] h-[64px] rounded-[20px] flex items-center justify-center text-white text-[26px] shadow-[0_12px_30px_rgba(var(--primary-rgb),0.35)]"
-            style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--teal))" }}>
-            {step === "phone" ? "📱" : "🔐"}
-          </div>
-          <h1 className="mt-4 text-[clamp(22px,2.6vw,30px)] font-[1000] text-[var(--text)]">
-            {dict.auth.title}
-          </h1>
-          <p className="mt-2 text-[13.5px] font-[750] text-[var(--muted)]">{dict.auth.subtitle}</p>
-        </div>
+  const renderPhoneStep = () => (
+    <>
+      <div className="mt-7 space-y-4">
+        <label className="block">
+          <span className="text-[12.5px] font-[900] text-[var(--text-2)]">
+            {dict.auth.phonePlaceholder}
+          </span>
+          <input
+            type="tel"
+            inputMode="numeric"
+            dir="ltr"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="09123456789"
+            className="mt-2 w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
+          />
+        </label>
 
-        {step === "phone" ? (
-          <form onSubmit={sendCode} className="mt-7 space-y-4">
-            <label className="block">
-              <span className="text-[12.5px] font-[900] text-[var(--text-2)]">{dict.auth.phonePlaceholder}</span>
-              <input
-                type="tel"
-                inputMode="numeric"
-                dir="ltr"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="09123456789"
-                className="mt-2 w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
-              />
-            </label>
+        {(mode === "register" || mode === "forgot") && (
+          <>
             {error && (
               <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
                 {error}
               </p>
             )}
             <button
-              type="submit"
+              type="button"
+              onClick={sendCode}
               disabled={busy}
               className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
-              style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg,var(--primary),var(--sky))",
+              }}
             >
               {busy ? dict.common.loading : dict.auth.sendCode}
             </button>
-            <p className="text-[12px] leading-[1.9] font-[750] text-[var(--muted)] text-center">
-              {dict.auth.demoNote}
-            </p>
-          </form>
-        ) : (
-          <form onSubmit={(e) => verify(undefined, e)} className="mt-7 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-[850] text-[var(--text-2)]" dir="ltr">
-                {phone.replace(/[^\d]/g, "")}
+          </>
+        )}
+
+        {mode === "login" && (
+          <>
+            <label className="block">
+              <span className="text-[12.5px] font-[900] text-[var(--text-2)]">
+                {dict.auth.passwordPlaceholder}
               </span>
-              <button
-                type="button"
-                onClick={() => setStep("phone")}
-                className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
-              >
-                {dict.auth.changePhone}
-              </button>
-            </div>
-
-            <div className="flex justify-center gap-2" dir="ltr">
-              {digits.map((d, i) => (
+              <div className="relative mt-2">
                 <input
-                  key={i}
-                  ref={(el) => {
-                    inputsRef.current[i] = el;
-                  }}
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={d}
-                  onChange={(e) => handleDigit(i, e.target.value)}
-                  onKeyDown={(e) => handleKey(i, e)}
-                  onFocus={handleFocus}
-                  className="w-[52px] h-[60px] text-center border border-[var(--line-2)] rounded-[14px] text-[22px] font-[1000] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
                 />
-              ))}
-            </div>
-
-            {devCode && (
-              <p className="text-center text-[12.5px] font-[900] text-[var(--sky)] bg-[var(--soft)] border border-[var(--line-4)] rounded-[12px] px-3 py-2.5" dir="ltr">
-                DEV CODE: {devCode}
-              </p>
-            )}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
+                >
+                  {showPassword ? "🙛" : "👁️"}
+                </button>
+              </div>
+            </label>
 
             {error && (
               <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
                 {error}
               </p>
             )}
+            <button
+              type="button"
+              onClick={login}
+              disabled={busy}
+              className="w-full rounded-[16px] text-white font-[950] py-4 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg,var(--primary),var(--sky))",
+              }}
+            >
+              {busy ? dict.common.loading : dict.auth.loginButton}
+            </button>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-[12.5px] font-[800] text-[var(--muted)]">
               <button
                 type="button"
-                onClick={clearCode}
-                disabled={busy || digits.every((d) => !d)}
-                className="text-[12.5px] font-[900] text-[var(--muted)] hover:text-[var(--primary)] disabled:opacity-50"
+                onClick={() => switchMode("forgot")}
+                className="text-[var(--primary)] hover:underline"
               >
-                {dict.auth.clearCode}
+                {dict.auth.forgotPassword}
               </button>
               <button
-                type="submit"
-                disabled={busy || digits.some((d) => !d)}
-                className="rounded-[16px] text-white font-[950] px-6 py-3.5 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
-                style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
+                type="button"
+                onClick={() => switchMode("register")}
+                className="text-[var(--primary)] hover:underline"
               >
-                {busy ? dict.common.loading : dict.auth.verifyCode}
+                {dict.auth.noAccount}
               </button>
             </div>
-
-            <div className="text-center">
-              {cooldown > 0 ? (
-                <span className="text-[12.5px] font-[850] text-[var(--muted)]">
-                  {dict.auth.resendIn} {cooldown}s
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={resend}
-                  className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
-                >
-                  {dict.auth.resend}
-                </button>
-              )}
-            </div>
-          </form>
+          </>
         )}
+
+        {mode === "login" && (
+          <p className="text-[12px] leading-[1.9] font-[750] text-[var(--muted)] text-center">
+            {dict.auth.demoNote}
+          </p>
+        )}
+
+        {(mode === "register" || mode === "forgot") && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => switchMode("login")}
+              className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
+            >
+              {mode === "register" ? dict.auth.haveAccount : dict.auth.backToLogin}
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  const renderCodeStep = () => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        verify();
+      }}
+      className="mt-7 space-y-4"
+    >
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <span className="text-[13px] font-[850] text-[var(--text-2)]" dir="ltr">
+          {phone.replace(/[^\d]/g, "")}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            setStep("phone");
+            setPhone("");
+            setDigits(Array(5).fill(""));
+            setPassword("");
+            setConfirmPassword("");
+            setError(null);
+            setDevCode(null);
+            setCooldown(0);
+            setServerCooldown(null);
+          }}
+          className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
+        >
+          {dict.auth.changePhone}
+        </button>
+      </div>
+
+      <div className="flex justify-center gap-2" dir="ltr">
+        {digits.map((d, i) => (
+          <input
+            key={i}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
+            inputMode="numeric"
+            maxLength={1}
+            value={d}
+            onChange={(e) => handleDigit(i, e.target.value)}
+            onKeyDown={(e) => handleKey(i, e)}
+            onFocus={handleFocus}
+            className="w-[52px] h-[60px] text-center border border-[var(--line-2)] rounded-[14px] text-[22px] font-[1000] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
+          />
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        <label className="block">
+          <span className="text-[12.5px] font-[900] text-[var(--text-2)]">
+            {mode === "register"
+              ? dict.auth.passwordPlaceholder
+              : dict.auth.passwordPlaceholder}
+          </span>
+          <div className="relative mt-2">
+            <input
+              ref={passwordRef}
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
+            >
+              {showPassword ? "🙛" : "👁️"}
+            </button>
+          </div>
+        </label>
+
+        <label className="block">
+          <span className="text-[12.5px] font-[900] text-[var(--text-2)]">
+            {dict.auth.passwordConfirmPlaceholder}
+          </span>
+          <div className="relative mt-2">
+            <input
+              ref={confirmPasswordRef}
+              type={showPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
+            >
+              {showPassword ? "🙛" : "👁️"}
+            </button>
+          </div>
+        </label>
+      </div>
+
+      {devCode && (
+        <p
+          className="text-center text-[12.5px] font-[900] text-[var(--sky)] bg-[var(--soft)] border border-[var(--line-4)] rounded-[12px] px-3 py-2.5"
+          dir="ltr"
+        >
+          DEV CODE: {devCode}
+        </p>
+      )}
+
+      {error && (
+        <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
+          {error}
+        </p>
+      )}
+
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={clearCode}
+          disabled={busy || digits.every((d) => !d)}
+          className="text-[12.5px] font-[900] text-[var(--muted)] hover:text-[var(--primary)] disabled:opacity-50"
+        >
+          {dict.auth.clearCode}
+        </button>
+        <button
+          type="submit"
+          disabled={
+            busy ||
+            digits.some((d) => !d) ||
+            !password ||
+            password !== confirmPassword
+          }
+          className="rounded-[16px] text-white font-[950] px-6 py-3.5 text-[15px] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)]"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg,var(--primary),var(--sky))",
+          }}
+        >
+          {busy
+            ? dict.common.loading
+            : mode === "register"
+              ? dict.auth.signupButton
+              : dict.auth.resetPassword}
+        </button>
+      </div>
+
+      <div className="text-center">
+        {cooldown > 0 ? (
+          <span className="text-[12.5px] font-[850] text-[var(--muted)]">
+            {dict.auth.resendIn} {cooldown}s
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={resend}
+            className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
+          >
+            {dict.auth.resend}
+          </button>
+        )}
+      </div>
+
+      <p className="text-[12px] leading-[1.9] font-[750] text-[var(--muted)] text-center">
+        {dict.auth.demoNote}
+      </p>
+    </form>
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-[440px]">
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-8 shadow-[0_18px_54px_rgba(20,45,90,0.10)]">
+        <div className="text-center">
+          <div
+            className="mx-auto w-[64px] h-[64px] rounded-[20px] flex items-center justify-center text-white text-[26px] shadow-[0_12px_30px_rgba(var(--primary-rgb),0.35)]"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg,var(--primary),var(--teal))",
+            }}
+          >
+            {mode === "login" ? "🔐" : mode === "register" ? "📱" : "🔑"}
+          </div>
+          <h1 className="mt-4 text-[clamp(22px,2.6vw,30px)] font-[1000] text-[var(--text)]">
+            {mode === "login"
+              ? dict.auth.loginTitle
+              : mode === "register"
+                ? dict.auth.registerTitle
+                : dict.auth.forgotTitle}
+          </h1>
+          <p className="mt-2 text-[13.5px] font-[750] text-[var(--muted)]">
+            {mode === "login"
+              ? dict.auth.loginSubtitle
+              : mode === "register"
+                ? dict.auth.registerSubtitle
+                : dict.auth.forgotSubtitle}
+          </p>
+        </div>
+
+        {step === "phone" && mode === "login"
+          ? renderPhoneStep()
+          : step === "phone" && (mode === "register" || mode === "forgot")
+            ? renderPhoneStep()
+            : renderCodeStep()}
       </div>
     </div>
   );

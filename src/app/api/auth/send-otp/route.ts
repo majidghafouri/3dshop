@@ -3,7 +3,10 @@ import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
 const KAVENEGAR_TEMPLATE = "mobileverify";
+
+type OtpPurpose = "REGISTER" | "PASSWORD_RESET";
 
 function normalizePhone(raw: string): string | null {
   const digits = raw.replace(/[^\d]/g, "");
@@ -13,7 +16,10 @@ function normalizePhone(raw: string): string | null {
 }
 
 function generateCode(): string {
-  return String(Math.floor(10000 + Math.random() * 90000));
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  const n = buf[0] % 90000;
+  return String(10000 + n);
 }
 
 type KavenegarEnvelope = {
@@ -50,14 +56,45 @@ async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
 }
 
 export async function POST(req: NextRequest) {
-  const body = parseJson<{ phone?: string }>(await req.text());
+  const body = parseJson<{ phone?: string; purpose?: OtpPurpose }>(await req.text());
   const phone = normalizePhone(body?.phone ?? "");
   if (!phone) return fail("invalid_phone");
 
-  await prisma.user.upsert({
-    where: { phone },
-    update: {},
-    create: { phone },
+  const purpose = body?.purpose ?? "REGISTER";
+
+  if (purpose === "PASSWORD_RESET") {
+    const user = await prisma.user.findUnique({
+      where: { phone },
+      select: { password: true },
+    });
+    if (!user || !user.password) return fail("no_password_set", 404);
+  }
+
+  if (purpose === "REGISTER") {
+    const user = await prisma.user.findUnique({
+      where: { phone },
+      select: { password: true },
+    });
+    if (user && user.password) return fail("user_exists_use_login", 409);
+  }
+
+  const recentOtp = await prisma.otpCode.findFirst({
+    where: {
+      phone,
+      purpose,
+      createdAt: { gte: new Date(Date.now() - OTP_RESEND_COOLDOWN_MS) },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (recentOtp) {
+    return fail("otp_cooldown", 429, {
+      retryAfter: Math.ceil((OTP_RESEND_COOLDOWN_MS - (Date.now() - recentOtp.createdAt.getTime())) / 1000),
+    });
+  }
+
+  await prisma.otpCode.updateMany({
+    where: { phone, purpose, consumed: false },
+    data: { consumed: true },
   });
 
   const code = generateCode();
@@ -65,6 +102,7 @@ export async function POST(req: NextRequest) {
     data: {
       phone,
       code,
+      purpose,
       expiresAt: new Date(Date.now() + OTP_TTL_MS),
     },
   });
@@ -82,7 +120,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (dev) console.log(`[OTP] phone=${phone} code=${code}`);
+  if (dev) console.log(`[OTP] phone=${phone} code=${code} purpose=${purpose}`);
 
   return ok({
     phone,

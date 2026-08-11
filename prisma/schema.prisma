@@ -14,11 +14,17 @@ enum Role {
   ADMIN
 }
 
+enum OtpPurpose {
+  REGISTER
+  PASSWORD_RESET
+}
+
 model User {
   id        String   @id @default(cuid())
   phone     String   @unique
   name      String?
   email     String?
+  password  String?
   locale    String   @default("fa")
   role      Role     @default(USER)
   cart      Cart?
@@ -28,15 +34,17 @@ model User {
 }
 
 model OtpCode {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   phone     String
   code      String
+  purpose   OtpPurpose @default(REGISTER)
   expiresAt DateTime
-  consumed  Boolean   @default(false)
-  attempts  Int       @default(0)
-  createdAt DateTime  @default(now())
+  consumed  Boolean    @default(false)
+  attempts  Int        @default(0)
+  createdAt DateTime   @default(now())
 
   @@index([phone, createdAt])
+  @@index([phone, purpose, createdAt])
 }
 
 // ---------- Catalog ----------
