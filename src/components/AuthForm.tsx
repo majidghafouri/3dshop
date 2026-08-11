@@ -66,6 +66,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     next[i] = v;
     setDigits(next);
     if (v && i < 4) inputsRef.current[i + 1]?.focus();
+    if (v && i === 4) verify(next.join(""));
   };
 
   const handleKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -92,10 +93,11 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     inputsRef.current[0]?.focus();
   };
 
-  const verify = async (e?: React.FormEvent) => {
+  const verify = async (code?: string, e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
-    const value = digits.join("");
+    if (busy) return;
+    const value = code ?? digits.join("");
     if (value.length !== 5) {
       setError(dict.auth.errorInvalidCode);
       return;
@@ -177,7 +179,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             </p>
           </form>
         ) : (
-          <form onSubmit={verify} className="mt-7 space-y-4">
+          <form onSubmit={(e) => verify(undefined, e)} className="mt-7 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-[850] text-[var(--text-2)]" dir="ltr">
                 {phone.replace(/[^\d]/g, "")}
