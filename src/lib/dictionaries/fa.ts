@@ -287,6 +287,10 @@ export const fa = {
     subtitle: "اخبار، معرفی و راهنمای دنیای فیگور و کلکسیون",
     readMore: "بیشتر بخوانید",
     related: "نوشته‌های مرتبط",
+    backToBlog: "بازگشت به مجله",
+    trending: "داغ",
+    minRead: "دقیقه",
+    empty: "هنوز نوشته‌ای منتشر نشده است.",
   },
   about: {
     kicker: "درباره ما",

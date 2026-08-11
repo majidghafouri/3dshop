@@ -289,6 +289,10 @@ export const ar: typeof fa = {
     subtitle: "أخبار ومراجعات وأدلة من عالم الفيجورات والمقتنيات",
     readMore: "اقرأ المزيد",
     related: "مقالات ذات صلة",
+    backToBlog: "العودة إلى المدونة",
+    trending: "رائج",
+    minRead: "دقيقة قراءة",
+    empty: "لا توجد مقالات منشورة بعد.",
   },
   about: {
     kicker: "من نحن",

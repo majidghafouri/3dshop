@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/blog-trending",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

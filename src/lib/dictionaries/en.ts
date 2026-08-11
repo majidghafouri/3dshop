@@ -289,6 +289,10 @@ export const en: typeof fa = {
     subtitle: "News, reviews and guides from the world of figures and collectibles",
     readMore: "Read more",
     related: "Related posts",
+    backToBlog: "Back to blog",
+    trending: "Trending",
+    minRead: "min read",
+    empty: "No posts published yet.",
   },
   about: {
     kicker: "About us",

@@ -109,6 +109,39 @@ model ProductTranslation {
   @@unique([productId, locale])
 }
 
+// ---------- Blog & Content ----------
+
+model BlogPost {
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  coverImage   String?
+  category     String?
+  readingTime  Int?                  @default(0)
+  isPublished  Boolean               @default(false)
+  isTrending   Boolean               @default(false)
+  publishedAt  DateTime?
+  translations BlogPostTranslation[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([isPublished, publishedAt])
+  @@index([isTrending])
+  @@index([category])
+}
+
+model BlogPostTranslation {
+  id     String   @id @default(cuid())
+  postId String
+  locale String
+  tag    String?
+  title  String
+  excerpt String?
+  body   String   @db.Text
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+}
+
 // ---------- Site theming ----------
 
 model SiteTheme {

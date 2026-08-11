@@ -36,3 +36,12 @@ export function formatDiscountPercent(price: number, compareAt?: number | null):
   if (!compareAt || compareAt <= price || price <= 0) return null;
   return Math.round(((compareAt - price) / compareAt) * 100);
 }
+
+export function formatDate(date: Date, locale: Locale): string {
+  const dateLocale = locale === "fa" ? "fa-IR" : locale === "ar" ? "ar" : "en-US";
+  return new Intl.DateTimeFormat(dateLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
