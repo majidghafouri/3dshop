@@ -4,6 +4,7 @@ import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { getPublishedPosts } from "@/lib/blog";
 import Reveal from "@/components/Reveal";
+import { getSessionUser } from "@/lib/auth";
 
 export default async function BlogPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
@@ -12,6 +13,7 @@ export default async function BlogPage({ params }: { params: { locale: string } 
   const prefix = localePrefix(locale);
 
   const posts = await getPublishedPosts(locale, 50);
+  const user = await getSessionUser();
 
   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
@@ -95,15 +97,17 @@ export default async function BlogPage({ params }: { params: { locale: string } 
           )}
         </Reveal>
 
-        <div className="mt-12 text-center">
-          <Link
-            href={`${prefix}/products`}
-            className="inline-flex rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
-            style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
-          >
-            {dict.cta.button}
-          </Link>
-        </div>
+        {!user && (
+          <div className="mt-12 text-center">
+            <Link
+              href={`${prefix}/products`}
+              className="inline-flex rounded-[16px] text-white font-[950] px-8 py-4 text-[15px] shadow-[0_14px_34px_rgba(var(--primary-rgb),0.25)] hover:-translate-y-0.5 transition-all duration-300"
+              style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
+            >
+              {dict.cta.button}
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
