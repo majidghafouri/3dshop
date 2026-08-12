@@ -8,6 +8,7 @@ import ProductGrid from "@/components/ProductGrid";
 import SpotlightCarousel from "@/components/SpotlightCarousel";
 import { isLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 
 export default async function HomePage({
   params,
@@ -18,6 +19,8 @@ export default async function HomePage({
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
   const prefix = localePrefix(locale);
+
+  const user = await getSessionUser();
 
   const [featured, categories] = await Promise.all([
     prisma.product.findMany({
@@ -352,7 +355,8 @@ export default async function HomePage({
       </section>
 
       {/* ================= CTA ================= */}
-      <section id="start" className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px]"
+      {!user && (
+        <section id="start" className="relative overflow-hidden py-[78px] max-sm:py-[58px] scroll-mt-[76px]"
         style={{
           background:
             "radial-gradient(circle at 68% 38%, rgba(var(--primary-rgb),0.075), transparent 38%), radial-gradient(circle at 28% 68%, rgba(var(--teal-rgb),0.09), transparent 34%), linear-gradient(135deg, var(--bg-tint) 0%, var(--bg-tint) 42%, var(--bg-tint) 100%)",
@@ -397,7 +401,8 @@ export default async function HomePage({
             </div>
           </Reveal>
         </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }
