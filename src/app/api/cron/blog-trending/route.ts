@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
 import { publishNextBankPost } from "@/lib/blog";
+import { generateDailyPost } from "@/lib/blog-generator";
 
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -9,8 +10,11 @@ export async function GET(req: NextRequest) {
     return fail("Unauthorized", 401);
   }
 
-  const post = await publishNextBankPost();
-  if (!post) return ok({ published: false });
+  const bankPost = await publishNextBankPost();
+  if (bankPost) return ok({ published: true, slug: bankPost.slug, source: "bank" });
 
-  return ok({ published: true, slug: post.slug });
+  const generated = await generateDailyPost();
+  if (generated) return ok({ published: true, slug: generated.slug, source: "generated" });
+
+  return ok({ published: false });
 }
