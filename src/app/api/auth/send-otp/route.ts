@@ -5,6 +5,11 @@ import { ok, fail, parseJson } from "@/lib/api";
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
 const KAVENEGAR_TEMPLATE = "mobileverify";
+// Lookup delivers the template via SMS by default; set explicitly per Kavenegar docs.
+const KAVENEGAR_LOOKUP_TYPE = "sms";
+// %token2 in the template (e.g. a fixed brand signature/link). Safe to pass even if the
+// template only uses %token — Kavenegar ignores unused tokens.
+const KAVENEGAR_TOKEN2 = process.env.KAVENEGAR_TOKEN2 ?? "@figureforge.ir";
 
 type OtpPurpose = "REGISTER" | "PASSWORD_RESET";
 
@@ -22,8 +27,15 @@ function generateCode(): string {
   return String(10000 + n);
 }
 
+type KavenegarEntry = {
+  messageid?: number;
+  cost?: number;
+  receptor?: string;
+};
+
 type KavenegarEnvelope = {
   return?: { status: number; message: string };
+  entries?: KavenegarEntry[];
 };
 
 async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
@@ -37,7 +49,9 @@ async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
       body: new URLSearchParams({
         receptor: phone,
         token: code,
+        token2: KAVENEGAR_TOKEN2,
         template: KAVENEGAR_TEMPLATE,
+        type: KAVENEGAR_LOOKUP_TYPE,
       }),
       cache: "no-store",
     },
@@ -50,8 +64,17 @@ async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
   } catch {
     throw new Error(`kavenegar invalid response: ${text}`);
   }
-  if (data.return?.status !== 200) {
-    throw new Error(`kavenegar ${data.return?.status}: ${data.return?.message}`);
+  const status = data.return?.status;
+  if (status !== 200) {
+    throw new Error(
+      `kavenegar lookup failed (${status ?? "?"}): ${data.return?.message ?? "unknown error"}`,
+    );
+  }
+  const entry = data.entries?.[0];
+  if (entry?.messageid) {
+    console.log(
+      `[OTP] kavenegar delivered messageid=${entry.messageid} cost=${entry.cost ?? "?"} receptor=${entry.receptor ?? phone}`,
+    );
   }
 }
 
