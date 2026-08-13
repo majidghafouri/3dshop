@@ -13,7 +13,7 @@ import MusicToggle from "@/components/MusicToggle";
 import SearchBox from "@/components/SearchBox";
 import { useCart } from "@/components/CartProvider";
 
-type User = { phone: string; role: string } | null;
+type User = { phone: string | null; role: string } | null;
 
 const localeLabels: Record<Locale, string> = {
   fa: "فارسی",

@@ -79,7 +79,7 @@ export default function EmailSettingsManager({ dict }: { dict: EmailSettingsDict
   const save = async () => {
     setBusy(true);
     try {
-      const calls = Object.entries(KEYS).map(([_, key]) =>
+      const calls = Object.entries(KEYS).map(([, key]) =>
         fetch("/api/admin/settings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
