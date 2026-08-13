@@ -22,7 +22,7 @@ export const openApiSpec = {
         tags: ["Auth"],
         summary: "Send a one-time code for registration or password reset",
         description:
-          "Sends a 5-digit code (valid 5 minutes) via SMS/Kavenegar using the `mobileverify` template. For `REGISTER` purpose, the phone must not already have a password (use `/api/auth/login` instead). For `PASSWORD_RESET` purpose, the phone must already have a password. A 3-minute server-side cooldown is enforced per phone+purpose. In non-production environments the code is returned as `devCode` and the SMS is optional.",
+          "Sends a 5-digit code (valid 5 minutes) via Kavenegar. The delivery channel is controlled by the `otp_method` Setting (default `ADVERTISE`): `ADVERTISE` uses the free-send `sms/send.json` method on the advertise line (sender from `kavenegar_sender`); `SERVICE` uses the template-based `verify/lookup.json` (`mobileverify`). For `REGISTER` purpose, the phone must not already have a password (use `/api/auth/login` instead). For `PASSWORD_RESET` purpose, the phone must already have a password. A 3-minute server-side cooldown is enforced per phone+purpose. In non-production environments the code is returned as `devCode` and the SMS is optional.",
         requestBody: {
           required: true,
           content: {

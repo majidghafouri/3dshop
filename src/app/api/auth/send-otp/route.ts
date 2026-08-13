@@ -1,9 +1,19 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
+import { getSetting } from "@/lib/settings";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
+
+// OTP delivery channel, controlled from the admin panel (Setting "otp_method").
+//  - ADVERTISE -> خط تبلیغاتی: Kavenegar sms/send.json (default)
+//  - SERVICE   -> خط خدماتی:   Kavenegar verify/lookup.json (template-based)
+type OtpChannel = "SERVICE" | "ADVERTISE";
+const OTP_METHOD_KEY = "otp_method";
+const KAVENEGAR_SENDER_KEY = "kavenegar_sender";
+const DEFAULT_OTP_CHANNEL: OtpChannel = "ADVERTISE";
+
 const KAVENEGAR_TEMPLATE = "mobileverify";
 // Lookup delivers the template via SMS by default; set explicitly per Kavenegar docs.
 const KAVENEGAR_LOOKUP_TYPE = "sms";
@@ -38,24 +48,18 @@ type KavenegarEnvelope = {
   entries?: KavenegarEntry[];
 };
 
-async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
+async function postKavenegar(
+  path: string,
+  params: Record<string, string>,
+): Promise<void> {
   const apiKey = process.env.KAVENEGAR_API_KEY;
   if (!apiKey) throw new Error("KAVENEGAR_API_KEY is not configured");
-  const res = await fetch(
-    `https://api.kavenegar.com/v1/${apiKey}/verify/lookup.json`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        receptor: phone,
-        token: code,
-        token2: KAVENEGAR_TOKEN2,
-        template: KAVENEGAR_TEMPLATE,
-        type: KAVENEGAR_LOOKUP_TYPE,
-      }),
-      cache: "no-store",
-    },
-  );
+  const res = await fetch(`https://api.kavenegar.com/v1/${apiKey}/${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(params),
+    cache: "no-store",
+  });
   const text = await res.text();
   if (!res.ok) throw new Error(`kavenegar http ${res.status}: ${text}`);
   let data: KavenegarEnvelope;
@@ -67,15 +71,40 @@ async function sendOtpViaKavenegar(phone: string, code: string): Promise<void> {
   const status = data.return?.status;
   if (status !== 200) {
     throw new Error(
-      `kavenegar lookup failed (${status ?? "?"}): ${data.return?.message ?? "unknown error"}`,
+      `kavenegar ${path} failed (${status ?? "?"}): ${data.return?.message ?? "unknown error"}`,
     );
   }
   const entry = data.entries?.[0];
   if (entry?.messageid) {
     console.log(
-      `[OTP] kavenegar delivered messageid=${entry.messageid} cost=${entry.cost ?? "?"} receptor=${entry.receptor ?? phone}`,
+      `[OTP] kavenegar delivered (${path}) messageid=${entry.messageid} cost=${entry.cost ?? "?"} receptor=${entry.receptor ?? params.receptor}`,
     );
   }
+}
+
+// SERVICE channel: خط خدماتی — template-based verify/lookup.json
+async function sendOtpViaLookup(phone: string, code: string): Promise<void> {
+  await postKavenegar("verify/lookup.json", {
+    receptor: phone,
+    token: code,
+    token2: KAVENEGAR_TOKEN2,
+    template: KAVENEGAR_TEMPLATE,
+    type: KAVENEGAR_LOOKUP_TYPE,
+  });
+}
+
+// ADVERTISE channel: خط تبلیغاتی — free-form sms/send.json
+async function sendOtpViaSend(phone: string, code: string): Promise<void> {
+  const message = `کاربر گرامی فیگرفورج\nکد احراز هویت شما:\n${code}\n@figureforge.ir`;
+  const params: Record<string, string> = { receptor: phone, message };
+  const sender = await getSetting(KAVENEGAR_SENDER_KEY);
+  if (sender) params.sender = sender;
+  await postKavenegar("sms/send.json", params);
+}
+
+async function sendOtp(phone: string, code: string, channel: OtpChannel): Promise<void> {
+  if (channel === "SERVICE") return sendOtpViaLookup(phone, code);
+  return sendOtpViaSend(phone, code);
 }
 
 export async function POST(req: NextRequest) {
@@ -130,20 +159,23 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const channel: OtpChannel =
+    (await getSetting(OTP_METHOD_KEY)) === "SERVICE" ? "SERVICE" : DEFAULT_OTP_CHANNEL;
+
   const dev = process.env.NODE_ENV !== "production";
 
   try {
-    await sendOtpViaKavenegar(phone, code);
+    await sendOtp(phone, code, channel);
   } catch (err) {
     if (dev) {
-      console.warn("[OTP] kavenegar skipped:", err);
+      console.warn(`[OTP] kavenegar skipped (channel=${channel}):`, err);
     } else {
       await prisma.otpCode.delete({ where: { id: otp.id } }).catch(() => {});
       return fail("sms_failed");
     }
   }
 
-  if (dev) console.log(`[OTP] phone=${phone} code=${code} purpose=${purpose}`);
+  if (dev) console.log(`[OTP] phone=${phone} code=${code} purpose=${purpose} channel=${channel}`);
 
   return ok({
     phone,
