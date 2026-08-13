@@ -38,7 +38,7 @@ export default async function AdminOrdersPage({
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className="text-[15px] font-[1000] text-[var(--primary)]" dir="ltr">#{o.orderNumber}</span>
-                  <span className="text-[12.5px] font-[850] text-[var(--text-2)]" dir="ltr">{o.user.phone}</span>
+                  <span className="text-[12.5px] font-[850] text-[var(--text-2)]" dir="ltr">{o.user.email}</span>
                   <span className="text-[12px] font-[850] text-[var(--muted)]">
                     {new Date(o.createdAt).toLocaleString(locale === "en" ? "en-US" : "fa-IR")}
                   </span>

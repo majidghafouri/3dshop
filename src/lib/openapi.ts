@@ -22,16 +22,16 @@ export const openApiSpec = {
         tags: ["Auth"],
         summary: "Send a one-time code for registration or password reset",
         description:
-          "Sends a 5-digit code (valid 5 minutes) via Kavenegar. The delivery channel is controlled by the `otp_method` Setting (default `ADVERTISE`): `ADVERTISE` uses the free-send `sms/send.json` method on the advertise line (sender from `kavenegar_sender`); `SERVICE` uses the template-based `verify/lookup.json` (`mobileverify`). For `REGISTER` purpose, the phone must not already have a password (use `/api/auth/login` instead). For `PASSWORD_RESET` purpose, the phone must already have a password. A 3-minute server-side cooldown is enforced per phone+purpose. In non-production environments the code is returned as `devCode` and the SMS is optional.",
+          "Sends a 5-digit code (valid 5 minutes) to the given email address via the configured SMTP server (settings `smtp_host`/`smtp_port`). For `REGISTER` purpose, the email must not already have a password (use `/api/auth/login` instead). For `PASSWORD_RESET` purpose, the email must already have a password. A 3-minute server-side cooldown is enforced per email+purpose. In non-production environments the code is returned as `devCode` and email sending is skipped.",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["phone", "purpose"],
+                required: ["email", "purpose"],
                 properties: {
-                  phone: { type: "string", example: "09120000000", description: "Iranian mobile; digits, 0-prefix or 98-prefix accepted" },
+                  email: { type: "string", example: "user@example.com", description: "Email address" },
                   purpose: { type: "string", enum: ["REGISTER", "PASSWORD_RESET"], description: "Why the OTP is being requested" },
                 },
               },
@@ -50,7 +50,7 @@ export const openApiSpec = {
                     data: {
                       type: "object",
                       properties: {
-                        phone: { type: "string", example: "09120000000" },
+                        email: { type: "string", example: "user@example.com" },
                         expiresIn: { type: "integer", example: 300 },
                         devCode: { type: "string", description: "Only in non-production", example: "48213" },
                       },
@@ -61,7 +61,7 @@ export const openApiSpec = {
             },
           },
           "429": {
-            description: "OTP cooldown — a code was recently sent for this phone and purpose",
+            description: "OTP cooldown — a code was recently sent for this email and purpose",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
           "409": {
@@ -69,11 +69,11 @@ export const openApiSpec = {
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
           "404": {
-            description: "No password set for this phone (cannot reset)",
+            description: "No password set for this email (cannot reset)",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
           "400": {
-            description: "Invalid phone number",
+            description: "Invalid email address",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
         },
@@ -82,7 +82,7 @@ export const openApiSpec = {
     "/api/auth/login": {
       post: {
         tags: ["Auth"],
-        summary: "Login with phone and password",
+        summary: "Login with email and password",
         description:
           "Authenticates with an existing password, sets the `figureforge_session` cookie, and merges the guest cart if present.",
         requestBody: {
@@ -91,9 +91,9 @@ export const openApiSpec = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["phone", "password"],
+                required: ["email", "password"],
                 properties: {
-                  phone: { type: "string", example: "09120000000", description: "Iranian mobile; digits, 0-prefix or 98-prefix accepted" },
+                  email: { type: "string", example: "user@example.com", description: "Email address" },
                   password: { type: "string", description: "User's password (min 8 characters)" },
                 },
               },
@@ -139,9 +139,9 @@ export const openApiSpec = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["phone", "code", "purpose", "password"],
+                required: ["email", "code", "purpose", "password"],
                 properties: {
-                  phone: { type: "string", example: "09120000000" },
+                  email: { type: "string", example: "user@example.com" },
                   code: { type: "string", example: "48213", description: "5-digit code" },
                   purpose: { type: "string", enum: ["REGISTER", "PASSWORD_RESET"], description: "Must match the code that was sent" },
                   password: { type: "string", description: "Password to set (min 8 characters)" },
@@ -171,7 +171,7 @@ export const openApiSpec = {
             },
           },
           "400": {
-            description: "Invalid/expired phone or code",
+            description: "Invalid/expired email or code",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
         },
@@ -662,7 +662,8 @@ export const openApiSpec = {
         type: "object",
         properties: {
           id: { type: "string" },
-          phone: { type: "string", example: "09120000000" },
+          email: { type: "string", nullable: true, example: "user@example.com" },
+          phone: { type: "string", nullable: true, example: "09120000000" },
           role: { type: "string", enum: ["USER", "ADMIN"] },
           name: { type: "string", nullable: true },
         },

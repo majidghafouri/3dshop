@@ -11,17 +11,19 @@ export default function CheckoutClient({
   dict,
   prefix,
   isAuthed,
+  userName,
   userPhone,
 }: {
   dict: Dictionary;
   prefix: string;
   isAuthed: boolean;
+  userName?: string;
   userPhone?: string;
 }) {
   const router = useRouter();
   const { items, subtotal, loading } = useCart();
   const [form, setForm] = useState({
-    fullName: "",
+    fullName: userName ?? "",
     phone: userPhone ?? "",
     address: "",
     postalCode: "",

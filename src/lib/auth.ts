@@ -11,7 +11,7 @@ export const SESSION_COOKIE = "figureforge_session";
 
 export type SessionPayload = {
   sub: string;
-  phone: string;
+  email: string;
   role: "USER" | "ADMIN";
   [key: string]: string;
 };
@@ -36,12 +36,12 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
 
 export async function createSessionCookie(user: {
   id: string;
-  phone: string;
+  email: string;
   role: "USER" | "ADMIN";
 }) {
   const token = await signSession({
     sub: user.id,
-    phone: user.phone,
+    email: user.email,
     role: user.role,
   });
   return token;

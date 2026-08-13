@@ -69,7 +69,7 @@ export default async function AdminDashboardPage({
               {recentOrders.map((o) => (
                 <tr key={o.id} className="font-[850] text-[var(--text-3)]">
                   <td className="px-4 py-3 font-[950] text-[var(--primary)]" dir="ltr">#{o.orderNumber}</td>
-                  <td className="px-4 py-3" dir="ltr">{o.user.phone}</td>
+                  <td className="px-4 py-3" dir="ltr">{o.user.email}</td>
                   <td className="px-4 py-3">{o.items.reduce((s, i) => s + i.quantity, 0)}</td>
                   <td className="px-4 py-3" dir="ltr">{o.total.toLocaleString("en-US")}</td>
                   <td className="px-4 py-3">

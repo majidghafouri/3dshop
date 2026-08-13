@@ -10,8 +10,8 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<AuthMode>("login");
-  const [step, setStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<"email" | "code">("email");
+  const [email, setEmail] = useState("");
   const [digits, setDigits] = useState<string[]>(Array(5).fill(""));
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,8 +29,8 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     const modeParam = searchParams.get("mode") as AuthMode | null;
     if (modeParam === "register" || modeParam === "forgot") {
       setMode(modeParam);
-      setStep("phone");
-      setPhone("");
+      setStep("email");
+      setEmail("");
       setDigits(Array(5).fill(""));
       setPassword("");
       setConfirmPassword("");
@@ -45,13 +45,13 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  const validatePhone = (v: string) => /^09\d{9}$/.test(v.replace(/[^\d]/g, ""));
+  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim().toLowerCase());
 
 
   const switchMode = (newMode: AuthMode) => {
     setMode(newMode);
-    setStep("phone");
-    setPhone("");
+    setStep("email");
+    setEmail("");
     setDigits(Array(5).fill(""));
     setPassword("");
     setConfirmPassword("");
@@ -64,9 +64,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
-    const normalized = phone.replace(/[^\d]/g, "");
-    if (!validatePhone(normalized)) {
-      setError(dict.auth.errorInvalidPhone);
+    const normalized = email.trim().toLowerCase();
+    if (!validateEmail(normalized)) {
+      setError(dict.auth.errorInvalidEmail);
       return;
     }
 
@@ -77,7 +77,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalized, purpose }),
+        body: JSON.stringify({ email: normalized, purpose }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -86,13 +86,17 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
           setCooldown(json.retryAfter);
         }
         setError(
-          json.error === "sms_failed"
-            ? dict.auth.errorSmsFailed + (json.detail ? ` (${json.detail})` : "")
-            : json.error === "user_exists_use_login"
-              ? dict.auth.errorUserExists
-              : json.error === "no_password_set"
-                ? dict.auth.errorNoPassword
-                : dict.auth.errorSendFailed,
+          json.error === "email_failed"
+            ? dict.auth.errorEmailFailed + (json.detail ? ` (${json.detail})` : "")
+            : json.error === "sms_failed"
+              ? dict.auth.errorEmailFailed
+              : json.error === "invalid_email"
+                ? dict.auth.errorInvalidEmail
+                : json.error === "user_exists_use_login"
+                  ? dict.auth.errorUserExists
+                  : json.error === "no_password_set"
+                    ? dict.auth.errorNoPassword
+                    : dict.auth.errorSendFailed,
         );
         return;
       }
@@ -176,7 +180,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.replace(/[^\d]/g, ""),
+          email: email.trim().toLowerCase(),
           code: value,
           purpose,
           password: mode === "register" || mode === "forgot" ? password : undefined,
@@ -209,9 +213,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const login = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
-    const normalized = phone.replace(/[^\d]/g, "");
-    if (!validatePhone(normalized)) {
-      setError(dict.auth.errorInvalidPhone);
+    const normalized = email.trim().toLowerCase();
+    if (!validateEmail(normalized)) {
+      setError(dict.auth.errorInvalidEmail);
       return;
     }
     if (!password) {
@@ -224,7 +228,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalized, password }),
+        body: JSON.stringify({ email: normalized, password }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -251,20 +255,20 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     await sendCode();
   };
 
-  const renderPhoneStep = () => (
+  const renderEmailStep = () => (
     <>
       <div className="mt-7 space-y-4">
         <label className="block">
           <span className="text-[12.5px] font-[900] text-[var(--text-2)]">
-            {dict.auth.phonePlaceholder}
+            {dict.auth.emailPlaceholder}
           </span>
           <input
-            type="tel"
-            inputMode="numeric"
+            type="email"
+            inputMode="email"
             dir="ltr"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="09123456789"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
             className="mt-2 w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
           />
         </label>
@@ -382,13 +386,13 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     >
       <div className="flex items-center justify-between flex-wrap gap-2">
         <span className="text-[13px] font-[850] text-[var(--text-2)]" dir="ltr">
-          {phone.replace(/[^\d]/g, "")}
+          {email}
         </span>
         <button
           type="button"
           onClick={() => {
-            setStep("phone");
-            setPhone("");
+            setStep("email");
+            setEmail("");
             setDigits(Array(5).fill(""));
             setPassword("");
             setConfirmPassword("");
@@ -399,7 +403,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
           }}
           className="text-[12.5px] font-[900] text-[var(--primary)] hover:underline"
         >
-          {dict.auth.changePhone}
+          {dict.auth.changeEmail}
         </button>
       </div>
 
@@ -548,7 +552,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
                 "linear-gradient(135deg,var(--primary),var(--teal))",
             }}
           >
-            {mode === "login" ? "🔐" : mode === "register" ? "📱" : "🔑"}
+            {mode === "login" ? "🔐" : mode === "register" ? "✉️" : "🔑"}
           </div>
           <h1 className="mt-4 text-[clamp(22px,2.6vw,30px)] font-[1000] text-[var(--text)]">
             {mode === "login"
@@ -566,10 +570,10 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
           </p>
         </div>
 
-        {step === "phone" && mode === "login"
-          ? renderPhoneStep()
-          : step === "phone" && (mode === "register" || mode === "forgot")
-            ? renderPhoneStep()
+        {step === "email" && mode === "login"
+          ? renderEmailStep()
+          : step === "email" && (mode === "register" || mode === "forgot")
+            ? renderEmailStep()
             : renderCodeStep()}
       </div>
     </div>

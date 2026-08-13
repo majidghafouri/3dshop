@@ -28,6 +28,7 @@ export default async function CheckoutPage({
           dict={dict}
           prefix={prefix}
           isAuthed={!!user}
+          userName={user?.name}
           userPhone={user?.phone}
         />
       </div>

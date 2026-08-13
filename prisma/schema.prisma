@@ -21,9 +21,9 @@ enum OtpPurpose {
 
 model User {
   id        String   @id @default(cuid())
-  phone     String   @unique
+  phone     String?  @unique
+  email     String?  @unique
   name      String?
-  email     String?
   password  String?
   locale    String   @default("fa")
   role      Role     @default(USER)
@@ -31,20 +31,24 @@ model User {
   orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([email])
 }
 
 model OtpCode {
   id        String     @id @default(cuid())
-  phone     String
+  phone     String?
+  email     String?
   code      String
   purpose   OtpPurpose @default(REGISTER)
   expiresAt DateTime
   consumed  Boolean    @default(false)
   attempts  Int        @default(0)
-  createdAt DateTime   @default(now())
+  createdAt DateTime @default(now())
 
   @@index([phone, createdAt])
-  @@index([phone, purpose, createdAt])
+  @@index([email, createdAt])
+  @@index([email, purpose, createdAt])
 }
 
 // ---------- Catalog ----------

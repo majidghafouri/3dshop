@@ -1,20 +1,24 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
-import { setSessionCookie } from "@/lib/auth";
+import { createSessionCookie, setSessionCookie } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
 import { mergeGuestCart } from "@/lib/cart";
 
+function normalizeEmail(raw: string): string {
+  return raw.trim().toLowerCase();
+}
+
 export async function POST(req: NextRequest) {
-  const body = parseJson<{ phone?: string; password?: string }>(await req.text());
-  const phone = (body?.phone ?? "").replace(/[^\d]/g, "");
+  const body = parseJson<{ email?: string; password?: string }>(await req.text());
+  const email = normalizeEmail(body?.email ?? "");
   const password = body?.password ?? "";
 
-  if (!/^09\d{9}$/.test(phone)) return fail("invalid_phone");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("invalid_email");
   if (!password) return fail("invalid_password");
 
   const user = await prisma.user.findUnique({
-    where: { phone },
+    where: { email },
   });
 
   if (!user || !user.password) return fail("invalid_credentials", 401);
@@ -22,11 +26,9 @@ export async function POST(req: NextRequest) {
   const valid = await verifyPassword(password, user.password);
   if (!valid) return fail("invalid_credentials", 401);
 
-  const token = await (
-    await import("@/lib/auth")
-  ).createSessionCookie({
+  const token = await createSessionCookie({
     id: user.id,
-    phone: user.phone,
+    email: user.email ?? email,
     role: user.role as "USER" | "ADMIN",
   });
   setSessionCookie(token);
@@ -37,6 +39,6 @@ export async function POST(req: NextRequest) {
   }
 
   return ok({
-    user: { id: user.id, phone: user.phone, role: user.role },
+    user: { id: user.id, email: user.email ?? email, role: user.role },
   });
 }

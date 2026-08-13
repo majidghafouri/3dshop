@@ -43,7 +43,7 @@ export default async function AdminLayout({
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-[clamp(22px,3vw,30px)] font-[1000] text-[var(--text)]">🛡️ {dict.admin.title}</h1>
-            <p className="mt-1 text-[12.5px] font-[850] text-[var(--muted)]">{dict.admin.signedInAs} {user.phone}</p>
+            <p className="mt-1 text-[12.5px] font-[850] text-[var(--muted)]">{dict.admin.signedInAs} {user.email}</p>
           </div>
           <Link href={`${prefix}/`} className="text-[13px] font-[950] text-[var(--primary)] hover:underline">
             ← {dict.admin.backToShop}

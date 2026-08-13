@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Locale, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import SettingsManager from "@/components/admin/SettingsManager";
-import OtpChannelManager from "@/components/admin/OtpChannelManager";
+import EmailSettingsManager from "@/components/admin/EmailSettingsManager";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function AdminSettingsPage({
 
   return (
     <div>
-      <OtpChannelManager dict={dict.admin.otpChannel} />
+      <EmailSettingsManager dict={dict.admin.emailSettings} />
       <div className="mt-6">
         <SettingsManager dict={dict.admin.settings} />
       </div>

@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n-dictionaries";
 import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/db";
 import LogoutButton from "@/components/LogoutButton";
+import ProfileForm from "@/components/ProfileForm";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-[var(--warning-soft)] text-[var(--warning-text)] border-[var(--warning-soft-2)]",
@@ -52,7 +53,7 @@ export default async function AccountPage({
               {dict.account.welcome} 👋
             </h1>
             <p className="mt-1.5 text-[13.5px] font-[850] text-[var(--muted)]" dir="ltr">
-              {dict.account.phone}: {user.phone}
+              {dict.account.email}: {user.email}
             </p>
           </div>
           <LogoutButton dict={dict} prefix={prefix} />
@@ -60,6 +61,8 @@ export default async function AccountPage({
 
         <div className="mt-8">
           <h2 className="text-[18px] font-[1000] text-[var(--text)]">{dict.account.myOrders}</h2>
+
+          <ProfileForm dict={dict} user={{ name: user.name, phone: user.phone, email: user.email }} />
 
           {orders.length === 0 ? (
             <div className="mt-4 bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-14 text-center">
