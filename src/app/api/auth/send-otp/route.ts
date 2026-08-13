@@ -167,11 +167,12 @@ export async function POST(req: NextRequest) {
   try {
     await sendOtp(phone, code, channel);
   } catch (err) {
+    const detail = err instanceof Error ? err.message : "unknown error";
     if (dev) {
       console.warn(`[OTP] kavenegar skipped (channel=${channel}):`, err);
     } else {
       await prisma.otpCode.delete({ where: { id: otp.id } }).catch(() => {});
-      return fail("sms_failed");
+      return fail("sms_failed", 400, { detail });
     }
   }
 

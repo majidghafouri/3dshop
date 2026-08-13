@@ -87,7 +87,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         }
         setError(
           json.error === "sms_failed"
-            ? dict.auth.errorSmsFailed
+            ? dict.auth.errorSmsFailed + (json.detail ? ` (${json.detail})` : "")
             : json.error === "user_exists_use_login"
               ? dict.auth.errorUserExists
               : json.error === "no_password_set"
