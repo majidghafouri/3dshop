@@ -25,9 +25,31 @@ export async function PATCH(
     return fail("invalid_status");
   }
 
-  const order = await prisma.order.update({
+  const order = await prisma.order.findUnique({
     where: { id: params.id },
-    data: { status },
+    include: { items: { select: { productId: true, quantity: true } } },
   });
-  return ok({ order });
+  if (!order) return fail("not_found", 404);
+
+  const wasCancelled = order.status === "CANCELLED";
+  const willBeCancelled = status === "CANCELLED";
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await tx.order.update({
+      where: { id: params.id },
+      data: { status },
+    });
+
+    if (willBeCancelled && !wasCancelled) {
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
+
+    return updatedOrder;
+  });
+  return ok({ order: updated });
 }
