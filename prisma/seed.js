@@ -786,11 +786,11 @@ async function main() {
     }
   }
 
-  const adminPhone = (process.env.ADMIN_PHONE || "09120000000").replace(/[^\d]/g, "");
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@figureforge.ir").trim().toLowerCase();
   await prisma.user.upsert({
-    where: { phone: adminPhone },
+    where: { email: adminEmail },
     update: { role: "ADMIN" },
-    create: { phone: adminPhone, role: "ADMIN", name: "مدیر" },
+    create: { email: adminEmail, role: "ADMIN", name: "مدیر" },
   });
 
   let publishedCount = 0;
@@ -844,7 +844,7 @@ async function main() {
   }
 
   console.log(
-    `Seeded ${CATEGORIES.length} categories, ${PRODUCTS.length} products, admin user (${adminPhone}), ${publishedCount} published + ${bankCount} bank blog posts.`,
+    `Seeded ${CATEGORIES.length} categories, ${PRODUCTS.length} products, admin user (${adminEmail}), ${publishedCount} published + ${bankCount} bank blog posts.`,
   );
 }
 

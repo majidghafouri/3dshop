@@ -11,13 +11,14 @@ type TransportConfig = {
 };
 
 async function loadConfig(): Promise<TransportConfig | null> {
-  const host = await getSetting("smtp_host");
-  const port = await getSetting("smtp_port");
+  const host = (await getSetting("smtp_host")) || process.env.SMTP_HOST;
+  const port = (await getSetting("smtp_port")) || process.env.SMTP_PORT;
   if (!host || !port) return null;
-  const user = await getSetting("smtp_user");
-  const pass = await getSetting("smtp_pass");
-  const secureRaw = await getSetting("smtp_secure");
-  const from = (await getSetting("mail_from")) || user || "noreply@figureforge.ir";
+  const user = (await getSetting("smtp_user")) || process.env.SMTP_USER;
+  const pass = (await getSetting("smtp_pass")) || process.env.SMTP_PASS;
+  const secureRaw =
+    (await getSetting("smtp_secure")) || process.env.SMTP_SECURE || "";
+  const from = (await getSetting("mail_from")) || process.env.MAIL_FROM || user || "noreply@figureforge.ir";
   const portNum = Number(port);
   return {
     host,
@@ -27,6 +28,11 @@ async function loadConfig(): Promise<TransportConfig | null> {
     pass: pass || undefined,
     from,
   };
+}
+
+export async function isSmtpConfigured(): Promise<boolean> {
+  const cfg = await loadConfig();
+  return cfg !== null;
 }
 
 function buildOtpHtml(code: string): string {
