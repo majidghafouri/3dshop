@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, locales, switchLocalePath } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
@@ -20,6 +20,7 @@ export default function LangSwitcher({
   dict: Dictionary;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -70,7 +71,13 @@ export default function LangSwitcher({
           className="absolute top-full ltr:left-0 rtl:right-0 mt-3 min-w-[226px] bg-[var(--glass-98)] border border-[var(--line-2)] rounded-[24px] p-2.5 shadow-[0_22px_70px_rgba(27,54,115,0.14)] backdrop-blur-[16px] z-50"
         >
           {locales.map((l) => {
-            const href = switchLocalePath(pathname, locale, l);
+            const query = searchParams.toString();
+            const href = switchLocalePath(
+              pathname,
+              locale,
+              l,
+              query ? `?${query}` : undefined,
+            );
             const active = l === locale;
             return (
               <Link

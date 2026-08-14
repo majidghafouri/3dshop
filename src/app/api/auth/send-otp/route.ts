@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
-import { sendOtpEmail } from "@/lib/email";
-import { isSmtpConfigured } from "@/lib/email";
+import { sendOtpEmail, isEmailConfigured } from "@/lib/email";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 3 * 60 * 1000;
@@ -75,16 +74,16 @@ export async function POST(req: NextRequest) {
   });
 
   const dev = process.env.NODE_ENV !== "production";
-  const smtpConfigured = await isSmtpConfigured();
+  const emailConfigured = await isEmailConfigured();
 
   try {
-    if (dev || !smtpConfigured) {
-      console.log(`[OTP] email=${email} code=${code} purpose=${purpose}${smtpConfigured ? "" : " (SMTP not configured)"}`);
+    if (dev || !emailConfigured) {
+      console.log(`[OTP] email=${email} code=${code} purpose=${purpose}${emailConfigured ? "" : " (email not configured)"}`);
     } else {
       await sendOtpEmail(email, code);
     }
   } catch (err) {
-    if (dev || !smtpConfigured) {
+    if (dev || !emailConfigured) {
       console.warn("[OTP] email send skipped:", err);
     } else {
       await prisma.otpCode.delete({ where: { id: otp.id } }).catch(() => {});
@@ -96,6 +95,6 @@ export async function POST(req: NextRequest) {
   return ok({
     email,
     expiresIn: OTP_TTL_MS / 1000,
-    ...(dev || !smtpConfigured ? { devCode: code } : {}),
+    ...(dev || !emailConfigured ? { devCode: code } : {}),
   });
 }

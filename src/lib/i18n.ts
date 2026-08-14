@@ -16,9 +16,10 @@ export function localizePath(path: string, to: Locale): string {
   return `${localePrefix(to)}${clean}`;
 }
 
-export function switchLocalePath(path: string, from: Locale, to: Locale): string {
+export function switchLocalePath(path: string, from: Locale, to: Locale, search?: string): string {
   const unprefixed = path.replace(new RegExp(`^/(${locales.join("|")})`), "") || "/";
-  return localizePath(unprefixed, to);
+  const base = localizePath(unprefixed, to);
+  return search ? `${base}${search}` : base;
 }
 
 export function getDir(locale: Locale): "rtl" | "ltr" {

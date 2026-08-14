@@ -291,10 +291,11 @@ export default function Header({
               <div className="mt-2 grid grid-cols-3 gap-2">
                 {locales.map((l) => {
                   const active = l === locale;
+                  const query = searchParams.toString();
                   return (
                     <Link
                       key={l}
-                      href={switchLocalePath(pathname, locale, l)}
+                      href={switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined)}
                       onClick={() => setMobileOpen(false)}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active

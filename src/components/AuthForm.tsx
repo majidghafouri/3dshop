@@ -6,6 +6,8 @@ import { Dictionary } from "@/lib/i18n-dictionaries";
 
 type AuthMode = "login" | "register" | "forgot";
 
+const AUTH_STORAGE_KEY = "figureforge-auth-state-v1";
+
 export default function AuthForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,9 +28,87 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(AUTH_STORAGE_KEY) ?? "null") as {
+        mode: AuthMode;
+        step: "email" | "code";
+        email: string;
+        digits: string[];
+        password: string;
+        confirmPassword: string;
+        cooldown: number;
+        devCode: string | null;
+      } | null;
+      if (saved && (saved.mode === "register" || saved.mode === "forgot")) {
+        setMode(saved.mode);
+        setStep(saved.step === "code" ? "code" : "email");
+        setEmail(saved.email ?? "");
+        setDigits(
+          Array.isArray(saved.digits) && saved.digits.length === 5
+            ? saved.digits
+            : Array(5).fill(""),
+        );
+        setPassword(saved.password ?? "");
+        setConfirmPassword(saved.confirmPassword ?? "");
+        setCooldown(saved.cooldown ?? 0);
+        setDevCode(saved.devCode ?? null);
+      } else {
+        const modeParam = searchParams.get("mode") as AuthMode | null;
+        if (modeParam === "register" || modeParam === "forgot") {
+          setMode(modeParam);
+          setStep("email");
+          setEmail("");
+          setDigits(Array(5).fill(""));
+          setPassword("");
+          setConfirmPassword("");
+          setError(null);
+          setDevCode(null);
+        }
+      }
+    } catch {
+      const modeParam = searchParams.get("mode") as AuthMode | null;
+      if (modeParam === "register" || modeParam === "forgot") {
+        setMode(modeParam);
+        setStep("email");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        AUTH_STORAGE_KEY,
+        JSON.stringify({
+          mode,
+          step,
+          email,
+          digits,
+          password,
+          confirmPassword,
+          cooldown,
+          devCode,
+        }),
+      );
+    } catch {}
+  }, [mode, step, email, digits, password, confirmPassword, cooldown, devCode]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const skipFirstSearchParams = useRef(true);
+  useEffect(() => {
+    if (skipFirstSearchParams.current) {
+      skipFirstSearchParams.current = false;
+      return;
+    }
     const modeParam = searchParams.get("mode") as AuthMode | null;
-    if (modeParam === "register" || modeParam === "forgot") {
-      setMode(modeParam);
+    if (modeParam !== "register" && modeParam !== "forgot") return;
+    setMode((prev) => {
+      if (prev === modeParam) return prev;
       setStep("email");
       setEmail("");
       setDigits(Array(5).fill(""));
@@ -36,14 +116,11 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       setConfirmPassword("");
       setError(null);
       setDevCode(null);
-    }
+      setCooldown(0);
+      setServerCooldown(null);
+      return modeParam;
+    });
   }, [searchParams]);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
 
   const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim().toLowerCase());
 
@@ -125,6 +202,20 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/[^\d]/g, "").slice(0, 5);
+    if (!pasted) return;
+    const next = [...digits];
+    for (let k = 0; k < pasted.length; k++) next[k] = pasted[k];
+    setDigits(next);
+    if (pasted.length === 5) {
+      verify(next.join(""));
+    } else {
+      inputsRef.current[Math.min(pasted.length, 4)]?.focus();
+    }
+  };
+
   const handleKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace") {
       e.preventDefault();
@@ -201,6 +292,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         return;
       }
       const next = searchParams.get("next");
+      try {
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      } catch {}
       router.push(next ?? "/");
       router.refresh();
     } catch {
@@ -242,6 +336,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         return;
       }
       const next = searchParams.get("next");
+      try {
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      } catch {}
       router.push(next ?? "/");
       router.refresh();
     } catch {
@@ -418,6 +515,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             maxLength={1}
             value={d}
             onChange={(e) => handleDigit(i, e.target.value)}
+            onPaste={handlePaste}
             onKeyDown={(e) => handleKey(i, e)}
             onFocus={handleFocus}
             className="w-[52px] h-[60px] text-center border border-[var(--line-2)] rounded-[14px] text-[22px] font-[1000] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
