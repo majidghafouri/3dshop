@@ -259,7 +259,6 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         return;
       }
       if (password !== confirmPassword) {
-        setError(dict.auth.passwordMismatch);
         confirmPasswordRef.current?.focus();
         return;
       }
@@ -580,7 +579,13 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         </p>
       )}
 
-      {error && (
+      {password && confirmPassword && password !== confirmPassword && (
+        <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
+          {dict.auth.passwordMismatch}
+        </p>
+      )}
+
+      {error && error !== dict.auth.passwordMismatch && (
         <p className="text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">
           {error}
         </p>
