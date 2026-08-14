@@ -2,25 +2,35 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { getSessionUser } from "@/lib/auth";
-import { normalizePhone } from "@/lib/kavenegar";
 
 const MAX_ATTEMPTS = 5;
+
+type Field = "email" | "phone";
+
+const PURPOSES: Record<Field, "EMAIL_VERIFY" | "MOBILE_VERIFY"> = {
+  email: "EMAIL_VERIFY",
+  phone: "MOBILE_VERIFY",
+};
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
   if (!user) return fail("unauthorized", 401);
-  if (user.phoneVerified) return fail("already_verified");
-  if (!user.phone) return fail("no_phone");
 
-  const phone = normalizePhone(user.phone);
-  if (!phone) return fail("invalid_phone");
+  const body = parseJson<{ field?: Field; code?: string }>(await req.text());
+  const field = body?.field;
+  if (field !== "email" && field !== "phone") return fail("invalid_field");
 
-  const body = parseJson<{ code?: string }>(await req.text());
+  const value = field === "email" ? user.email : user.phone;
+  if (!value) return fail(field === "email" ? "no_email" : "no_phone");
+  if (user[`${field}Verified`]) return fail("already_verified");
+
   const code = (body?.code ?? "").replace(/[^0-9]/g, "");
   if (!/^[0-9]{5}$/.test(code)) return fail("invalid_code");
 
+  const purpose = PURPOSES[field];
+
   const otp = await prisma.otpCode.findFirst({
-    where: { phone, purpose: "MOBILE_VERIFY", consumed: false },
+    where: { [field]: value, purpose, consumed: false },
     orderBy: { createdAt: "desc" },
   });
   if (!otp) return fail("invalid_code");
@@ -42,11 +52,18 @@ export async function POST(req: NextRequest) {
 
   const updated = await prisma.user.update({
     where: { id: user.id },
-    data: { phoneVerified: true },
-    select: { id: true, phone: true, phoneVerified: true },
+    data: { [`${field}Verified`]: true },
+    select: { id: true, email: true, phone: true, emailVerified: true, phoneVerified: true },
   });
 
   return ok({
-    user: { id: updated.id, phone: updated.phone, phoneVerified: updated.phoneVerified },
+    field,
+    user: {
+      id: updated.id,
+      email: updated.email,
+      phone: updated.phone,
+      emailVerified: updated.emailVerified,
+      phoneVerified: updated.phoneVerified,
+    },
   });
 }

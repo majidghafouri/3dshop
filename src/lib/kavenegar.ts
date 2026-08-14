@@ -9,18 +9,8 @@ const KAVENEGAR_TOKEN2 = process.env.KAVENEGAR_TOKEN2 ?? "@figureforge.ir";
 
 const KAVENEGAR_SENDER_KEY = "kavenegar_sender";
 
-export function normalizePhone(raw: string): string | null {
-  const digits = raw.replace(/[^\d]/g, "");
-  const match = digits.match(/^(?:98|0)?(9\d{9})$/);
-  if (!match) return null;
-  return `0${match[1]}`;
-}
-
-export function generateCode(): string {
-  const buf = new Uint32Array(1);
-  crypto.getRandomValues(buf);
-  const n = buf[0] % 90000;
-  return String(10000 + n);
+export async function isSmsConfigured(): Promise<boolean> {
+  return !!process.env.KAVENEGAR_API_KEY;
 }
 
 type KavenegarEntry = {

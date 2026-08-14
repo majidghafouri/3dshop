@@ -13,7 +13,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<AuthMode>("login");
   const [step, setStep] = useState<"email" | "code">("email");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [digits, setDigits] = useState<string[]>(Array(5).fill(""));
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,7 +32,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       const saved = JSON.parse(sessionStorage.getItem(AUTH_STORAGE_KEY) ?? "null") as {
         mode: AuthMode;
         step: "email" | "code";
-        email: string;
+        identifier: string;
         digits: string[];
         password: string;
         confirmPassword: string;
@@ -42,7 +42,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       if (saved && (saved.mode === "register" || saved.mode === "forgot")) {
         setMode(saved.mode);
         setStep(saved.step === "code" ? "code" : "email");
-        setEmail(saved.email ?? "");
+        setIdentifier(saved.identifier ?? "");
         setDigits(
           Array.isArray(saved.digits) && saved.digits.length === 5
             ? saved.digits
@@ -57,7 +57,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         if (modeParam === "register" || modeParam === "forgot") {
           setMode(modeParam);
           setStep("email");
-          setEmail("");
+          setIdentifier("");
           setDigits(Array(5).fill(""));
           setPassword("");
           setConfirmPassword("");
@@ -82,7 +82,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         JSON.stringify({
           mode,
           step,
-          email,
+          identifier,
           digits,
           password,
           confirmPassword,
@@ -91,7 +91,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         }),
       );
     } catch {}
-  }, [mode, step, email, digits, password, confirmPassword, cooldown, devCode]);
+  }, [mode, step, identifier, digits, password, confirmPassword, cooldown, devCode]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -110,7 +110,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     setMode((prev) => {
       if (prev === modeParam) return prev;
       setStep("email");
-      setEmail("");
+      setIdentifier("");
       setDigits(Array(5).fill(""));
       setPassword("");
       setConfirmPassword("");
@@ -122,13 +122,21 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     });
   }, [searchParams]);
 
-  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim().toLowerCase());
-
+  const resolveIdentifier = (v: string) => {
+    const raw = v.trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
+      return { email: raw.toLowerCase() };
+    }
+    const digits = raw.replace(/[^\d]/g, "");
+    const match = digits.match(/^(?:98|0)?(9\d{9})$/);
+    if (match) return { phone: `0${match[1]}` };
+    return null;
+  };
 
   const switchMode = (newMode: AuthMode) => {
     setMode(newMode);
     setStep("email");
-    setEmail("");
+    setIdentifier("");
     setDigits(Array(5).fill(""));
     setPassword("");
     setConfirmPassword("");
@@ -141,8 +149,8 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
-    const normalized = email.trim().toLowerCase();
-    if (!validateEmail(normalized)) {
+    const identifierPayload = resolveIdentifier(identifier);
+    if (!identifierPayload) {
       setError(dict.auth.errorInvalidEmail);
       return;
     }
@@ -154,7 +162,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalized, purpose }),
+        body: JSON.stringify({ ...identifierPayload, purpose }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -166,8 +174,8 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
           json.error === "email_failed"
             ? dict.auth.errorEmailFailed + (json.detail ? ` (${json.detail})` : "")
             : json.error === "sms_failed"
-              ? dict.auth.errorEmailFailed
-              : json.error === "invalid_email"
+              ? dict.auth.errorSendFailed
+              : json.error === "invalid_identifier" || json.error === "invalid_email"
                 ? dict.auth.errorInvalidEmail
                 : json.error === "user_exists_use_login"
                   ? dict.auth.errorUserExists
@@ -270,7 +278,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: email.trim().toLowerCase(),
+          ...resolveIdentifier(identifier),
           code: value,
           purpose,
           password: mode === "register" || mode === "forgot" ? password : undefined,
@@ -285,7 +293,9 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
               ? dict.auth.passwordTooShort
               : json.error === "no_password_set"
                 ? dict.auth.errorNoPassword
-                : dict.auth.errorInvalidCode,
+                : json.error === "invalid_identifier"
+                  ? dict.auth.errorInvalidEmail
+                  : dict.auth.errorInvalidCode,
         );
         inputsRef.current[4]?.focus();
         return;
@@ -306,8 +316,8 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
   const login = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError(null);
-    const normalized = email.trim().toLowerCase();
-    if (!validateEmail(normalized)) {
+    const identifierPayload = resolveIdentifier(identifier);
+    if (!identifierPayload) {
       setError(dict.auth.errorInvalidEmail);
       return;
     }
@@ -321,12 +331,12 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalized, password }),
+        body: JSON.stringify({ ...identifierPayload, password }),
       });
       const json = await res.json();
       if (!json.ok) {
         setError(
-          json.error === "invalid_credentials"
+          json.error === "invalid_credentials" || json.error === "invalid_identifier"
             ? dict.auth.errorInvalidCredentials
             : json.error === "no_password_set"
               ? dict.auth.errorNoPassword
@@ -359,12 +369,12 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             {dict.auth.emailPlaceholder}
           </span>
           <input
-            type="email"
+            type="text"
             inputMode="email"
             dir="ltr"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="you@example.com / 0912…"
             className="mt-2 w-full border border-[var(--line-2)] rounded-[16px] px-4 py-3.5 text-[15px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all"
           />
         </label>
@@ -483,13 +493,13 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
     >
       <div className="flex items-center justify-between flex-wrap gap-2">
         <span className="text-[13px] font-[850] text-[var(--text-2)]" dir="ltr">
-          {email}
+          {identifier}
         </span>
         <button
           type="button"
           onClick={() => {
             setStep("email");
-            setEmail("");
+            setIdentifier("");
             setDigits(Array(5).fill(""));
             setPassword("");
             setConfirmPassword("");

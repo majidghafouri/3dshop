@@ -6,7 +6,15 @@ export async function GET(req: NextRequest) {
   const user = await getSessionUserFromRequest(req);
   return ok(
     user
-      ? { id: user.id, email: user.email, phone: user.phone, role: user.role, name: user.name }
+      ? {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          name: user.name,
+          emailVerified: user.emailVerified,
+          phoneVerified: user.phoneVerified,
+          role: user.role,
+        }
       : null
   );
 }
