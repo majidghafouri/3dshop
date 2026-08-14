@@ -22,16 +22,25 @@ export async function PATCH(req: NextRequest) {
     if (existing) return fail("phone_taken", 409);
   }
 
+  const phoneChanged = phone !== (user.phone ?? null);
+
   const updated = await prisma.user.update({
     where: { id: user.id },
     data: {
       name: name.length ? name : null,
       phone,
+      ...(phoneChanged ? { phoneVerified: false } : {}),
     },
-    select: { id: true, name: true, phone: true, email: true },
+    select: { id: true, name: true, phone: true, email: true, phoneVerified: true },
   });
 
   return ok({
-    user: { id: updated.id, name: updated.name, phone: updated.phone, email: updated.email },
+    user: {
+      id: updated.id,
+      name: updated.name,
+      phone: updated.phone,
+      email: updated.email,
+      phoneVerified: updated.phoneVerified,
+    },
   });
 }

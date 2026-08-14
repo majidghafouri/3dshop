@@ -17,15 +17,17 @@ enum Role {
 enum OtpPurpose {
   REGISTER
   PASSWORD_RESET
+  MOBILE_VERIFY
 }
 
 model User {
-  id        String   @id @default(cuid())
-  phone     String?  @unique
-  email     String?  @unique
-  name      String?
-  password  String?
-  locale    String   @default("fa")
+  id            String   @id @default(cuid())
+  phone         String?  @unique
+  email         String?  @unique
+  name          String?
+  password      String?
+  phoneVerified Boolean  @default(false)
+  locale        String   @default("fa")
   role      Role     @default(USER)
   cart      Cart?
   orders    Order[]

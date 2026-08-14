@@ -62,7 +62,7 @@ export default async function AccountPage({
         <div className="mt-8">
           <h2 className="text-[18px] font-[1000] text-[var(--text)]">{dict.account.myOrders}</h2>
 
-          <ProfileForm dict={dict} user={{ name: user.name, phone: user.phone, email: user.email }} />
+          <ProfileForm dict={dict} user={{ name: user.name, phone: user.phone, email: user.email, phoneVerified: user.phoneVerified }} />
 
           {orders.length === 0 ? (
             <div className="mt-4 bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-14 text-center">
