@@ -406,6 +406,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
                 />
                 <button
                   type="button"
+                  tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
                 >
@@ -539,6 +540,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             />
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => setShowPassword((v) => !v)}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
             >
@@ -561,6 +563,7 @@ export default function AuthForm({ dict }: { dict: Dictionary }) {
             />
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => setShowPassword((v) => !v)}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-[800] text-[var(--muted)]"
             >
