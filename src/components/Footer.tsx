@@ -1,3 +1,4 @@
+import type { ImgHTMLAttributes } from "react";
 import Link from "next/link";
 import { Locale, localePrefix, locales } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
@@ -67,20 +68,38 @@ export default function Footer({ locale, dict }: { locale: Locale; dict: Diction
         {/* Bottom bar */}
         <div className="border-t border-[rgba(var(--primary-rgb),0.16)] pt-5 flex flex-wrap items-center justify-between gap-4 text-[13px] font-[700] text-[var(--muted-5)]">
           <span>{dict.footer.rights}</span>
-          <div className="flex items-center gap-2">
-            {locales.map((l, i) => (
-              <span key={l} className="flex items-center gap-2">
-                {i > 0 && <span className="text-[var(--line-11)] select-none">|</span>}
-                <Link
-                  href={l === "fa" ? "/" : `/${l}`}
-                  className={`transition-colors duration-200 ${
-                    l === locale ? "text-[var(--primary)] font-[950]" : "hover:text-[var(--primary)]"
-                  }`}
-                >
-                  {langLabels[l]}
-                </Link>
-              </span>
-            ))}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://trustseal.enamad.ir/?id=773536&Code=VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f"
+              target="_blank"
+              referrerPolicy="origin"
+              aria-label="اینماد"
+              className="inline-flex rounded-[14px] border border-[var(--line)] bg-[var(--surface)] p-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(var(--primary-rgb),0.15)]"
+            >
+              <img
+                referrerPolicy="origin"
+                src="https://trustseal.enamad.ir/logo.aspx?id=773536&Code=VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f"
+                alt=""
+                style={{ cursor: "pointer" }}
+                className="h-20 w-auto"
+                {...{ code: "VQhpOQtj5t7Y8nhGy6ZjSmSGVE1QBj1f" } as ImgHTMLAttributes<HTMLImageElement>}
+              />
+            </a>
+            <div className="flex items-center gap-2">
+              {locales.map((l, i) => (
+                <span key={l} className="flex items-center gap-2">
+                  {i > 0 && <span className="text-[var(--line-11)] select-none">|</span>}
+                  <Link
+                    href={l === "fa" ? "/" : `/${l}`}
+                    className={`transition-colors duration-200 ${
+                      l === locale ? "text-[var(--primary)] font-[950]" : "hover:text-[var(--primary)]"
+                    }`}
+                  >
+                    {langLabels[l]}
+                  </Link>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
