@@ -10,6 +10,7 @@ import "@fontsource/vazirmatn/800.css";
 import "@fontsource/vazirmatn/900.css";
 import { isLocale, getDir } from "@/lib/i18n";
 import { getSiteTheme, buildThemeStyle, DEFAULT_PALETTE } from "@/lib/siteTheme";
+import LocaleDirection from "@/components/LocaleDirection";
 
 export const metadata: Metadata = {
   title: {
@@ -48,6 +49,7 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: paletteCss }} />
       </head>
       <body className="antialiased bg-[var(--bg)]" style={{ paddingTop: "76px" }}>
+        <LocaleDirection />
         {children}
       </body>
     </html>
