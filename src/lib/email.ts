@@ -136,7 +136,7 @@ async function sendViaResend(apiKey: string, from: string, to: string, subject: 
   }
 }
 
-async function sendEmail(to: string, subject: string, text: string, html: string): Promise<void> {
+export async function sendEmail(to: string, subject: string, text: string, html: string): Promise<void> {
   const resendCfg = await loadResendConfig();
   if (resendCfg) {
     await sendViaResend(resendCfg.apiKey, resendCfg.from, to, subject, text, html);

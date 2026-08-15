@@ -1,19 +1,27 @@
 import { notFound } from "next/navigation";
 import { Locale, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { getSetting } from "@/lib/settings";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
+
+export const dynamic = "force-dynamic";
 
 export default async function ContactPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
 
+  const phone = (await getSetting("contact_phone")) || dict.footer.phone;
+  const email = (await getSetting("contact_email")) || "info@figureforge.ir";
+  const address = (await getSetting(`contact_address_${locale}`)) || dict.contact.addressText;
+  const hours = (await getSetting(`contact_hours_${locale}`)) || dict.contact.hoursText;
+
   const infoCards = [
-    { icon: "📞", label: dict.contact.phone, value: dict.footer.phone, href: `tel:${dict.footer.phone.replace(/[^\d]/g, "")}` },
-    { icon: "✉️", label: dict.contact.email, value: "info@figureforge.ir", href: "mailto:info@figureforge.ir" },
-    { icon: "📍", label: dict.contact.address, value: dict.contact.addressText },
-    { icon: "🕘", label: dict.contact.hours, value: dict.contact.hoursText },
+    { icon: "📞", label: dict.contact.phone, value: phone, href: `tel:${phone.replace(/[^\d+]/g, "")}` },
+    { icon: "✉️", label: dict.contact.email, value: email, href: `mailto:${email}` },
+    { icon: "📍", label: dict.contact.address, value: address },
+    { icon: "🕘", label: dict.contact.hours, value: hours },
   ];
 
   return (
