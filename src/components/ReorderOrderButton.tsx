@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/components/CartProvider";
 
 type ReorderDict = {
   reorder: string;
@@ -20,6 +21,7 @@ export default function ReorderOrderButton({
   dict: ReorderDict;
 }) {
   const router = useRouter();
+  const { refresh: refreshCart } = useCart();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
@@ -33,6 +35,7 @@ export default function ReorderOrderButton({
         if (json.data.skipped?.length) {
           setMsg({ kind: "ok", text: dict.reorderPartial });
         }
+        await refreshCart();
         setTimeout(() => router.push(`${prefix}/cart`), 600);
         return;
       }
