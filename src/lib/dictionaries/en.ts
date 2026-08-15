@@ -353,6 +353,9 @@ export const en: typeof fa = {
     extendNotice: "Your payment deadline was extended by {minutes} minute(s).",
     deadline: "Time left to pay:",
     deadlineExpired: "Payment deadline passed; the order has been cancelled",
+    pay: "Pay",
+    paying: "Redirecting to gateway…",
+    payFailed: "Failed to start payment",
     backToAccount: "Back to account",
   },
   common: {

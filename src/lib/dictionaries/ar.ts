@@ -353,6 +353,9 @@ export const ar: typeof fa = {
     extendNotice: "تم تمديد موعد الدفع بمقدار {minutes} دقيقة.",
     deadline: "الوقت المتبقي للدفع:",
     deadlineExpired: "انتهى وقت الدفع؛ تم إلغاء الطلب",
+    pay: "الدفع",
+    paying: "جارٍ التحويل إلى بوابة الدفع…",
+    payFailed: "فشل بدء الدفع",
     backToAccount: "العودة إلى الحساب",
   },
   common: {

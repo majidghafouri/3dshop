@@ -351,6 +351,9 @@ export const fa = {
     extendNotice: "مهلت پرداخت شما {minutes} دقیقه تمدید شد.",
     deadline: "مهلت پرداخت باقی‌مانده:",
     deadlineExpired: "مهلت پرداخت به پایان رسید؛ سفارش لغو شد",
+    pay: "پرداخت",
+    paying: "در حال انتقال به درگاه…",
+    payFailed: "خطا در شروع پرداخت",
     backToAccount: "بازگشت به حساب کاربری",
   },
   common: {

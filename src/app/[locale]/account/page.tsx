@@ -9,7 +9,7 @@ import ProfileForm from "@/components/ProfileForm";
 import CancelOrderButton from "@/components/CancelOrderButton";
 import PayOrderButton from "@/components/PayOrderButton";
 import ReorderOrderButton from "@/components/ReorderOrderButton";
-import PaymentCountdown from "@/components/PaymentCountdown";
+import MiniCountdown from "@/components/MiniCountdown";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-[var(--warning-soft)] text-[var(--warning-text)] border-[var(--warning-soft-2)]",
@@ -106,7 +106,16 @@ export default async function AccountPage({
                         {dict.account.statuses[order.status as keyof typeof dict.account.statuses] ?? order.status}
                       </span>
                       <span className="text-[12px] font-[850] text-[var(--muted)]">
-                        {new Date(order.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "fa-IR")}
+                        {showDeadline ? (
+                          <MiniCountdown
+                            deadline={deadline.toISOString()}
+                            expiredLabel={dict.account.countdownExpired}
+                          />
+                        ) : (
+                          new Date(order.createdAt).toLocaleDateString(
+                            locale === "en" ? "en-US" : "fa-IR"
+                          )
+                        )}
                       </span>
                     </div>
                     <span className="text-[15px] font-[1000] text-[var(--text)]" dir="ltr">
@@ -129,14 +138,6 @@ export default async function AccountPage({
                       </div>
                     ))}
                   </div>
-
-                  {showDeadline && (
-                    <PaymentCountdown
-                      deadline={deadline.toISOString()}
-                      label={dict.account.countdownLabel}
-                      expiredLabel={dict.account.countdownExpired}
-                    />
-                  )}
 
                   <div className="mt-4 flex items-center justify-end gap-3 flex-wrap">
                     {isPending && isOnline && (

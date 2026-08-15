@@ -6,6 +6,8 @@ import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getPaymentDeadline, PAYMENT_EXTENSION_MINUTES } from "@/lib/orders";
 import PaymentCountdown from "@/components/PaymentCountdown";
+import PayNowButton from "@/components/PayNowButton";
+import CancelOrderButton from "@/components/CancelOrderButton";
 
 export default async function PayOrderPage({
   params,
@@ -93,7 +95,26 @@ export default async function PayOrderPage({
             expiredLabel={d.deadlineExpired}
           />
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <PayNowButton
+                orderId={order.id}
+                dict={{ pay: d.pay, paying: d.paying, payFailed: d.payFailed }}
+              />
+              <CancelOrderButton
+                orderId={order.id}
+                orderNumber={order.orderNumber}
+                dict={{
+                  cancel: dict.account.cancel,
+                  canceling: dict.account.canceling,
+                  cancelConfirm: dict.account.cancelConfirm,
+                  cancelSuccess: dict.account.cancelSuccess,
+                  cancelFailed: dict.account.cancelFailed,
+                  cancelLimit: dict.account.cancelLimit,
+                  cancelLimitGeneric: dict.account.cancelLimitGeneric,
+                }}
+              />
+            </div>
             <Link
               href={`${prefix}/account`}
               className="rounded-[14px] font-[950] px-6 py-3 text-[13px] border border-[var(--line-2)] bg-[var(--surface)] text-[var(--text-2)] hover:border-[var(--primary)] transition-all"
