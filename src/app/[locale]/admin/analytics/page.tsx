@@ -104,7 +104,7 @@ export default async function AdminAnalyticsPage({
                   opacity: x.views > 0 ? 1 : 0.4,
                 }}
               />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-[var(--text)] text-white text-[10.5px] font-[850] rounded-[6px] px-2 py-1 whitespace-nowrap z-10">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-black/85 text-white text-[10.5px] font-[850] rounded-[6px] px-2 py-1 whitespace-nowrap z-10 shadow-lg">
                 {x.label}: {x.views.toLocaleString("en-US")}
               </div>
             </div>
