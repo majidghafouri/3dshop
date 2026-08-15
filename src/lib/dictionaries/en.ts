@@ -219,6 +219,7 @@ export const en: typeof fa = {
     needLogin: "Please log in to place an order",
     loginNow: "Login / Sign up",
     fillRequired: "Please fill in the required fields",
+    stockChanged: "Some items are no longer available in the requested quantity. Please review your cart and try again.",
     orderCreated: "Your order has been placed",
     orderCreatedDesc: "Once the payment gateway is connected, payment will be completed online.",
     toAccount: "Track order",

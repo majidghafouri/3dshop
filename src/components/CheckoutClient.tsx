@@ -109,7 +109,9 @@ export default function CheckoutClient({
       });
       const json = await res.json();
       if (!json.ok) {
-        setError(json.error === "empty_cart" ? dict.cart.empty : dict.checkout.fillRequired);
+        if (json.error === "empty_cart") setError(dict.cart.empty);
+        else if (json.error === "stock_changed") setError(dict.checkout.stockChanged);
+        else setError(dict.checkout.fillRequired);
         return;
       }
       setDone({ orderNumber: json.data.order.orderNumber });
