@@ -42,7 +42,7 @@ async function restoreStock(tx: Prisma.TransactionClient, items: { productId: st
 }
 
 /**
- * Cancel unpaid online-payment orders that passed their payment deadline
+ * Cancel unpaid pending orders that passed their payment deadline
  * and return their reserved stock. Returns the number of cancelled orders.
  */
 export async function cancelExpiredOrders(): Promise<number> {
@@ -55,7 +55,6 @@ export async function cancelExpiredOrders(): Promise<number> {
       where: {
         status: "PENDING",
         paidAt: null,
-        paymentMethod: { not: "CASH_ON_DELIVERY" },
         deadlineExtendedAt: null,
         createdAt: { lte: baseCutoff },
       },
@@ -65,7 +64,6 @@ export async function cancelExpiredOrders(): Promise<number> {
       where: {
         status: "PENDING",
         paidAt: null,
-        paymentMethod: { not: "CASH_ON_DELIVERY" },
         deadlineExtendedAt: { not: null },
         createdAt: { lte: extendedCutoff },
       },

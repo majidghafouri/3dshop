@@ -36,12 +36,11 @@ export default async function PayOrderPage({
   }
 
   const isPending = order.status === "PENDING";
-  const isOnline = order.paymentMethod !== "CASH_ON_DELIVERY";
   const deadline = getPaymentDeadline(order);
   const remainingMs = deadline.getTime() - Date.now();
   const extended = !!order.deadlineExtendedAt;
 
-  if (!isPending || !isOnline || remainingMs <= 0) {
+  if (!isPending || remainingMs <= 0) {
     redirect(`${prefix}/account`);
   }
 

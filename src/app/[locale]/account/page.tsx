@@ -91,10 +91,9 @@ export default async function AccountPage({
               {orders.map((order) => {
                 const isPending = order.status === "PENDING";
                 const isCancelled = order.status === "CANCELLED";
-                const isOnline = order.paymentMethod !== "CASH_ON_DELIVERY";
                 const deadline = getPaymentDeadline(order);
                 const remainingMs = deadline.getTime() - now;
-                const showDeadline = isPending && isOnline && !order.paidAt && remainingMs > 0;
+                const showDeadline = isPending && !order.paidAt && remainingMs > 0;
                 return (
                 <div key={order.id} className="bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-6 shadow-[0_12px_36px_rgba(20,45,90,0.05)]">
                   <div className="flex items-center justify-between flex-wrap gap-3">
@@ -140,7 +139,7 @@ export default async function AccountPage({
                   </div>
 
                   <div className="mt-4 flex items-center justify-end gap-3 flex-wrap">
-                    {isPending && isOnline && (
+                    {isPending && !order.paidAt && (
                       <PayOrderButton
                         orderId={order.id}
                         prefix={prefix}
