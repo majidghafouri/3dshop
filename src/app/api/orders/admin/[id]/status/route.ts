@@ -33,11 +33,17 @@ export async function PATCH(
 
   const wasCancelled = order.status === "CANCELLED";
   const willBeCancelled = status === "CANCELLED";
+  const isPaidStatus = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"].includes(status);
 
   const updated = await prisma.$transaction(async (tx) => {
     const updatedOrder = await tx.order.update({
       where: { id: params.id },
-      data: { status },
+      data: {
+        status,
+        paidAt: isPaidStatus && !order.paidAt ? new Date() : order.paidAt,
+        cancelledAt: willBeCancelled ? new Date() : order.cancelledAt,
+        cancelSource: willBeCancelled ? "ADMIN" : order.cancelSource,
+      },
     });
 
     if (willBeCancelled && !wasCancelled) {

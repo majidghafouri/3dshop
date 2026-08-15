@@ -3,10 +3,13 @@ import prisma from "@/lib/db";
 import { ok, fail, parseJson } from "@/lib/api";
 import { getSessionUserFromRequest } from "@/lib/auth";
 import { trackEvent, getRequestMeta } from "@/lib/analytics";
+import { cancelExpiredOrders } from "@/lib/orders";
 
 export async function GET(req: NextRequest) {
   const user = await getSessionUserFromRequest(req);
   if (!user) return fail("unauthorized", 401);
+
+  await cancelExpiredOrders();
 
   const orders = await prisma.order.findMany({
     where: { userId: user.id },

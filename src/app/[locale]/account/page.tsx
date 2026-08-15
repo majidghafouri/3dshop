@@ -3,8 +3,13 @@ import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { cancelExpiredOrders, getPaymentDeadline } from "@/lib/orders";
 import LogoutButton from "@/components/LogoutButton";
 import ProfileForm from "@/components/ProfileForm";
+import CancelOrderButton from "@/components/CancelOrderButton";
+import PayOrderButton from "@/components/PayOrderButton";
+import ReorderOrderButton from "@/components/ReorderOrderButton";
+import PaymentCountdown from "@/components/PaymentCountdown";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-[var(--warning-soft)] text-[var(--warning-text)] border-[var(--warning-soft-2)]",
@@ -28,6 +33,9 @@ export default async function AccountPage({
   const user = await getSessionUser();
   if (!user) redirect(`${prefix}/auth?next=${encodeURIComponent(`${prefix}/account`)}`);
 
+  await cancelExpiredOrders();
+
+  const now = Date.now();
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
     include: {
@@ -80,7 +88,14 @@ export default async function AccountPage({
             </div>
           ) : (
             <div className="mt-4 space-y-4">
-              {orders.map((order) => (
+              {orders.map((order) => {
+                const isPending = order.status === "PENDING";
+                const isCancelled = order.status === "CANCELLED";
+                const isOnline = order.paymentMethod !== "CASH_ON_DELIVERY";
+                const deadline = getPaymentDeadline(order);
+                const remainingMs = deadline.getTime() - now;
+                const showDeadline = isPending && isOnline && !order.paidAt && remainingMs > 0;
+                return (
                 <div key={order.id} className="bg-[var(--surface)] border border-[var(--line)] rounded-[24px] p-6 shadow-[0_12px_36px_rgba(20,45,90,0.05)]">
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -114,8 +129,58 @@ export default async function AccountPage({
                       </div>
                     ))}
                   </div>
+
+                  {showDeadline && (
+                    <PaymentCountdown
+                      deadline={deadline.toISOString()}
+                      label={dict.account.countdownLabel}
+                      expiredLabel={dict.account.countdownExpired}
+                    />
+                  )}
+
+                  <div className="mt-4 flex items-center justify-end gap-3 flex-wrap">
+                    {isPending && isOnline && (
+                      <PayOrderButton
+                        orderId={order.id}
+                        prefix={prefix}
+                        dict={{
+                          pay: dict.account.pay,
+                          paying: dict.account.paying,
+                          payFailed: dict.account.payFailed,
+                        }}
+                      />
+                    )}
+                    {isPending && (
+                      <CancelOrderButton
+                        orderId={order.id}
+                        orderNumber={order.orderNumber}
+                        dict={{
+                          cancel: dict.account.cancel,
+                          canceling: dict.account.canceling,
+                          cancelConfirm: dict.account.cancelConfirm,
+                          cancelSuccess: dict.account.cancelSuccess,
+                          cancelFailed: dict.account.cancelFailed,
+                          cancelLimit: dict.account.cancelLimit,
+                          cancelLimitGeneric: dict.account.cancelLimitGeneric,
+                        }}
+                      />
+                    )}
+                    {isCancelled && (
+                      <ReorderOrderButton
+                        orderId={order.id}
+                        prefix={prefix}
+                        dict={{
+                          reorder: dict.account.reorder,
+                          reordering: dict.account.reordering,
+                          reorderFailed: dict.account.reorderFailed,
+                          reorderPartial: dict.account.reorderPartial,
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

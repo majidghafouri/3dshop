@@ -216,6 +216,10 @@ model Order {
   userId        String
   status        OrderStatus  @default(PENDING)
   paymentMethod PaymentMethod
+  paidAt        DateTime?
+  cancelledAt   DateTime?
+  cancelSource  String?
+  deadlineExtendedAt DateTime?
   fullName      String
   phone         String
   address       String
