@@ -78,7 +78,7 @@ export default async function PayOrderPage({
             </div>
 
             <div className="mt-4 rounded-[14px] border border-[var(--line)] bg-[var(--surface-2)] px-4 py-3.5 text-[13px] font-[850] text-[var(--text-3)] leading-relaxed">
-              🧾 {d.gatewaySoon}
+              🧾 {d.gatewayReady}
             </div>
 
             {extended && (

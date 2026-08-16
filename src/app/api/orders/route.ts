@@ -25,6 +25,7 @@ const PAYMENT_METHODS = [
   "SNAPPAY",
   "CASH_ON_DELIVERY",
   "GATEWAY_PLACEHOLDER",
+  "VANDAR",
 ] as const;
 
 export async function POST(req: NextRequest) {

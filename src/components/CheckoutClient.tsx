@@ -29,7 +29,7 @@ export default function CheckoutClient({
     postalCode: "",
     note: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("GATEWAY_PLACEHOLDER");
+  const [paymentMethod, setPaymentMethod] = useState("VANDAR");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ orderNumber: number } | null>(null);
@@ -63,10 +63,10 @@ export default function CheckoutClient({
     return (
       <div className="mx-auto max-w-[560px] bg-[var(--surface)] border border-[var(--line)] rounded-[28px] p-14 text-center shadow-[0_18px_54px_rgba(20,45,90,0.10)]">
         <div className="mx-auto w-[72px] h-[72px] rounded-full bg-[var(--success-soft)] flex items-center justify-center">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--teal-2)" strokeWidth="2.6"><path d="m4.5 12.5 5 5 10-11"/></svg>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--teal-2)" strokeWidth="2.6"><path d="m4.5 12.5 5 5"/><path d="m10 13.5 3 3"/><path d="m19.5 8.5L10 18l-1-1"/></svg>
         </div>
         <h1 className="mt-5 text-[22px] font-[1000] text-[var(--text)]">{dict.checkout.orderCreated}</h1>
-        <p className="mt-2 text-[14px] font-[750] text-[var(--muted)]">{dict.checkout.orderCreatedDesc}</p>
+        <p className="mt-2 text-[14px] font-[750] text-[var(--muted)]">{dict.checkout.cashOnDeliveryConfirm}</p>
         <p className="mt-4 text-[13.5px] font-[950] text-[var(--primary)]" dir="ltr">
           #{done.orderNumber}
         </p>
@@ -114,8 +114,13 @@ export default function CheckoutClient({
         else setError(dict.checkout.fillRequired);
         return;
       }
-      setDone({ orderNumber: json.data.order.orderNumber });
+      const orderId = json.data.order.id;
       router.refresh();
+      if (paymentMethod === "VANDAR") {
+        router.push(`${prefix}/pay/${orderId}`);
+      } else {
+        setDone({ orderNumber: json.data.order.orderNumber });
+      }
     } catch {
       setError(dict.checkout.fillRequired);
     } finally {
@@ -158,7 +163,7 @@ export default function CheckoutClient({
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             {
-              id: "GATEWAY_PLACEHOLDER",
+              id: "VANDAR",
               title: dict.checkout.paymentOnline,
               desc: dict.checkout.paymentOnlineDesc,
               icon: "💳",
@@ -190,7 +195,6 @@ export default function CheckoutClient({
             </button>
           ))}
         </div>
-        <p className="mt-3 text-[12px] font-[850] text-[var(--muted)]">⚠️ {dict.checkout.paymentPlaceholder}</p>
 
         {error && (
           <p className="mt-4 text-[13px] font-[850] text-[var(--danger)] bg-[var(--danger-softer)] border border-[var(--danger-soft)] rounded-[12px] px-3 py-2.5">

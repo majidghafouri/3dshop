@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 type PayNowDict = {
   pay: string;
@@ -16,7 +15,6 @@ export default function PayNowButton({
   orderId: string;
   dict: PayNowDict;
 }) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -26,8 +24,8 @@ export default function PayNowButton({
     try {
       const res = await fetch(`/api/orders/${orderId}/pay`, { method: "POST" });
       const json = await res.json();
-      if (json.ok) {
-        router.refresh();
+      if (json.ok && json.data?.redirectUrl) {
+        window.location.href = json.data.redirectUrl;
         return;
       }
       setMsg(dict.payFailed);

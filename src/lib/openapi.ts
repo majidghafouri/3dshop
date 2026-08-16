@@ -407,7 +407,7 @@ export const openApiSpec = {
                   note: { type: "string" },
                   paymentMethod: {
                     type: "string",
-                    enum: ["ZARINPAL", "SNAPPAY", "CASH_ON_DELIVERY", "GATEWAY_PLACEHOLDER"],
+                    enum: ["ZARINPAL", "SNAPPAY", "CASH_ON_DELIVERY", "GATEWAY_PLACEHOLDER", "VANDAR"],
                     example: "CASH_ON_DELIVERY",
                   },
                 },

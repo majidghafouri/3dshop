@@ -208,6 +208,7 @@ enum PaymentMethod {
   SNAPPAY
   CASH_ON_DELIVERY
   GATEWAY_PLACEHOLDER
+  VANDAR
 }
 
 model Order {
@@ -216,6 +217,7 @@ model Order {
   userId        String
   status        OrderStatus  @default(PENDING)
   paymentMethod PaymentMethod
+  paymentToken  String?
   paidAt        DateTime?
   cancelledAt   DateTime?
   cancelSource  String?
