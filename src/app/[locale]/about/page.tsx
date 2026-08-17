@@ -30,9 +30,9 @@ export default async function AboutPage({ params }: { params: { locale: string }
                 style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky),var(--teal))" }}
               >
                 <img
-                  src="/logo-icon.svg"
+                  src="/logo.png"
                   alt={dict.about.title}
-                  className="absolute inset-0 w-full h-full object-contain p-12"
+                  className="w-full h-full object-cover object-center"
                   style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }}
                 />
                 <div className="absolute -bottom-4 -right-4 bg-[var(--surface)] rounded-[18px] px-5 py-3 shadow-[0_12px_32px_rgba(20,45,90,0.15)] border border-[var(--line)]">
