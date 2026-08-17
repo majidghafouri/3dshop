@@ -29,7 +29,12 @@ export default async function AboutPage({ params }: { params: { locale: string }
               <div className="aspect-[4/3] rounded-[28px] product-img-bg border border-[var(--line)] overflow-hidden shadow-[0_20px_54px_rgba(20,45,90,0.12)]"
                 style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky),var(--teal))" }}
               >
-                <div className="absolute inset-0 flex items-center justify-center text-[64px]">🎭</div>
+                <img
+                  src="/logo-icon.svg"
+                  alt={dict.about.title}
+                  className="absolute inset-0 w-full h-full object-contain p-12"
+                  style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }}
+                />
                 <div className="absolute -bottom-4 -right-4 bg-[var(--surface)] rounded-[18px] px-5 py-3 shadow-[0_12px_32px_rgba(20,45,90,0.15)] border border-[var(--line)]">
                   <span className="text-[20px] font-[1000] text-[var(--primary)]">500+</span>
                   <p className="text-[11px] font-[850] text-[var(--muted)]">{dict.hero.statText}</p>
