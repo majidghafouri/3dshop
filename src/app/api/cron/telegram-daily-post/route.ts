@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api";
 import { sendPhoto, sendMessage } from "@/lib/telegram";
-import { generateDailyPost, generateWeeklyCollection } from "@/lib/telegram-post-generator";
+import { generatePostBatch } from "@/lib/telegram-post-generator";
 
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -10,28 +10,27 @@ export async function GET(req: NextRequest) {
     return fail("Unauthorized", 401);
   }
 
-  const today = new Date();
-  const dayOfWeek = today.getDay();
+  const posts = await generatePostBatch();
+  const results: Array<{ type: string; success: boolean; error?: string }> = [];
 
-  if (dayOfWeek === 0) {
-    const collection = await generateWeeklyCollection();
-    if (collection) {
-      if (collection.image) {
-        await sendPhoto(collection.image, collection.text);
+  for (const post of posts) {
+    try {
+      if (post.image) {
+        const res = await sendPhoto(post.image, post.text);
+        results.push({ type: post.type, success: res.ok });
       } else {
-        await sendMessage(collection.text);
+        const res = await sendMessage(post.text);
+        results.push({ type: post.type, success: res.ok });
       }
-      return ok({ posted: true, type: "collection" });
+      await new Promise((r) => setTimeout(r, 1500));
+    } catch (err) {
+      results.push({
+        type: post.type,
+        success: false,
+        error: err instanceof Error ? err.message : "unknown",
+      });
     }
   }
 
-  const post = await generateDailyPost();
-
-  if (post.image) {
-    await sendPhoto(post.image, post.text);
-  } else {
-    await sendMessage(post.text);
-  }
-
-  return ok({ posted: true, type: post.type });
+  return ok({ posted: results.length, results });
 }

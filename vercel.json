@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/telegram-daily-post",
-      "schedule": "30 7 * * *"
+      "schedule": "0 */8 * * *"
     }
   ]
 }
