@@ -71,7 +71,7 @@ function buildProductPost(product: ProductWithTranslations): PostContent {
   const name = tr?.name || "محصول";
   const desc = tr?.shortDescription || "";
   const price = formatPrice(product.price, "fa");
-  const imageUrl = product.images[0] || "";
+  const imageUrl = product.images[0] || undefined;
   const productUrl = `${SITE_URL}/products/${product.slug}`;
 
   const text = [
@@ -98,7 +98,7 @@ function buildBlogPost(post: BlogPostWithTranslations): PostContent {
   const title = tr?.title || "مقاله جدید";
   const excerpt = tr?.excerpt || "";
   const blogUrl = `${SITE_URL}/blog/${post.slug}`;
-  const coverImage = post.coverImage || "";
+  const coverImage = post.coverImage || undefined;
 
   const text = [
     `📝 <b>${title}</b>`,
@@ -282,7 +282,7 @@ function getFallbackProducts(): ProductWithTranslations[] {
       heightCm: "18",
       material: "Resin",
       weightGrams: 200,
-      images: ["https://placehold.co/800x800/FF6B6B/white?text=Nezuko+Figure"],
+      images: [],
       musicUrl: null,
       musicTitle: null,
       createdAt: new Date(),
@@ -318,7 +318,7 @@ function getFallbackProducts(): ProductWithTranslations[] {
       heightCm: "22",
       material: "Resin",
       weightGrams: 350,
-      images: ["https://placehold.co/800x800/4ECDC4/white?text=Gojo+Figure"],
+      images: [],
       musicUrl: null,
       musicTitle: null,
       createdAt: new Date(),
@@ -354,7 +354,7 @@ function getFallbackProducts(): ProductWithTranslations[] {
       heightCm: "20",
       material: "PVC",
       weightGrams: 280,
-      images: ["https://placehold.co/800x800/FFE66D/333?text=Luffy+Gear+5"],
+      images: [],
       musicUrl: null,
       musicTitle: null,
       createdAt: new Date(),
@@ -382,7 +382,7 @@ function getFallbackBlogs(): BlogPostWithTranslations[] {
     {
       id: "bb1",
       slug: "how-to-paint-3d-figures",
-      coverImage: "https://placehold.co/800x400/A8E6CF/333?text=Painting+3D+Figures",
+      coverImage: null,
       coverSvg: null,
       category: "tutorial",
       readingTime: 7,
@@ -407,7 +407,7 @@ function getFallbackBlogs(): BlogPostWithTranslations[] {
     {
       id: "bb2",
       slug: "best-resin-printers-2026",
-      coverImage: "https://placehold.co/800x400/DDA0DD/333?text=Best+Resin+Printers",
+      coverImage: null,
       coverSvg: null,
       category: "review",
       readingTime: 10,
@@ -432,7 +432,7 @@ function getFallbackBlogs(): BlogPostWithTranslations[] {
     {
       id: "bb3",
       slug: "figure-collecting-beginners-guide",
-      coverImage: "https://placehold.co/800x400/FFB7B2/333?text=Figure+Collecting",
+      coverImage: null,
       coverSvg: null,
       category: "guide",
       readingTime: 8,
