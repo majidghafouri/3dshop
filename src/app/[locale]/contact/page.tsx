@@ -1,16 +1,32 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Locale, isLocale } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { getSetting } from "@/lib/settings";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
+  return buildMetadata({
+    title: `${dict.contact.kicker} | ${dict.nav.home}`,
+    description: dict.contact.subtitle,
+    path: `${prefix}/contact`,
+    locale,
+  });
+}
 
 export default async function ContactPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
 
   const phone = (await getSetting("contact_phone")) || dict.footer.phone;
   const email = (await getSetting("contact_email")) || "info@figureforge.ir";
@@ -31,6 +47,10 @@ export default async function ContactPage({ params }: { params: { locale: string
           "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), radial-gradient(circle_at_90%_14%,rgba(var(--primary-rgb),0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.contact.kicker, url: "" },
+      ], locale))} />
       <div className="container-page">
         <div className="text-center">
           <span className="inline-block bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-4 py-1.5 text-[12px] font-[950]">

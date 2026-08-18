@@ -1,12 +1,32 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Locale, isLocale } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
+  return buildMetadata({
+    title: dict.about.title,
+    description: `${dict.about.p1} ${dict.about.p2}`,
+    path: `${prefix}/about`,
+    locale,
+  });
+}
 
 export default async function AboutPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
 
   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
@@ -15,6 +35,10 @@ export default async function AboutPage({ params }: { params: { locale: string }
           "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), radial-gradient(circle_at_90%_14%,rgba(var(--primary-rgb),0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.about.kicker, url: "" },
+      ], locale))} />
       <div className="container-page">
         <div className="text-center">
           <span className="inline-block bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-4 py-1.5 text-[12px] font-[950]">

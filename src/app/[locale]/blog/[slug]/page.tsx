@@ -1,23 +1,28 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { getPostBySlug, getRelatedPosts } from "@/lib/blog";
 import BlogBody from "@/components/BlogBody";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 
-export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
-  const locale = params.locale as Locale;
+export async function generateMetadata({ params }: { params: { locale: string; slug: string } }): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const prefix = localePrefix(locale);
   const post = await getPostBySlug(locale, params.slug);
-  return {
-    title: post?.title ?? "Blog",
-    description: post?.excerpt ?? undefined,
-    openGraph: {
-      title: post?.title ?? undefined,
-      description: post?.excerpt ?? undefined,
-      images: post?.coverImage ? [{ url: post.coverImage }] : undefined,
-    },
-  };
+  if (!post) return { title: "Not Found" };
+  const image = post.coverImage;
+  return buildMetadata({
+    title: post.title,
+    description: post.excerpt ?? undefined,
+    path: `${prefix}/blog/${post.slug}`,
+    locale,
+    type: "article",
+    images: image ? [image] : undefined,
+  });
 }
 
 export default async function BlogPostPage({
@@ -42,6 +47,20 @@ export default async function BlogPostPage({
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildArticleJsonLd({
+        title: post.title,
+        description: post.excerpt || "",
+        image: post.coverImage || "",
+        datePublished: post.publishedAt?.toISOString() ?? new Date().toISOString(),
+        dateModified: post.publishedAt?.toISOString() ?? new Date().toISOString(),
+        author: "Figureforge",
+        locale,
+      }))} />
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.nav.blog, url: `${prefix}/blog` },
+        { name: post.title, url: "" },
+      ], locale))} />
       <div className="container-page max-w-[820px]">
         <nav className="flex flex-wrap items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">
           <Link href={`${prefix}/`} className="hover:text-[var(--primary)] transition-colors">{dict.nav.home}</Link>

@@ -1,25 +1,37 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
 import { queryProducts, getProductBrands } from "@/lib/product-query";
 import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { trackEvent } from "@/lib/analytics";
 
 export async function generateMetadata({
   params,
 }: {
   params: { locale: string; slug: string };
-}) {
-  const locale = params.locale as Locale;
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const prefix = localePrefix(locale);
   const cat = await prisma.category.findFirst({
     where: { slug: params.slug, isActive: true },
     include: { translations: { where: { locale } } },
   });
-  return { title: cat?.translations[0]?.name ?? "Category" };
+  if (!cat) return { title: "Not Found" };
+  const name = cat.translations[0]?.name ?? cat.slug;
+  const description = cat.translations[0]?.name ?? "";
+  return buildMetadata({
+    title: name,
+    description,
+    path: `${prefix}/category/${cat.slug}`,
+    locale,
+  });
 }
 
 export default async function CategoryPage({
@@ -106,6 +118,11 @@ export default async function CategoryPage({
           "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), radial-gradient(circle_at_92%_12%,rgba(var(--primary-rgb),0.08),transparent_26%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.nav.allProducts, url: `${prefix}/products` },
+        { name: name, url: "" },
+      ], locale))} />
       <div className="container-page">
         <nav className="flex items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">
           <Link href={`${prefix}/`} className="hover:text-[var(--primary)] transition-colors">{dict.nav.home}</Link>

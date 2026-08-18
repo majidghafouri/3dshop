@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, formatPrice, formatDiscountPercent, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildProductJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
 import { mapProduct, productInclude } from "@/lib/shop";
 import ImageGallery from "@/components/ImageGallery";
@@ -9,21 +11,31 @@ import PurchasePanel from "@/components/PurchasePanel";
 import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
 import ProductMusicPlayer from "@/components/ProductMusicPlayer";
+import JsonLd from "@/components/JsonLd";
 import { trackEvent } from "@/lib/analytics";
 
 export async function generateMetadata({
   params,
 }: {
   params: { locale: string; slug: string };
-}) {
-  const locale = params.locale as Locale;
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const prefix = localePrefix(locale);
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
     include: { translations: { where: { locale } } },
   });
-  return {
-    title: product?.translations[0]?.name ?? "Product",
-  };
+  if (!product) return { title: "Not Found" };
+  const name = product.translations[0]?.name ?? product.sku;
+  const description = product.translations[0]?.shortDescription ?? product.translations[0]?.description ?? "";
+  const imageUrl = product.images?.[0];
+  return buildMetadata({
+    title: name,
+    description: description || undefined,
+    path: `${prefix}/products/${params.slug}`,
+    locale,
+    images: imageUrl ? [imageUrl] : undefined,
+  });
 }
 
 export default async function ProductDetailPage({
@@ -78,6 +90,25 @@ export default async function ProductDetailPage({
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildProductJsonLd({
+        name: p.name,
+        description: p.shortDescription || p.description || "",
+        image: p.images[0] || "",
+        brand: p.brand,
+        sku: p.sku,
+        offers: {
+          price: p.price,
+          priceCurrency: "IRR",
+          availability: p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          url: `${process.env.APP_URL || ""}${prefix}/products/${p.slug}`,
+        },
+        locale,
+      }))} />
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.nav.allProducts, url: `${prefix}/products` },
+        { name: p.name, url: "" },
+      ], locale))} />
       <div className="container-page">
         {/* breadcrumb */}
         <nav className="flex flex-wrap items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">

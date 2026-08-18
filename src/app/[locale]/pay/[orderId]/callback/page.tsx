@@ -1,10 +1,28 @@
+import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { verifyVandarPayment } from "@/lib/vandar";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string; orderId: string };
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  return buildMetadata({
+    title: dict.payment.title,
+    description: dict.payment.subtitle,
+    path: `${localePrefix(locale)}/pay/${params.orderId}/callback`,
+    locale,
+    noindex: true,
+  });
+}
 
 interface CallbackPageProps {
   params: { locale: string; orderId: string };

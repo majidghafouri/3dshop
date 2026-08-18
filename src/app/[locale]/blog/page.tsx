@@ -1,10 +1,24 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import { getPublishedPosts } from "@/lib/blog";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { getSessionUser } from "@/lib/auth";
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  return buildMetadata({
+    title: dict.blog.title,
+    description: dict.blog.subtitle,
+    path: `${localePrefix(locale)}/blog`,
+    locale,
+  });
+}
 
 export default async function BlogPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
@@ -15,13 +29,17 @@ export default async function BlogPage({ params }: { params: { locale: string } 
   const posts = await getPublishedPosts(locale, 50);
   const user = await getSessionUser();
 
-  return (
+   return (
     <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
       style={{
         background:
           "radial-gradient(circle_at_12%_8%,rgba(var(--teal-rgb),0.10),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd([
+        { name: dict.nav.home, url: prefix },
+        { name: dict.blog.kicker, url: "" },
+      ], locale))} />
       <div className="container-page">
         <div className="text-center">
           <span className="inline-block bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-4 py-1.5 text-[12px] font-[950]">

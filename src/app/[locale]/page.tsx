@@ -1,14 +1,33 @@
 import Link from "next/link";
-import { Locale, localePrefix } from "@/lib/i18n";
+import { Metadata } from "next";
+import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
 import { mapProduct, productInclude } from "@/lib/shop";
 import Reveal from "@/components/Reveal";
 import ProductGrid from "@/components/ProductGrid";
 import SpotlightCarousel from "@/components/SpotlightCarousel";
-import { isLocale } from "@/lib/i18n";
+import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  const prefix = localePrefix(locale);
+  return buildMetadata({
+    dict,
+    locale,
+    path: prefix || "/",
+    title: dict.meta.title,
+    description: dict.meta.description,
+  });
+}
 
 export default async function HomePage({
   params,
@@ -19,6 +38,9 @@ export default async function HomePage({
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
   const prefix = localePrefix(locale);
+  const breadcrumbs = [
+    { name: dict.nav.home, url: "" },
+  ];
 
   const user = await getSessionUser();
 
@@ -52,6 +74,7 @@ export default async function HomePage({
 
   return (
     <>
+      <JsonLd data={JSON.parse(buildBreadcrumbJsonLd(breadcrumbs, locale))} />
       {/* ================= HERO ================= */}
       <section
         id="home"

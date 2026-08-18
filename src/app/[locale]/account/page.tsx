@@ -1,6 +1,8 @@
+import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Locale, localePrefix, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { cancelExpiredOrders, getPaymentDeadline } from "@/lib/orders";
@@ -10,6 +12,22 @@ import CancelOrderButton from "@/components/CancelOrderButton";
 import PayOrderButton from "@/components/PayOrderButton";
 import ReorderOrderButton from "@/components/ReorderOrderButton";
 import MiniCountdown from "@/components/MiniCountdown";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const locale = isLocale(params.locale) ? (params.locale as Locale) : "fa";
+  const dict = getDictionary(locale);
+  return buildMetadata({
+    title: dict.account.title,
+    description: dict.account.welcome,
+    path: `${localePrefix(locale)}/account`,
+    locale,
+    noindex: true,
+  });
+}
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-[var(--warning-soft)] text-[var(--warning-text)] border-[var(--warning-soft-2)]",
