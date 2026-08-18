@@ -242,10 +242,11 @@ function buildFallbackWebPost(query: string): PostContent {
 }
 
 export async function generatePostBatch(): Promise<PostContent[]> {
-  const [products, blogs] = await Promise.all([
-    getRandomProducts(3),
-    getRecentBlogPosts(3),
-  ]);
+  const results = await Promise.allSettled([getRandomProducts(3), getRecentBlogPosts(3)]);
+
+  const products =
+    results[0].status === "fulfilled" ? results[0].value : getFallbackProducts();
+  const blogs = results[1].status === "fulfilled" ? results[1].value : getFallbackBlogs();
 
   const posts: PostContent[] = [];
 
@@ -261,4 +262,197 @@ export async function generatePostBatch(): Promise<PostContent[]> {
   if (webPost) posts.push(webPost);
 
   return posts;
+}
+
+function getFallbackProducts(): ProductWithTranslations[] {
+  return [
+    {
+      id: "fb1",
+      slug: "nezuko-kamado-figure",
+      sku: "FF-NZ-001",
+      categoryId: null,
+      brand: "FigureForge",
+      price: 890000,
+      compareAtPrice: 1100000,
+      stock: 5,
+      isActive: true,
+      isFeatured: true,
+      isSpecial: false,
+      hasDiscount: true,
+      heightCm: "18",
+      material: "Resin",
+      weightGrams: 200,
+      images: ["https://placehold.co/800x800/FF6B6B/white?text=Nezuko+Figure"],
+      musicUrl: null,
+      musicTitle: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "t1",
+          productId: "fb1",
+          locale: "fa",
+          name: "فیگور نزوکو کامادو",
+          shortDescription: "فیگور دستی نزوکو از سری Demon Slayer با جزئیات بالا",
+          description: "",
+          features: null,
+        },
+      ],
+      category: null,
+      cartItems: [],
+      orderItems: [],
+    },
+    {
+      id: "fb2",
+      slug: "gojo-satoru-figure",
+      sku: "FF-GJ-002",
+      categoryId: null,
+      brand: "FigureForge",
+      price: 1250000,
+      compareAtPrice: null,
+      stock: 3,
+      isActive: true,
+      isFeatured: true,
+      isSpecial: false,
+      hasDiscount: false,
+      heightCm: "22",
+      material: "Resin",
+      weightGrams: 350,
+      images: ["https://placehold.co/800x800/4ECDC4/white?text=Gojo+Figure"],
+      musicUrl: null,
+      musicTitle: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "t2",
+          productId: "fb2",
+          locale: "fa",
+          name: "فیگور گوجو ساتورو",
+          shortDescription: "فیگور گوجو ساتورو از Jujutsu Kaisen با قابلیت نور LED",
+          description: "",
+          features: null,
+        },
+      ],
+      category: null,
+      cartItems: [],
+      orderItems: [],
+    },
+    {
+      id: "fb3",
+      slug: "luffy-gear-5-figure",
+      sku: "FF-LF-003",
+      categoryId: null,
+      brand: "FigureForge",
+      price: 980000,
+      compareAtPrice: 1300000,
+      stock: 7,
+      isActive: true,
+      isFeatured: true,
+      isSpecial: true,
+      hasDiscount: true,
+      heightCm: "20",
+      material: "PVC",
+      weightGrams: 280,
+      images: ["https://placehold.co/800x800/FFE66D/333?text=Luffy+Gear+5"],
+      musicUrl: null,
+      musicTitle: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "t3",
+          productId: "fb3",
+          locale: "fa",
+          name: "فیگور لافی گیر ۵",
+          shortDescription: "فیگور لافی در حالت Gear 5 از سری One Piece",
+          description: "",
+          features: null,
+        },
+      ],
+      category: null,
+      cartItems: [],
+      orderItems: [],
+    },
+  ] as unknown as ProductWithTranslations[];
+}
+
+function getFallbackBlogs(): BlogPostWithTranslations[] {
+  return [
+    {
+      id: "bb1",
+      slug: "how-to-paint-3d-figures",
+      coverImage: "https://placehold.co/800x400/A8E6CF/333?text=Painting+3D+Figures",
+      coverSvg: null,
+      category: "tutorial",
+      readingTime: 7,
+      isPublished: true,
+      isTrending: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "bt1",
+          postId: "bb1",
+          locale: "fa",
+          tag: "آموزش",
+          title: "آموزش رنگ‌آمیزی فیگورهای چاپ سه‌بعدی",
+          excerpt:
+            "با این آموزش قدم به قدم، فیگورهای چاپ سه‌بعدی خود را مثل حرفه‌ای‌ها رنگ کنید.",
+          body: "",
+        },
+      ],
+    },
+    {
+      id: "bb2",
+      slug: "best-resin-printers-2026",
+      coverImage: "https://placehold.co/800x400/DDA0DD/333?text=Best+Resin+Printers",
+      coverSvg: null,
+      category: "review",
+      readingTime: 10,
+      isPublished: true,
+      isTrending: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "bt2",
+          postId: "bb2",
+          locale: "fa",
+          tag: "بررسی",
+          title: "بهترین پرینترهای رزینی ۲۰۲۶",
+          excerpt:
+            "مقایسه بهترین پرینترهای رزینی برای چاپ فیگورهای انیمه با کیفیت بالا.",
+          body: "",
+        },
+      ],
+    },
+    {
+      id: "bb3",
+      slug: "figure-collecting-beginners-guide",
+      coverImage: "https://placehold.co/800x400/FFB7B2/333?text=Figure+Collecting",
+      coverSvg: null,
+      category: "guide",
+      readingTime: 8,
+      isPublished: true,
+      isTrending: false,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [
+        {
+          id: "bt3",
+          postId: "bb3",
+          locale: "fa",
+          tag: "راهنما",
+          title: "راهنمای شروع جمع‌آوری فیگور",
+          excerpt:
+            "همه چیزی که برای شروع مجموعه فیگور خود نیاز دارید — از انتخاب اولین فیگور تا نگهداری.",
+          body: "",
+        },
+      ],
+    },
+  ] as unknown as BlogPostWithTranslations[];
 }
