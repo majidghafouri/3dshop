@@ -27,11 +27,11 @@ export default function Footer({ locale, dict }: { locale: Locale; dict: Diction
             </p>
             <div className="mt-5 flex items-center gap-3">
               <a
-                href="#"
+                href="mailto:info@figureforge.ir"
                 className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--line)] flex items-center justify-center text-[var(--primary)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(var(--primary-rgb),0.15)]"
-                aria-label="Instagram"
+                aria-label="Email"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M22 7l-10 6L2 7"/></svg>
               </a>
               <a
                 href="https://t.me/figureforge"
