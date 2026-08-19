@@ -744,8 +744,7 @@ const PRODUCTS = [
     material: "Resin",
     weight: 250,
     images: [
-      "/uploads/products/harry-potter-04.png",
-      "/uploads/products/harry-potter-06.png",
+      "/uploads/products/hermione-granger-01.jpg",
     ],
     name: { fa: "فیگور هرمیون گرنجر", en: "Hermione Granger Action Figure", ar: "تمثال هرميوني غرينجر" },
     short: {
