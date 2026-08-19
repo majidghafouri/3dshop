@@ -100,7 +100,12 @@ function buildBlogPost(post: BlogPostWithTranslations): PostContent {
   const excerpt = tr?.excerpt || "";
   const blogUrl = `${SITE_URL}/blog/${post.slug}`;
   const rawImage = post.coverImage;
-  const coverImage = rawImage ? (rawImage.startsWith("http") ? rawImage : `${SITE_URL}${rawImage}`) : undefined;
+  const isGeneratedCover = !rawImage || rawImage.startsWith("/api/");
+  const coverImage = isGeneratedCover
+    ? undefined
+    : rawImage.startsWith("http")
+      ? rawImage
+      : `${SITE_URL}${rawImage}`;
 
   const text = [
     `📝 <b>${title}</b>`,
