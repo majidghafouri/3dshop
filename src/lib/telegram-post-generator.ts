@@ -71,7 +71,8 @@ function buildProductPost(product: ProductWithTranslations): PostContent {
   const name = tr?.name || "محصول";
   const desc = tr?.shortDescription || "";
   const price = formatPrice(product.price, "fa");
-  const imageUrl = product.images[0] || undefined;
+  const rawImage = product.images[0];
+  const imageUrl = rawImage ? (rawImage.startsWith("http") ? rawImage : `${SITE_URL}${rawImage}`) : undefined;
   const productUrl = `${SITE_URL}/products/${product.slug}`;
 
   const text = [
@@ -98,7 +99,8 @@ function buildBlogPost(post: BlogPostWithTranslations): PostContent {
   const title = tr?.title || "مقاله جدید";
   const excerpt = tr?.excerpt || "";
   const blogUrl = `${SITE_URL}/blog/${post.slug}`;
-  const coverImage = post.coverImage || undefined;
+  const rawImage = post.coverImage;
+  const coverImage = rawImage ? (rawImage.startsWith("http") ? rawImage : `${SITE_URL}${rawImage}`) : undefined;
 
   const text = [
     `📝 <b>${title}</b>`,
