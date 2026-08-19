@@ -299,9 +299,11 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
-                        window.history.replaceState(window.history.state, "", href);
+                        router.replace(href);
                         setMobileOpen(false);
-                        router.refresh();
+                        setTimeout(() => {
+                          window.history.replaceState(window.history.state, "", href);
+                        }, 0);
                       }}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active
