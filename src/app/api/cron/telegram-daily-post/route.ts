@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       results.push({
         type: post.type,
         success: res.ok,
+        image: post.image || null,
         ...(res.ok ? {} : { error: JSON.stringify(res) }),
       });
       await new Promise((r) => setTimeout(r, 1500));
@@ -31,6 +32,7 @@ export async function GET(req: NextRequest) {
       results.push({
         type: post.type,
         success: false,
+        image: post.image || null,
         error: err instanceof Error ? err.message : "unknown",
       });
     }
