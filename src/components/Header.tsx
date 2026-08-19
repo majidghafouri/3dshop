@@ -298,8 +298,10 @@ export default function Header({
                       key={l}
                       type="button"
                       onClick={() => {
-                        router.replace(switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined));
+                        const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
+                        window.history.replaceState(window.history.state, "", href);
                         setMobileOpen(false);
+                        router.refresh();
                       }}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active

@@ -85,8 +85,9 @@ export default function LangSwitcher({
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  router.replace(href);
+                  window.history.replaceState(window.history.state, "", href);
                   setOpen(false);
+                  router.refresh();
                 }}
                 className={`w-full flex items-center justify-between gap-3 px-[13px] py-3 rounded-[16px] font-[900] text-[14px] text-[var(--text-6)] transition-colors duration-200 hover:bg-[var(--bg-tint)] ${
                   active ? "bg-[var(--soft-2)] text-[var(--primary)]" : ""
