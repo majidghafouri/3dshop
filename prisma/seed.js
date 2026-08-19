@@ -771,8 +771,7 @@ const PRODUCTS = [
     material: "Resin",
     weight: 250,
     images: [
-      "/uploads/products/harry-potter-05.png",
-      "/uploads/products/harry-potter-06.png",
+      "/uploads/products/ron-weasley-01.jpg",
     ],
     name: { fa: "فیگور ران ویزلی", en: "Ron Weasley Action Figure", ar: "تمثال رون ويزلي" },
     short: {
