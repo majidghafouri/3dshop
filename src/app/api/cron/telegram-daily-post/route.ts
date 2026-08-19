@@ -11,30 +11,20 @@ export async function GET(req: NextRequest) {
   }
 
   const posts = await generatePostBatch();
-  const results: Array<{ type: string; success: boolean; image: string | null; error?: string }> = [];
+  const results: Array<{ type: string; success: boolean }> = [];
 
   for (const post of posts) {
     try {
-      let res;
       if (post.image) {
-        res = await sendPhoto(post.image, post.text);
+        const res = await sendPhoto(post.image, post.text);
+        results.push({ type: post.type, success: res.ok });
       } else {
-        res = await sendMessage(post.text);
+        const res = await sendMessage(post.text);
+        results.push({ type: post.type, success: res.ok });
       }
-      results.push({
-        type: post.type,
-        success: res.ok,
-        image: post.image || null,
-        ...(res.ok ? {} : { error: JSON.stringify(res) }),
-      });
       await new Promise((r) => setTimeout(r, 1500));
-    } catch (err) {
-      results.push({
-        type: post.type,
-        success: false,
-        image: post.image || null,
-        error: err instanceof Error ? err.message : "unknown",
-      });
+    } catch {
+      results.push({ type: post.type, success: false });
     }
   }
 
