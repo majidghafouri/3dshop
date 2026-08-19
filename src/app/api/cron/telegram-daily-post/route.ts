@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   }
 
   const posts = await generatePostBatch();
-  const results: Array<{ type: string; success: boolean; error?: string }> = [];
+  const results: Array<{ type: string; success: boolean; image: string | null; error?: string }> = [];
 
   for (const post of posts) {
     try {
