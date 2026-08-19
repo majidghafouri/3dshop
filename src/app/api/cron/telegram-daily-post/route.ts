@@ -15,13 +15,17 @@ export async function GET(req: NextRequest) {
 
   for (const post of posts) {
     try {
+      let res;
       if (post.image) {
-        const res = await sendPhoto(post.image, post.text);
-        results.push({ type: post.type, success: res.ok });
+        res = await sendPhoto(post.image, post.text);
       } else {
-        const res = await sendMessage(post.text);
-        results.push({ type: post.type, success: res.ok });
+        res = await sendMessage(post.text);
       }
+      results.push({
+        type: post.type,
+        success: res.ok,
+        ...(res.ok ? {} : { error: JSON.stringify(res) }),
+      });
       await new Promise((r) => setTimeout(r, 1500));
     } catch (err) {
       results.push({
