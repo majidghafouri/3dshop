@@ -434,6 +434,7 @@ export const en: typeof fa = {
       categories: "Categories",
       orders: "Orders",
       appearance: "Appearance",
+      email: "Email",
       settings: "Settings",
     },
     dashboard: {
@@ -583,6 +584,20 @@ export const en: typeof fa = {
       saved: "Settings saved",
       error: "Failed to save",
       note: "In development, OTP codes are logged to the server console and email sending is skipped.",
+    },
+    sendEmail: {
+      title: "Send Email",
+      subtitle: "Send a custom email to any address",
+      to: "Recipient",
+      toPlaceholder: "Email address (empty = default sender)",
+      subject: "Subject",
+      subjectPlaceholder: "Email subject",
+      body: "Email content",
+      bodyPlaceholder: "Write your email content here...",
+      send: "Send",
+      sending: "Sending...",
+      sent: "Email sent successfully to",
+      failed: "Failed to send",
     },
     contactSettings: {
       title: "Contact info",

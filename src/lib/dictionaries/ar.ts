@@ -434,6 +434,7 @@ export const ar: typeof fa = {
       categories: "الفئات",
       orders: "الطلبات",
       appearance: "المظهر",
+      email: "البريد الإلكتروني",
       settings: "الإعدادات",
     },
     dashboard: {
@@ -583,6 +584,20 @@ export const ar: typeof fa = {
       saved: "تم حفظ الإعدادات",
       error: "فشل الحفظ",
       note: "في وضع التطوير تُعرض رموز التحقق في سجل الخادم ولا يتم إرسال البريد.",
+    },
+    sendEmail: {
+      title: "إرسال بريد إلكتروني",
+      subtitle: "إرسال بريد إلكتروني مخصص إلى أي عنوان",
+      to: "المستلم",
+      toPlaceholder: "عنوان البريد الإلكتروني (فارغ = المرسل الافتراضي)",
+      subject: "الموضوع",
+      subjectPlaceholder: "موضوع البريد الإلكتروني",
+      body: "محتوى البريد الإلكتروني",
+      bodyPlaceholder: "اكتب محتوى البريد الإلكتروني هنا...",
+      send: "إرسال",
+      sending: "جارٍ الإرسال...",
+      sent: "تم إرسال البريد الإلكتروني بنجاح إلى",
+      failed: "فشل الإرسال",
     },
     contactSettings: {
       title: "معلومات الاتصال",

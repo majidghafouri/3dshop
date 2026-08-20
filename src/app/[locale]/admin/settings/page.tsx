@@ -5,7 +5,6 @@ import ContactSettingsManager from "@/components/admin/ContactSettingsManager";
 import ContactMessagesManager from "@/components/admin/ContactMessagesManager";
 import SettingsManager from "@/components/admin/SettingsManager";
 import EmailSettingsManager from "@/components/admin/EmailSettingsManager";
-import SendEmailCard from "@/components/admin/SendEmailCard";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +20,6 @@ export default async function AdminSettingsPage({
   return (
     <div>
       <EmailSettingsManager dict={dict.admin.emailSettings} />
-      <SendEmailCard />
       <div className="mt-6">
         <ContactSettingsManager dict={dict.admin.contactSettings} />
       </div>

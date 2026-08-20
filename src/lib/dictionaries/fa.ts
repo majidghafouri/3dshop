@@ -432,6 +432,7 @@ export const fa = {
       categories: "دسته‌بندی‌ها",
       orders: "سفارش‌ها",
       appearance: "ظاهر سایت",
+      email: "ایمیل",
       settings: "تنظیمات",
     },
     dashboard: {
@@ -581,6 +582,20 @@ export const fa = {
       saved: "تنظیمات ذخیره شد",
       error: "خطا در ذخیره‌سازی",
       note: "در حالت توسعه، کدهای تأیید در کنسول سرور نمایش داده می‌شوند و ارسال ایمیل انجام نمی‌شود.",
+    },
+    sendEmail: {
+      title: "ارسال ایمیل",
+      subtitle: "ارسال ایمیل دلخواه به هر آدرسی",
+      to: "گیرنده",
+      toPlaceholder: "آدرس ایمیل (خالی = ایمیل پیش‌فرض)",
+      subject: "موضوع",
+      subjectPlaceholder: "موضوع ایمیل",
+      body: "متن ایمیل",
+      bodyPlaceholder: "محتوای ایمیل را اینجا بنویسید...",
+      send: "ارسال",
+      sending: "در حال ارسال...",
+      sent: "ایمیل با موفقیت ارسال شد به",
+      failed: "ارسال ناموفق",
     },
     contactSettings: {
       title: "اطلاعات تماس",
