@@ -12,11 +12,6 @@ type EmailSettingsDict = {
   pass: string;
   secure: string;
   from: string;
-  testTo: string;
-  sendTest: string;
-  testing: string;
-  testSent: string;
-  testFailed: string;
   save: string;
   saved: string;
   error: string;
@@ -42,10 +37,8 @@ export default function EmailSettingsManager({ dict }: { dict: EmailSettingsDict
     [KEYS.secure]: "false",
     [KEYS.from]: "",
   });
-  const [testTo, setTestTo] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [testing, setTesting] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   const showMsg = (kind: "ok" | "err", text: string) => {
@@ -106,24 +99,6 @@ export default function EmailSettingsManager({ dict }: { dict: EmailSettingsDict
     }
   };
 
-  const test = async () => {
-    setTesting(true);
-    try {
-      const res = await fetch("/api/admin/test-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to: testTo.trim() || undefined }),
-      });
-      const json = await res.json();
-      if (json.ok) showMsg("ok", dict.testSent);
-      else showMsg("err", `${dict.testFailed}: ${json.error ?? json.detail ?? "unknown"}`);
-    } catch {
-      showMsg("err", dict.testFailed);
-    } finally {
-      setTesting(false);
-    }
-  };
-
   const inputCls =
     "w-full border border-[var(--line-2)] rounded-[12px] px-3 py-2.5 text-[13px] font-[800] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all";
 
@@ -181,22 +156,6 @@ export default function EmailSettingsManager({ dict }: { dict: EmailSettingsDict
               style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
             >
               {busy ? "..." : dict.save}
-            </button>
-
-            <input
-              value={testTo}
-              onChange={(e) => setTestTo(e.target.value)}
-              placeholder={dict.testTo}
-              dir="ltr"
-              className={`${inputCls} w-[200px] mt-0`}
-            />
-            <button
-              type="button"
-              onClick={test}
-              disabled={testing}
-              className="rounded-[12px] font-[950] px-5 py-2.5 text-[13px] border border-[var(--line-2)] text-[var(--text-2)] hover:border-[var(--primary)] disabled:opacity-50"
-            >
-              {testing ? dict.testing : dict.sendTest}
             </button>
           </div>
         </>
