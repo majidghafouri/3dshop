@@ -37,30 +37,20 @@ export default function Header({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const langSwitchRef = useRef(false);
+  const intentionalLocaleRef = useRef(false);
   const isAdmin = pathname.includes("/admin");
 
   useEffect(() => {
-    langSwitchRef.current = false;
-  }, [locale]);
-
-  useEffect(() => {
-    const handler = () => {
-      if (langSwitchRef.current) {
-        langSwitchRef.current = false;
-        return;
-      }
-      const url = new URL(window.location.href);
-      const firstSegment = url.pathname.split("/")[1] || "";
-      const currentLocale = isLocale(firstSegment as Locale) ? (firstSegment as Locale) : defaultLocale;
-      if (currentLocale !== locale) {
-        const correctHref = switchLocalePath(url.pathname, currentLocale, locale);
-        window.location.replace(correctHref);
-      }
-    };
-    window.addEventListener("popstate", handler);
-    return () => window.removeEventListener("popstate", handler);
-  }, [locale]);
+    const pathLocale = pathname.split("/")[1] || "";
+    const urlLocale = isLocale(pathLocale) ? (pathLocale as Locale) : defaultLocale;
+    if (urlLocale !== locale && !intentionalLocaleRef.current) {
+      const correctHref = switchLocalePath(pathname, urlLocale, locale);
+      router.replace(correctHref);
+    }
+    if (intentionalLocaleRef.current) {
+      intentionalLocaleRef.current = false;
+    }
+  }, [pathname, locale, router]);
 
   const nav = buildNav(dict, locale);
   const prefix = localePrefix(locale);
@@ -167,7 +157,7 @@ export default function Header({
           <div className="max-sm:hidden flex items-center gap-2.5 max-xl:gap-2">
             <MusicToggle />
             <ThemeToggle />
-            <LangSwitcher locale={locale} dict={dict} />
+            <LangSwitcher locale={locale} dict={dict} onSwitch={() => { intentionalLocaleRef.current = true; }} />
           </div>
 
           <Link
@@ -231,7 +221,7 @@ export default function Header({
             <SearchBox locale={locale} dict={dict} />
             <div className="max-sm:hidden flex items-center gap-2.5">
               <MusicToggle />
-              <LangSwitcher locale={locale} dict={dict} />
+              <LangSwitcher locale={locale} dict={dict} onSwitch={() => { intentionalLocaleRef.current = true; }} />
             </div>
             <ThemeToggle />
             <Link
@@ -322,7 +312,7 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
-                        langSwitchRef.current = true;
+                        intentionalLocaleRef.current = true;
                         router.replace(href);
                         setMobileOpen(false);
                       }}
