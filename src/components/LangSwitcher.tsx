@@ -36,8 +36,7 @@ export default function LangSwitcher({
       const currentLocale = isLocale(firstSegment as Locale) ? (firstSegment as Locale) : defaultLocale;
       if (currentLocale !== locale) {
         const correctHref = switchLocalePath(url.pathname, currentLocale, locale);
-        langSwitchRef.current = true;
-        router.replace(correctHref);
+        window.location.replace(correctHref);
       }
     };
     window.addEventListener("popstate", handler);
