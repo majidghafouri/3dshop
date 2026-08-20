@@ -429,8 +429,7 @@ body {
   animation: shimmer 1.4s infinite linear;
 }
 
-/* Custom product cursor — forces all descendants to inherit the parent cursor */
-.custom-cursor,
+/* Custom product cursor — force all descendants to inherit the parent's cursor */
 .custom-cursor * {
   cursor: inherit !important;
 }
