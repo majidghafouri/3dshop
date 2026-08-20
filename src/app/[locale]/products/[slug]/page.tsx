@@ -89,7 +89,7 @@ export default async function ProductDetailPage({
       style={{
         background:
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
-        cursor: `url("${cursorUrl}") 0 0, auto`,
+        cursor: `url("${cursorUrl}") 0 0, url("${DEFAULT_CURSOR_URL}") 0 0, auto`,
       }}
     >
       {(p.bgImage || p.images[0]) && (

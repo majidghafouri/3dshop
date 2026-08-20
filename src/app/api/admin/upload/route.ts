@@ -4,12 +4,28 @@ import { put } from "@vercel/blob";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
 
 const ALLOWED_IMAGE = /^image\/(png|jpe?g|webp|gif|avif)$/;
 const ALLOWED_AUDIO = /^audio\/(mpeg|mp3|ogg|wav|m4a|aac|webm)$/;
 const MAX_SIZE = 25 * 1024 * 1024;
+const CURSOR_MAX = 32;
+
+async function prepareCursor(buffer: Buffer): Promise<Buffer> {
+  try {
+    return await sharp(buffer)
+      .resize(CURSOR_MAX, CURSOR_MAX, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
+  } catch {
+    return buffer;
+  }
+}
 
 function extFrom(name: string, mime: string) {
   const e = path.extname(name).toLowerCase();
@@ -34,6 +50,8 @@ export async function POST(req: NextRequest) {
     const files = Array.from(form.values()).filter(isFileLike);
     if (files.length === 0) return fail("no_file");
 
+    const isCursor = form.get("kind") === "cursor";
+
     const urls: string[] = [];
     for (const file of files) {
       if (file.size > MAX_SIZE) return fail("file_too_large");
@@ -41,8 +59,9 @@ export async function POST(req: NextRequest) {
       const isAudio = ALLOWED_AUDIO.test(file.type);
       if (!isImage && !isAudio) return fail("unsupported_type");
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const kind = isAudio ? "audio" : "img";
+      let buffer: Buffer = Buffer.from(await file.arrayBuffer());
+      const kind = isAudio ? "audio" : isCursor ? "cur" : "img";
+      if (isCursor && isImage) buffer = await prepareCursor(buffer);
       const name = `${kind}-${Date.now()}-${crypto.randomBytes(5).toString("hex")}${extFrom(file.name, file.type)}`;
       const pathname = `uploads/${name}`;
 

@@ -9,6 +9,7 @@ export default function SingleImageUploader({
   uploadingLabel,
   removeLabel,
   size = "normal",
+  kind = "img",
 }: {
   value: string;
   onChange: (url: string) => void;
@@ -16,6 +17,7 @@ export default function SingleImageUploader({
   uploadingLabel?: string;
   removeLabel?: string;
   size?: "normal" | "small";
+  kind?: "img" | "cursor";
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -27,6 +29,7 @@ export default function SingleImageUploader({
     setError(null);
     const form = new FormData();
     form.append("files", files[0]);
+    form.append("kind", kind);
     try {
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
       const json = await res.json();

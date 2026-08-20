@@ -369,6 +369,7 @@ export default function ProductForm({
             uploadingLabel={dict.cursorUploading}
             removeLabel={dict.cursorRemove}
             size="small"
+            kind="cursor"
           />
           <p className="mt-1.5 text-[11px] font-[800] text-[var(--muted-3)]">{dict.cursorDefault}</p>
         </div>
