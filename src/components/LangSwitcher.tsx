@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Locale, locales, switchLocalePath } from "@/lib/i18n";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Locale, locales, switchLocalePath, isLocale, defaultLocale } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
 const labels: Record<Locale, { name: string; code: string }> = {
@@ -20,8 +20,29 @@ export default function LangSwitcher({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const langSwitchRef = useRef(false);
+
+  useEffect(() => {
+    const handler = () => {
+      if (langSwitchRef.current) {
+        langSwitchRef.current = false;
+        return;
+      }
+      const url = new URL(window.location.href);
+      const firstSegment = url.pathname.split("/")[1] || "";
+      const currentLocale = isLocale(firstSegment as Locale) ? (firstSegment as Locale) : defaultLocale;
+      if (currentLocale !== locale) {
+        const correctHref = switchLocalePath(url.pathname, currentLocale, locale);
+        langSwitchRef.current = true;
+        router.replace(correctHref);
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [locale, router]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -84,8 +105,9 @@ export default function LangSwitcher({
                 type="button"
                 role="menuitem"
                 onClick={() => {
+                  langSwitchRef.current = true;
+                  router.replace(href);
                   setOpen(false);
-                  window.location.replace(href);
                 }}
                 className={`w-full flex items-center justify-between gap-3 px-[13px] py-3 rounded-[16px] font-[900] text-[14px] text-[var(--text-6)] transition-colors duration-200 hover:bg-[var(--bg-tint)] ${
                   active ? "bg-[var(--soft-2)] text-[var(--primary)]" : ""

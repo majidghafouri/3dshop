@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Locale, localePrefix, locales, switchLocalePath } from "@/lib/i18n";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Locale, localePrefix, locales, switchLocalePath, isLocale, defaultLocale } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { buildNav } from "@/lib/nav";
 import Logo from "@/components/Logo";
@@ -35,8 +35,29 @@ export default function Header({
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const { count } = useCart();
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const langSwitchRef = useRef(false);
   const isAdmin = pathname.includes("/admin");
+
+  useEffect(() => {
+    const handler = () => {
+      if (langSwitchRef.current) {
+        langSwitchRef.current = false;
+        return;
+      }
+      const url = new URL(window.location.href);
+      const firstSegment = url.pathname.split("/")[1] || "";
+      const currentLocale = isLocale(firstSegment as Locale) ? (firstSegment as Locale) : defaultLocale;
+      if (currentLocale !== locale) {
+        const correctHref = switchLocalePath(url.pathname, currentLocale, locale);
+        langSwitchRef.current = true;
+        router.replace(correctHref);
+      }
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [locale, router]);
 
   const nav = buildNav(dict, locale);
   const prefix = localePrefix(locale);
@@ -298,8 +319,9 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
+                        langSwitchRef.current = true;
+                        router.replace(href);
                         setMobileOpen(false);
-                        window.location.replace(href);
                       }}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active
