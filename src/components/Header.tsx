@@ -298,9 +298,8 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
-                        window.history.replaceState(window.history.state, "", href);
                         setMobileOpen(false);
-                        window.location.reload();
+                        window.location.replace(href);
                       }}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active
