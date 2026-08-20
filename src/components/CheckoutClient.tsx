@@ -33,6 +33,10 @@ export default function CheckoutClient({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ orderNumber: number } | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponData, setCouponData] = useState<{ couponId: string; discountAmount: number } | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const savings = items.reduce((s, i) => {
     if (i.product.compareAtPrice && i.product.compareAtPrice > i.product.price) {
@@ -40,7 +44,8 @@ export default function CheckoutClient({
     }
     return s;
   }, 0);
-  const total = subtotal;
+  const couponDiscount = couponData?.discountAmount ?? 0;
+  const total = Math.max(0, subtotal - couponDiscount);
 
   if (!isAuthed) {
     return (
@@ -92,6 +97,33 @@ export default function CheckoutClient({
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponBusy(true);
+    setCouponError(null);
+    setCouponData(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, subtotal }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setCouponData({ couponId: json.data.couponId, discountAmount: json.data.discountAmount });
+      } else {
+        let errMsg = dict.checkout.couponInvalid;
+        if (json.error === "coupon_expired") errMsg = dict.checkout.couponExpired;
+        else if (json.error === "coupon_min_order_not_met") errMsg = `${dict.checkout.couponMinOrder}: ${json.minOrderAmount?.toLocaleString("en-US")}`;
+        setCouponError(errMsg);
+      }
+    } catch {
+      setCouponError(dict.checkout.couponInvalid);
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -105,7 +137,7 @@ export default function CheckoutClient({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, paymentMethod }),
+        body: JSON.stringify({ ...form, paymentMethod, couponId: couponData?.couponId ?? null }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -246,6 +278,40 @@ export default function CheckoutClient({
               <span dir="ltr">− {savings.toLocaleString("en-US")} {dict.common.currency}</span>
             </div>
           )}
+
+          {/* Coupon code */}
+          {!couponData ? (
+            <div className="flex items-center gap-2">
+              <input
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                placeholder={dict.checkout.couponPlaceholder}
+                className="flex-1 min-w-0 border border-[var(--line-2)] rounded-[10px] px-3 py-2 text-[12px] font-[850] text-[var(--text)] outline-none focus:border-[var(--primary)] transition-all"
+                dir="ltr"
+              />
+              <button
+                type="button"
+                onClick={applyCoupon}
+                disabled={couponBusy || !couponCode.trim()}
+                className="shrink-0 rounded-[10px] text-white font-[950] px-3 py-2 text-[12px] disabled:opacity-50"
+                style={{ backgroundImage: "linear-gradient(135deg,var(--primary),var(--sky))" }}
+              >
+                {couponBusy ? dict.checkout.applyingCoupon : dict.checkout.applyCoupon}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-[var(--teal-2)]">
+              <span>{dict.checkout.couponDiscount}</span>
+              <span dir="ltr">− {couponDiscount.toLocaleString("en-US")} {dict.common.currency}</span>
+            </div>
+          )}
+          {couponError && <p className="text-[11px] font-[850] text-[var(--danger)]">{couponError}</p>}
+          {couponData && (
+            <button type="button" onClick={() => { setCouponData(null); setCouponCode(""); setCouponError(null); }} className="text-[11px] font-[850] text-[var(--muted)] hover:text-[var(--text)]">
+              ✕ {couponCode.toUpperCase()}
+            </button>
+          )}
+
           <div className="flex items-center justify-between text-[var(--text-2)]">
             <span>{dict.cart.shipping}</span>
             <span className="text-[var(--teal-2)] font-[950]">{dict.cart.shippingFree}</span>

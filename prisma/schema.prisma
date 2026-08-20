@@ -231,12 +231,15 @@ model Order {
   shipping      Int          @default(0)
   discount      Int          @default(0)
   total         Int
+  couponId      String?
   items         OrderItem[]
   user          User         @relation(fields: [userId], references: [id])
+  coupon        Coupon?      @relation(fields: [couponId], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   @@index([userId])
+  @@index([couponId])
 }
 
 model OrderItem {
@@ -247,6 +250,33 @@ model OrderItem {
   unitPrice Int
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
+}
+
+// ---------- Coupons ----------
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Coupon {
+  id               String     @id @default(cuid())
+  code             String     @unique
+  type             CouponType
+  value            Int
+  minOrderAmount   Int?
+  maxDiscountAmount Int?
+  usageLimit       Int?
+  usedCount        Int        @default(0)
+  validFrom        DateTime
+  validUntil       DateTime
+  isActive         Boolean    @default(true)
+  orders           Order[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([code])
+  @@index([isActive, validFrom, validUntil])
 }
 
 // ---------- Contact ----------

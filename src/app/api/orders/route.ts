@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     postalCode?: string;
     note?: string;
     paymentMethod?: string;
+    couponId?: string;
   }>(await req.text());
 
   if (!body?.fullName || !body?.phone || !body?.address) {
@@ -68,14 +69,43 @@ export async function POST(req: NextRequest) {
       discount += (item.product.compareAtPrice - item.product.price) * item.quantity;
     }
   }
+
+  // Validate and apply coupon
+  let couponDiscount = 0;
+  let couponId: string | null = null;
+  if (body.couponId) {
+    const coupon = await prisma.coupon.findUnique({ where: { id: body.couponId } });
+    if (!coupon || !coupon.isActive) return fail("coupon_invalid");
+    const now = new Date();
+    if (now < coupon.validFrom || now > coupon.validUntil) return fail("coupon_invalid");
+    if (coupon.usageLimit != null && coupon.usedCount >= coupon.usageLimit) return fail("coupon_invalid");
+    if (coupon.minOrderAmount != null && subtotal < coupon.minOrderAmount) return fail("coupon_invalid");
+
+    if (coupon.type === "PERCENTAGE") {
+      couponDiscount = Math.round((subtotal * coupon.value) / 100);
+      if (coupon.maxDiscountAmount != null) {
+        couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
+      }
+    } else {
+      couponDiscount = Math.min(coupon.value, subtotal);
+    }
+    couponId = coupon.id;
+  }
+
   const shipping = 0;
-  const total = subtotal;
+  const total = Math.max(0, subtotal - couponDiscount);
 
   const order = await prisma.$transaction(async (tx) => {
     for (const item of cart.items) {
       await tx.product.update({
         where: { id: item.product.id },
         data: { stock: { decrement: item.quantity } },
+      });
+    }
+    if (couponId) {
+      await tx.coupon.update({
+        where: { id: couponId },
+        data: { usedCount: { increment: 1 } },
       });
     }
     const created = await tx.order.create({
@@ -89,8 +119,9 @@ export async function POST(req: NextRequest) {
         note: body.note ?? null,
         subtotal,
         shipping,
-        discount,
+        discount: discount + couponDiscount,
         total,
+        couponId,
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,

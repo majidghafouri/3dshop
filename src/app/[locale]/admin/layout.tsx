@@ -31,6 +31,7 @@ export default async function AdminLayout({
     { href: "/products", label: dict.admin.nav.products, icon: "🗃️" },
     { href: "/categories", label: dict.admin.nav.categories, icon: "🗂️" },
     { href: "/orders", label: dict.admin.nav.orders, icon: "📦" },
+    { href: "/coupons", label: dict.admin.nav.coupons, icon: "🏷️" },
     { href: "/appearance", label: dict.admin.nav.appearance, icon: "🎨" },
     { href: "/email", label: dict.admin.nav.email, icon: "✉️" },
     { href: "/settings", label: dict.admin.nav.settings, icon: "🔑" },

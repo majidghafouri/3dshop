@@ -36,7 +36,9 @@ const TEMPLATES: Record<string, Record<string, Template>> = {
 ما اینجاییم تا بهترین تجربه خرید آنلاین را برای شما فراهم کنیم. اگر سوالی دارید، تیم پشتیبانی ما همیشه آماده کمک است.
 
 با آرزوی بهترین‌ها،
-تیم فیگرفورج`,
+تیم فیگرفورج
+
+🌐 https://figureforge.ir`,
     },
     orderConfirmation: {
       subject: "سفارش شما با موفقیت ثبت شد ✅",
@@ -49,7 +51,9 @@ const TEMPLATES: Record<string, Record<string, Template>> = {
 اگر سوالی دارید، با ما تماس بگیرید.
 
 با تشکر،
-تیم فیگرفورج`,
+تیم فیگرفورج
+
+🌐 https://figureforge.ir`,
     },
     promotion: {
       subject: "🔥 تخفیف ویژه فقط برای شما!",
@@ -61,6 +65,7 @@ const TEMPLATES: Record<string, Record<string, Template>> = {
 
  فرصت محدود است، همین الان اقدام کنید!
 
+🌐 https://figureforge.ir
 با احترام،
 تیم فیگرفورج`,
     },
@@ -74,7 +79,8 @@ const TEMPLATES: Record<string, Record<string, Template>> = {
 🎯 ویژگی جدید: [توضیح ویژگی]
 💡 نکته ماه: [نکته]
 
-برای اطلاعات بیشتر به سایت ما سر بزنید.
+برای اطلاعات بیشتر به سایت ما سر بزنید:
+🌐 https://figureforge.ir
 
 با تشکر،
 تیم فیگرفورج`,
@@ -90,7 +96,9 @@ Thank you for choosing FigureForge. We're thrilled to have you with us.
 Our team is here to provide you with the best online shopping experience. If you have any questions, don't hesitate to reach out.
 
 Best regards,
-The FigureForge Team`,
+The FigureForge Team
+
+🌐 https://figureforge.ir`,
     },
     orderConfirmation: {
       subject: "Your Order Has Been Confirmed ✅",
@@ -103,7 +111,9 @@ You can track your order and check delivery status from the "My Orders" section 
 If you have any questions, feel free to contact us.
 
 Thank you,
-The FigureForge Team`,
+The FigureForge Team
+
+🌐 https://figureforge.ir`,
     },
     promotion: {
       subject: "🔥 Exclusive Discount Just for You!",
@@ -115,6 +125,7 @@ Enjoy [X]% off on all products for [Occasion].
 
 Limited time only — shop now!
 
+🌐 https://figureforge.ir
 Best regards,
 The FigureForge Team`,
     },
@@ -128,7 +139,8 @@ Here are the latest updates from FigureForge:
 🎯 New Feature: [Feature Description]
 💡 Tip of the Month: [Tip]
 
-Visit our website for more information.
+Visit our website for more information:
+🌐 https://figureforge.ir
 
 Thank you,
 The FigureForge Team`,
@@ -144,7 +156,9 @@ The FigureForge Team`,
 فريقنا هنا لتقديم أفضل تجربة تسوق إلكتروني لك. إذا كان لديك أي أسئلة، لا تتردد في التواصل معنا.
 
 مع أطيب التحيات،
-فريق فيگرفورج`,
+فريق فيگرفورج
+
+🌐 https://figureforge.ir`,
     },
     orderConfirmation: {
       subject: "تم تأكيد طلبك بنجاح ✅",
@@ -157,7 +171,9 @@ The FigureForge Team`,
 إذا كان لديك أي سؤال، اتصل بنا.
 
 مع الشكر،
-فريق فيگرفورج`,
+فريق فيگرفورج
+
+🌐 https://figureforge.ir`,
     },
     promotion: {
       subject: "🔥 خصم حصري خصيصاً لك!",
@@ -169,6 +185,7 @@ The FigureForge Team`,
 
 الفترة محدودة — توقف الآن!
 
+🌐 https://figureforge.ir
 مع أطيب التحيات،
 فريق فيگرفورج`,
     },
@@ -182,7 +199,8 @@ The FigureForge Team`,
 🎯 ميزة جديدة: [وصف الميزة]
 💡 نصيحة الشهر: [النصيحة]
 
-قم بزيارة موقعنا لمزيد من المعلومات.
+قم بزيارة موقعنا لمزيد من المعلومات:
+🌐 https://figureforge.ir
 
 مع الشكر،
 فريق فيگرفورج`,
