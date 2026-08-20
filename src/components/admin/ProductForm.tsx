@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
 import AudioUploader from "@/components/admin/AudioUploader";
 import SingleImageUploader from "@/components/admin/SingleImageUploader";
+import { formatThousands, stripNonDigits } from "@/lib/format";
 
 const LOCALES = ["fa", "en", "ar"] as const;
 
@@ -159,13 +160,15 @@ export default function ProductForm({
     setForm((f) => ({ ...f, [k]: { ...f[k], [loc]: v } }));
 
   const onChangePrice = (v: string) => {
-    set("price", v);
-    setPct(computePct(v, form.compareAtPrice ?? ""));
+    const raw = stripNonDigits(v);
+    set("price", raw);
+    setPct(computePct(raw, stripNonDigits(form.compareAtPrice ?? "")));
   };
 
   const onChangeCompareAt = (v: string) => {
-    set("compareAtPrice", v);
-    setPct(computePct(form.price, v));
+    const raw = stripNonDigits(v);
+    set("compareAtPrice", raw);
+    setPct(computePct(stripNonDigits(form.price), raw));
   };
 
   const onChangePct = (v: string) => {
@@ -258,11 +261,23 @@ export default function ProductForm({
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.priceToman} *</span>
-            <input value={form.price} onChange={(e) => onChangePrice(e.target.value)} type="number" className={inputCls} />
+            <input
+              value={formatThousands(form.price)}
+              onChange={(e) => onChangePrice(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              className={inputCls}
+            />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.compareAt}</span>
-            <input value={form.compareAtPrice ?? ""} onChange={(e) => onChangeCompareAt(e.target.value)} type="number" className={inputCls} />
+            <input
+              value={formatThousands(form.compareAtPrice ?? "")}
+              onChange={(e) => onChangeCompareAt(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              className={inputCls}
+            />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.discountPct}</span>

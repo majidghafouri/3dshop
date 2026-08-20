@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatThousands, stripNonDigits } from "@/lib/format";
 
 type CouponDict = {
   title: string;
@@ -222,20 +223,22 @@ export default function CouponManager({ coupons, users, dict }: { coupons: Coupo
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.minOrder}</span>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               min={0}
-              value={form.minOrderAmount}
-              onChange={(e) => setForm((f) => ({ ...f, minOrderAmount: e.target.value }))}
+              value={formatThousands(form.minOrderAmount)}
+              onChange={(e) => setForm((f) => ({ ...f, minOrderAmount: stripNonDigits(e.target.value) }))}
               className={`${inputCls} mt-1`}
             />
           </label>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.maxDiscount}</span>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               min={0}
-              value={form.maxDiscountAmount}
-              onChange={(e) => setForm((f) => ({ ...f, maxDiscountAmount: e.target.value }))}
+              value={formatThousands(form.maxDiscountAmount)}
+              onChange={(e) => setForm((f) => ({ ...f, maxDiscountAmount: stripNonDigits(e.target.value) }))}
               className={`${inputCls} mt-1`}
             />
           </label>
