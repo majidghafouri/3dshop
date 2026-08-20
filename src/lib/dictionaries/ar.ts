@@ -434,7 +434,7 @@ export const ar: typeof fa = {
       categories: "الفئات",
       orders: "الطلبات",
       appearance: "المظهر",
-      email: "البريد الإلكتروني",
+      email: "إرسال بريد",
       settings: "الإعدادات",
     },
     dashboard: {
@@ -598,6 +598,15 @@ export const ar: typeof fa = {
       sending: "جارٍ الإرسال...",
       sent: "تم إرسال البريد الإلكتروني بنجاح إلى",
       failed: "فشل الإرسال",
+      template: "القالب",
+      templatePlaceholder: "اختر قالباً...",
+      templates: {
+        custom: "مخصص",
+        welcome: "ترحيب",
+        orderConfirmation: "تأكيد الطلب",
+        promotion: "عرض تخفيض",
+        newsletter: "نشرة إخبارية",
+      },
     },
     contactSettings: {
       title: "معلومات الاتصال",

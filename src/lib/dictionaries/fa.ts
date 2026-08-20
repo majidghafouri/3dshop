@@ -432,7 +432,7 @@ export const fa = {
       categories: "دسته‌بندی‌ها",
       orders: "سفارش‌ها",
       appearance: "ظاهر سایت",
-      email: "ایمیل",
+      email: "ارسال ایمیل",
       settings: "تنظیمات",
     },
     dashboard: {
@@ -596,6 +596,15 @@ export const fa = {
       sending: "در حال ارسال...",
       sent: "ایمیل با موفقیت ارسال شد به",
       failed: "ارسال ناموفق",
+      template: "قالب",
+      templatePlaceholder: "یک قالب انتخاب کنید...",
+      templates: {
+        custom: "سفارشی",
+        welcome: "خوش‌آمدگویی",
+        orderConfirmation: "تایید سفارش",
+        promotion: "تخفیف و فروش ویژه",
+        newsletter: "خبرنامه",
+      },
     },
     contactSettings: {
       title: "اطلاعات تماس",

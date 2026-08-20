@@ -15,6 +15,179 @@ type SendEmailDict = {
   sending: string;
   sent: string;
   failed: string;
+  template: string;
+  templatePlaceholder: string;
+  templates: Record<string, string>;
+};
+
+type Template = {
+  subject: string;
+  body: string;
+};
+
+const TEMPLATES: Record<string, Record<string, Template>> = {
+  fa: {
+    welcome: {
+      subject: "خوش آمدید به فیگرفورج! 🎉",
+      body: `با سلام و احترام،
+
+از اینکه فیگرفورج را انتخاب کردید سپاسگزاریم. 🙏
+
+ما اینجاییم تا بهترین تجربه خرید آنلاین را برای شما فراهم کنیم. اگر سوالی دارید، تیم پشتیبانی ما همیشه آماده کمک است.
+
+با آرزوی بهترین‌ها،
+تیم فیگرفورج`,
+    },
+    orderConfirmation: {
+      subject: "سفارش شما با موفقیت ثبت شد ✅",
+      body: `با سلام،
+
+سفارش شما با موفقیت در سیستم ثبت شد.
+
+برای پیگیری سفارش و اطلاع از وضعیت ارسال، می‌توانید به بخش «سفارش‌های من» در حساب کاربری خود مراجعه کنید.
+
+اگر سوالی دارید، با ما تماس بگیرید.
+
+با تشکر،
+تیم فیگرفورج`,
+    },
+    promotion: {
+      subject: "🔥 تخفیف ویژه فقط برای شما!",
+      body: `با سلام،
+
+یک پیشنهاد ویژه برای شما داریم!
+
+به مناسبت [مناسبت]، از [درصد]% تخفیف ویژه روی تمام محصولات بهره‌مند شوید.
+
+ فرصت محدود است، همین الان اقدام کنید!
+
+با احترام،
+تیم فیگرفورج`,
+    },
+    newsletter: {
+      subject: "خبرنامه فیگرفورج 📰",
+      body: `با سلام،
+
+آخرین اخبار و به‌روزرسانی‌های فیگرفورج:
+
+📦 محصولات جدید: [نام محصول]
+🎯 ویژگی جدید: [توضیح ویژگی]
+💡 نکته ماه: [نکته]
+
+برای اطلاعات بیشتر به سایت ما سر بزنید.
+
+با تشکر،
+تیم فیگرفورج`,
+    },
+  },
+  en: {
+    welcome: {
+      subject: "Welcome to FigureForge! 🎉",
+      body: `Hello and welcome!
+
+Thank you for choosing FigureForge. We're thrilled to have you with us.
+
+Our team is here to provide you with the best online shopping experience. If you have any questions, don't hesitate to reach out.
+
+Best regards,
+The FigureForge Team`,
+    },
+    orderConfirmation: {
+      subject: "Your Order Has Been Confirmed ✅",
+      body: `Hello,
+
+Your order has been successfully placed.
+
+You can track your order and check delivery status from the "My Orders" section in your account.
+
+If you have any questions, feel free to contact us.
+
+Thank you,
+The FigureForge Team`,
+    },
+    promotion: {
+      subject: "🔥 Exclusive Discount Just for You!",
+      body: `Hello,
+
+We have a special offer just for you!
+
+Enjoy [X]% off on all products for [Occasion].
+
+Limited time only — shop now!
+
+Best regards,
+The FigureForge Team`,
+    },
+    newsletter: {
+      subject: "FigureForge Newsletter 📰",
+      body: `Hello,
+
+Here are the latest updates from FigureForge:
+
+📦 New Arrivals: [Product Name]
+🎯 New Feature: [Feature Description]
+💡 Tip of the Month: [Tip]
+
+Visit our website for more information.
+
+Thank you,
+The FigureForge Team`,
+    },
+  },
+  ar: {
+    welcome: {
+      subject: "مرحباً بكم في فيگرفورج! 🎉",
+      body: `مرحباً وتحية طيبة،
+
+شكراً لاختياركم فيگرفورج. يسعدنا انضمامكم إلينا.
+
+فريقنا هنا لتقديم أفضل تجربة تسوق إلكتروني لك. إذا كان لديك أي أسئلة، لا تتردد في التواصل معنا.
+
+مع أطيب التحيات،
+فريق فيگرفورج`,
+    },
+    orderConfirmation: {
+      subject: "تم تأكيد طلبك بنجاح ✅",
+      body: `مرحباً،
+
+تم تسجيل طلبك بنجاح في النظام.
+
+يمكنك متابعة طلبك والاطلاع على حالة التوصيل من قسم "طلباتي" في حسابك الشخصي.
+
+إذا كان لديك أي سؤال، اتصل بنا.
+
+مع الشكر،
+فريق فيگرفورج`,
+    },
+    promotion: {
+      subject: "🔥 خصم حصري خصيصاً لك!",
+      body: `مرحباً،
+
+لدينا عرض خاص لك!
+
+استمتع بخصم [X]% على جميع المنتجات بمناسبة [المناسبة].
+
+الفترة محدودة — توقف الآن!
+
+مع أطيب التحيات،
+فريق فيگرفورج`,
+    },
+    newsletter: {
+      subject: "نشرة فيگرفورج الإخبارية 📰",
+      body: `مرحباً،
+
+إليك آخر الأخبار والتحديثات من فيگرفورج:
+
+📦 وصل حديثاً: [اسم المنتج]
+🎯 ميزة جديدة: [وصف الميزة]
+💡 نصيحة الشهر: [النصيحة]
+
+قم بزيارة موقعنا لمزيد من المعلومات.
+
+مع الشكر،
+فريق فيگرفورج`,
+    },
+  },
 };
 
 export default function SendEmailCard({ dict }: { dict: SendEmailDict }) {
@@ -27,6 +200,19 @@ export default function SendEmailCard({ dict }: { dict: SendEmailDict }) {
   const showMsg = (kind: "ok" | "err", text: string) => {
     setMsg({ kind, text });
     setTimeout(() => setMsg(null), 5000);
+  };
+
+  const applyTemplate = (key: string) => {
+    if (key === "custom" || !key) {
+      setSubject("");
+      setBody("");
+      return;
+    }
+    const tpl = TEMPLATES.fa[key] ?? TEMPLATES.en[key];
+    if (tpl) {
+      setSubject(tpl.subject);
+      setBody(tpl.body);
+    }
   };
 
   const send = async () => {
@@ -44,7 +230,6 @@ export default function SendEmailCard({ dict }: { dict: SendEmailDict }) {
       const json = await res.json();
       if (json.ok) {
         showMsg("ok", `${dict.sent} ${json.to}`);
-        setBody("");
       } else {
         showMsg("err", `${dict.failed}: ${json.error ?? json.detail ?? "unknown"}`);
       }
@@ -63,7 +248,25 @@ export default function SendEmailCard({ dict }: { dict: SendEmailDict }) {
       <h3 className="text-[14px] font-[1000] text-[var(--text)]">{dict.title}</h3>
       <p className="mt-1 text-[12.5px] font-[850] text-[var(--muted)]">{dict.subtitle}</p>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <label className="block mt-4">
+        <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.template}</span>
+        <select
+          onChange={(e) => applyTemplate(e.target.value)}
+          defaultValue=""
+          className={`${inputCls} mt-1.5 appearance-none cursor-pointer`}
+        >
+          <option value="" disabled>
+            {dict.templatePlaceholder}
+          </option>
+          {Object.entries(dict.templates).map(([key, label]) => (
+            <option key={key} value={key}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         <label className="block">
           <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.to}</span>
           <input
@@ -93,7 +296,7 @@ export default function SendEmailCard({ dict }: { dict: SendEmailDict }) {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder={dict.bodyPlaceholder}
-          rows={6}
+          rows={10}
           className={`${inputCls} mt-1.5 resize-y`}
         />
       </label>

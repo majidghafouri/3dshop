@@ -434,7 +434,7 @@ export const en: typeof fa = {
       categories: "Categories",
       orders: "Orders",
       appearance: "Appearance",
-      email: "Email",
+      email: "Send email",
       settings: "Settings",
     },
     dashboard: {
@@ -598,6 +598,15 @@ export const en: typeof fa = {
       sending: "Sending...",
       sent: "Email sent successfully to",
       failed: "Failed to send",
+      template: "Template",
+      templatePlaceholder: "Choose a template...",
+      templates: {
+        custom: "Custom",
+        welcome: "Welcome",
+        orderConfirmation: "Order Confirmation",
+        promotion: "Promotion & Sale",
+        newsletter: "Newsletter",
+      },
     },
     contactSettings: {
       title: "Contact info",

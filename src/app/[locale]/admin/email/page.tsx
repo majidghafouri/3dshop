@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Locale, isLocale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import SendEmailCard from "@/components/admin/SendEmailCard";
-import EmailSettingsManager from "@/components/admin/EmailSettingsManager";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +16,6 @@ export default async function AdminEmailPage({
 
   return (
     <div>
-      <EmailSettingsManager dict={dict.admin.emailSettings} />
       <SendEmailCard dict={dict.admin.sendEmail} />
     </div>
   );
