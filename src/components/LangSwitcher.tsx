@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, locales, switchLocalePath } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
@@ -20,7 +20,6 @@ export default function LangSwitcher({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -85,11 +84,9 @@ export default function LangSwitcher({
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  router.replace(href);
+                  window.history.replaceState(window.history.state, "", href);
                   setOpen(false);
-                  setTimeout(() => {
-                    window.history.replaceState(window.history.state, "", href);
-                  }, 0);
+                  window.location.reload();
                 }}
                 className={`w-full flex items-center justify-between gap-3 px-[13px] py-3 rounded-[16px] font-[900] text-[14px] text-[var(--text-6)] transition-colors duration-200 hover:bg-[var(--bg-tint)] ${
                   active ? "bg-[var(--soft-2)] text-[var(--primary)]" : ""

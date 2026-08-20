@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Locale, localePrefix, locales, switchLocalePath } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import { buildNav } from "@/lib/nav";
@@ -35,7 +35,6 @@ export default function Header({
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const { count } = useCart();
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const isAdmin = pathname.includes("/admin");
 
@@ -299,11 +298,9 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
-                        router.replace(href);
+                        window.history.replaceState(window.history.state, "", href);
                         setMobileOpen(false);
-                        setTimeout(() => {
-                          window.history.replaceState(window.history.state, "", href);
-                        }, 0);
+                        window.location.reload();
                       }}
                       className={`px-3 py-2.5 rounded-[14px] text-[13px] font-[950] text-center border transition-colors ${
                         active
