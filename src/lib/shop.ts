@@ -1,6 +1,8 @@
 import prisma from "@/lib/db";
 import { Locale } from "@/lib/i18n";
 
+export const DEFAULT_CURSOR_URL = "/cursors/default.png";
+
 export type ProductItem = {
   id: string;
   slug: string;

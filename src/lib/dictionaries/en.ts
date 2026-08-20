@@ -533,6 +533,7 @@ export const en: typeof fa = {
       cursorUploading: "Uploading cursor...",
       cursorRemove: "Remove cursor",
       cursorName: "Cursor name",
+      cursorDefault: "Empty cursor → default \"Sulley\" cursor is applied",
       translations: "Translations",
       name: "Name",
       shortDesc: "Short description",

@@ -5,7 +5,7 @@ import { Locale, localePrefix, formatPrice, formatDiscountPercent, isLocale } fr
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildProductJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
-import { mapProduct, productInclude } from "@/lib/shop";
+import { mapProduct, productInclude, DEFAULT_CURSOR_URL } from "@/lib/shop";
 import ImageGallery from "@/components/ImageGallery";
 import PurchasePanel from "@/components/PurchasePanel";
 import ProductGrid from "@/components/ProductGrid";
@@ -56,6 +56,7 @@ export default async function ProductDetailPage({
 
   const p = mapProduct(product);
   const percent = formatDiscountPercent(p.price, p.compareAtPrice);
+  const cursorUrl = p.cursorUrl || DEFAULT_CURSOR_URL;
 
   await trackEvent({
     type: "PRODUCT_VIEW",
@@ -84,11 +85,11 @@ export default async function ProductDetailPage({
   if (p.sku) specs.push({ label: dict.products.detail.sku, value: p.sku });
 
   return (
-    <div className={`relative overflow-hidden py-[40px] max-sm:py-[28px]${p.cursorUrl ? " custom-cursor" : ""}`}
+    <div className="relative overflow-hidden py-[40px] max-sm:py-[28px] custom-cursor"
       style={{
         background:
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
-        ...(p.cursorUrl ? { cursor: `url("${p.cursorUrl}") 0 0, auto` } : {}),
+        cursor: `url("${cursorUrl}") 0 0, auto`,
       }}
     >
       {(p.bgImage || p.images[0]) && (

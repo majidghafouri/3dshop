@@ -531,6 +531,7 @@ export const fa = {
       cursorUploading: "در حال بارگذاری کرسر...",
       cursorRemove: "حذف کرسر",
       cursorName: "نام کرسر",
+      cursorDefault: "بدون کرسر → کرسر پیش‌فرض («ساللی») اعمال می‌شود",
       translations: "ترجمه‌ها",
       name: "نام",
       shortDesc: "توضیح کوتاه",

@@ -533,6 +533,7 @@ export const ar: typeof fa = {
       cursorUploading: "جاري تحميل المؤشر...",
       cursorRemove: "إزالة المؤشر",
       cursorName: "اسم المؤشر",
+      cursorDefault: "مؤشر فارغ → يتم تطبيق المؤشر الافتراضي \"سالي\"",
       translations: "الترجمات",
       name: "الاسم",
       shortDesc: "وصف قصير",

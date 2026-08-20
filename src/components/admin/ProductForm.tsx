@@ -76,6 +76,7 @@ export type ProductFormDict = {
   cursorUploading: string;
   cursorRemove: string;
   cursorName: string;
+  cursorDefault: string;
   translations: string;
   name: string;
   shortDesc: string;
@@ -369,6 +370,7 @@ export default function ProductForm({
             removeLabel={dict.cursorRemove}
             size="small"
           />
+          <p className="mt-1.5 text-[11px] font-[800] text-[var(--muted-3)]">{dict.cursorDefault}</p>
         </div>
       </div>
 
