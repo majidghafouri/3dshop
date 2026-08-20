@@ -114,6 +114,7 @@ export default function CheckoutClient({
       } else {
         let errMsg = dict.checkout.couponInvalid;
         if (json.error === "coupon_expired") errMsg = dict.checkout.couponExpired;
+        else if (json.error === "coupon_not_for_you") errMsg = dict.checkout.couponNotForYou;
         else if (json.error === "coupon_min_order_not_met") errMsg = `${dict.checkout.couponMinOrder}: ${json.minOrderAmount?.toLocaleString("en-US")}`;
         setCouponError(errMsg);
       }

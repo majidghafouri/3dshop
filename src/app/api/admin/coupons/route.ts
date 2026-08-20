@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
 
   const coupons = await prisma.coupon.findMany({
     orderBy: { createdAt: "desc" },
+    include: { allowedUsers: { select: { id: true, email: true, phone: true, name: true } } },
   });
   return ok({ coupons });
 }
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
     validFrom?: string;
     validUntil?: string;
     isActive?: boolean;
+    userIds?: string[];
   }>(await req.text());
 
   if (!body?.code || !body?.type || body.value == null || !body.validFrom || !body.validUntil) {
@@ -56,6 +58,9 @@ export async function POST(req: NextRequest) {
       validFrom: new Date(body.validFrom),
       validUntil: new Date(body.validUntil),
       isActive: body.isActive ?? true,
+      ...(body.userIds && body.userIds.length > 0
+        ? { allowedUsers: { connect: body.userIds.map((id) => ({ id })) } }
+        : {}),
     },
   });
   return ok({ coupon }, 201);
@@ -76,6 +81,7 @@ export async function PATCH(req: NextRequest) {
     validFrom?: string;
     validUntil?: string;
     isActive?: boolean;
+    userIds?: string[];
   }>(await req.text());
 
   if (!body?.id) return fail("missing_id");
@@ -98,7 +104,20 @@ export async function PATCH(req: NextRequest) {
   if (body.validUntil) data.validUntil = new Date(body.validUntil);
   if (body.isActive !== undefined) data.isActive = body.isActive;
 
-  const coupon = await prisma.coupon.update({ where: { id: body.id }, data });
+  const coupon = await prisma.$transaction(async (tx) => {
+    const updated = await tx.coupon.update({ where: { id: body.id }, data });
+    if (body.userIds !== undefined) {
+      await tx.coupon.update({
+        where: { id: body.id },
+        data: {
+          allowedUsers: body.userIds.length > 0
+            ? { set: body.userIds.map((id) => ({ id })) }
+            : { set: [] },
+        },
+      });
+    }
+    return tx.coupon.findUnique({ where: { id: body.id } });
+  });
   return ok({ coupon });
 }
 

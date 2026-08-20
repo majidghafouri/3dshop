@@ -33,6 +33,7 @@ model User {
   role      Role     @default(USER)
   cart      Cart?
   orders    Order[]
+  coupons   Coupon[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -272,6 +273,7 @@ model Coupon {
   validUntil       DateTime
   isActive         Boolean    @default(true)
   orders           Order[]
+  allowedUsers     User[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 

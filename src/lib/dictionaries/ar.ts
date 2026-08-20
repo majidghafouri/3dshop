@@ -231,6 +231,7 @@ export const ar: typeof fa = {
     couponApplied: "تم تطبيق كود الخصم",
     couponInvalid: "كود الخصم غير صالح",
     couponExpired: "انتهت صلاحية كود الخصم",
+    couponNotForYou: "كود الخصم هذا ليس لك",
     couponMinOrder: "الحد الأدنى للطلب لهذا الكود",
     couponDiscount: "خصم الكوبون",
     applyingCoupon: "جارٍ الفحص...",
@@ -655,6 +656,9 @@ export const ar: typeof fa = {
       inactiveLabel: "غير نشط",
       startsAt: "يبدأ",
       endsAt: "ينتهي",
+      users: "المستخدمون المسموح لهم",
+      allUsers: "جميع المستخدمين يمكنهم استخدام هذا الكوبون",
+      noUsers: "لا يوجد مستخدمون مسجلون بعد",
     },
     contactSettings: {
       title: "معلومات الاتصال",

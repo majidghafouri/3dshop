@@ -11,10 +11,18 @@ export async function POST(req: NextRequest) {
   if (!body?.code) return fail("fill_required");
 
   const code = body.code.trim().toUpperCase();
-  const coupon = await prisma.coupon.findUnique({ where: { code } });
+  const coupon = await prisma.coupon.findUnique({
+    where: { code },
+    include: { allowedUsers: { select: { id: true } } },
+  });
 
   if (!coupon) return fail("coupon_not_found");
   if (!coupon.isActive) return fail("coupon_inactive");
+
+  if (coupon.allowedUsers.length > 0) {
+    const isAllowed = coupon.allowedUsers.some((u) => u.id === user.id);
+    if (!isAllowed) return fail("coupon_not_for_you");
+  }
 
   const now = new Date();
   if (now < coupon.validFrom) return fail("coupon_not_started");

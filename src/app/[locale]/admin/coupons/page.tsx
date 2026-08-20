@@ -15,13 +15,21 @@ export default async function AdminCouponsPage({
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
 
-  const coupons = await prisma.coupon.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const [coupons, users] = await Promise.all([
+    prisma.coupon.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { allowedUsers: { select: { id: true, email: true, phone: true, name: true } } },
+    }),
+    prisma.user.findMany({
+      select: { id: true, email: true, phone: true, name: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   return (
     <CouponManager
       dict={dict.admin.coupons}
+      users={users}
       coupons={coupons.map((c) => ({
         id: c.id,
         code: c.code,
@@ -34,6 +42,7 @@ export default async function AdminCouponsPage({
         validFrom: c.validFrom.toISOString(),
         validUntil: c.validUntil.toISOString(),
         isActive: c.isActive,
+        allowedUsers: c.allowedUsers,
       }))}
     />
   );

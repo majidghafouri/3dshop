@@ -40,6 +40,16 @@ type CouponDict = {
   inactiveLabel: string;
   startsAt: string;
   endsAt: string;
+  users: string;
+  allUsers: string;
+  noUsers: string;
+};
+
+type User = {
+  id: string;
+  email: string | null;
+  phone: string | null;
+  name: string | null;
 };
 
 type Coupon = {
@@ -54,12 +64,13 @@ type Coupon = {
   validFrom: string;
   validUntil: string;
   isActive: boolean;
+  allowedUsers: User[];
 };
 
 const inputCls =
   "w-full border border-[var(--line-2)] rounded-[12px] px-3 py-2.5 text-[13px] font-[800] text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all";
 
-export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; dict: CouponDict }) {
+export default function CouponManager({ coupons, users, dict }: { coupons: Coupon[]; users: User[]; dict: CouponDict }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Coupon | null>(null);
   const [busy, setBusy] = useState(false);
@@ -75,6 +86,7 @@ export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; di
     validFrom: new Date().toISOString().slice(0, 16),
     validUntil: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 16),
     isActive: true,
+    userIds: [] as string[],
   };
   const [form, setForm] = useState(emptyForm);
 
@@ -95,6 +107,7 @@ export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; di
       validFrom: new Date(c.validFrom).toISOString().slice(0, 16),
       validUntil: new Date(c.validUntil).toISOString().slice(0, 16),
       isActive: c.isActive,
+      userIds: c.allowedUsers.map((u) => u.id),
     });
   };
 
@@ -118,6 +131,7 @@ export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; di
         validFrom: form.validFrom,
         validUntil: form.validUntil,
         isActive: form.isActive,
+        userIds: form.userIds,
       };
       const res = await fetch("/api/admin/coupons", {
         method: editing ? "PATCH" : "POST",
@@ -269,6 +283,54 @@ export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; di
             {busy ? dict.saving : editing ? dict.save : `+ ${dict.new}`}
           </button>
         </div>
+
+        {/* User restriction */}
+        <div>
+          <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.users}</span>
+          <div className="mt-1.5 border border-[var(--line-2)] rounded-[12px] p-2.5 max-h-[140px] overflow-auto no-scrollbar">
+            {users.length === 0 ? (
+              <p className="text-[12px] font-[850] text-[var(--muted)]">{dict.noUsers}</p>
+            ) : (
+              <div className="space-y-1">
+                {users.map((u) => {
+                  const label = u.name || u.email || u.phone || u.id;
+                  const checked = form.userIds.includes(u.id);
+                  return (
+                    <label key={u.id} className="flex items-center gap-2 cursor-pointer py-1 px-1.5 rounded-lg hover:bg-[var(--soft)] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          setForm((f) => ({
+                            ...f,
+                            userIds: e.target.checked
+                              ? [...f.userIds, u.id]
+                              : f.userIds.filter((id) => id !== u.id),
+                          }));
+                        }}
+                        className="w-3.5 h-3.5 rounded accent-[var(--primary)]"
+                      />
+                      <span className="text-[12px] font-[850] text-[var(--text)]">{label}</span>
+                      {u.email && u.phone && (
+                        <span className="text-[10.5px] font-[800] text-[var(--muted)]" dir="ltr">
+                          {u.email} · {u.phone}
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {form.userIds.length > 0 && (
+            <p className="mt-1 text-[11px] font-[850] text-[var(--muted)]">
+              {form.userIds.length} {dict.users.toLowerCase()}
+            </p>
+          )}
+          {form.userIds.length === 0 && (
+            <p className="mt-1 text-[11px] font-[850] text-[var(--muted)]">{dict.allUsers}</p>
+          )}
+        </div>
       </form>
 
       {msg && (
@@ -306,6 +368,9 @@ export default function CouponManager({ coupons, dict }: { coupons: Coupon[]; di
                 <div className="mt-1 flex items-center gap-3 text-[11px] font-[800] text-[var(--muted)]">
                   {c.minOrderAmount && <span>{dict.minOrder}: {c.minOrderAmount.toLocaleString("en-US")}</span>}
                   <span>{dict.usage}: {c.usedCount} {dict.of} {c.usageLimit ?? "∞"}</span>
+                  {c.allowedUsers.length > 0 && (
+                    <span className="text-[var(--primary)]">👤 {c.allowedUsers.length}</span>
+                  )}
                   <span>{dict.startsAt}: {formatDate(c.validFrom)}</span>
                   <span>{dict.endsAt}: {formatDate(c.validUntil)}</span>
                 </div>

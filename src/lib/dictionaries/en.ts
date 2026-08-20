@@ -231,6 +231,7 @@ export const en: typeof fa = {
     couponApplied: "Discount code applied",
     couponInvalid: "Invalid discount code",
     couponExpired: "Discount code has expired",
+    couponNotForYou: "This discount code is not for you",
     couponMinOrder: "Minimum order for this discount code",
     couponDiscount: "Coupon discount",
     applyingCoupon: "Checking...",
@@ -655,6 +656,9 @@ export const en: typeof fa = {
       inactiveLabel: "Inactive",
       startsAt: "Starts",
       endsAt: "Ends",
+      users: "Allowed users",
+      allUsers: "All users can use this coupon",
+      noUsers: "No users registered yet",
     },
     contactSettings: {
       title: "Contact info",

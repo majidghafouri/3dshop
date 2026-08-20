@@ -229,6 +229,7 @@ export const fa = {
     couponApplied: "کد تخفیف اعمال شد",
     couponInvalid: "کد تخفیف نامعتبر است",
     couponExpired: "کد تخفیف منقضی شده است",
+    couponNotForYou: "این کد تخفیف مخصوص شما نیست",
     couponMinOrder: "حداقل سفارش برای این کد تخفیف",
     couponDiscount: "تخفیف کد",
     applyingCoupon: "در حال بررسی...",
@@ -653,6 +654,9 @@ export const fa = {
       inactiveLabel: "غیرفعال",
       startsAt: "شروع",
       endsAt: "پایان",
+      users: "کاربران مجاز",
+      allUsers: "همه کاربران می‌توانند استفاده کنند",
+      noUsers: "هنوز کاربری ثبت نشده است",
     },
     contactSettings: {
       title: "اطلاعات تماس",
