@@ -23,6 +23,11 @@ type ProductData = {
   images: string[];
   musicUrl?: string;
   musicTitle?: string;
+  bgImage?: string;
+  bgOpacity?: string;
+  bgBlur?: string;
+  cursorUrl?: string;
+  cursorName?: string;
   categorySlug?: string;
   name: Record<string, string>;
   shortDescription: Record<string, string>;
@@ -59,6 +64,17 @@ export type ProductFormDict = {
   musicUploading: string;
   musicRemove: string;
   musicTitle: string;
+  background: string;
+  bgImage: string;
+  bgOpacity: string;
+  bgBlur: string;
+  bgReset: string;
+  bgPreview: string;
+  cursor: string;
+  cursorUpload: string;
+  cursorUploading: string;
+  cursorRemove: string;
+  cursorName: string;
   translations: string;
   name: string;
   shortDesc: string;
@@ -103,6 +119,11 @@ export default function ProductForm({
       images: [],
       musicUrl: "",
       musicTitle: "",
+      bgImage: "",
+      bgOpacity: "0.15",
+      bgBlur: "20",
+      cursorUrl: "",
+      cursorName: "",
       categorySlug: "",
       name: { fa: "", en: "", ar: "" },
       shortDescription: { fa: "", en: "", ar: "" },
@@ -175,6 +196,11 @@ export default function ProductForm({
       images: form.images.filter(Boolean),
       musicUrl: form.musicUrl?.trim() || undefined,
       musicTitle: form.musicTitle?.trim() || undefined,
+      bgImage: form.bgImage?.trim() || undefined,
+      bgOpacity: form.bgOpacity ? Number(form.bgOpacity) : undefined,
+      bgBlur: form.bgBlur ? Number(form.bgBlur) : undefined,
+      cursorUrl: form.cursorUrl?.trim() || undefined,
+      cursorName: form.cursorName?.trim() || undefined,
       categorySlug: form.categorySlug || undefined,
       name: form.name,
       shortDescription: form.shortDescription,
@@ -302,6 +328,44 @@ export default function ProductForm({
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.musicTitle}</span>
             <input value={form.musicTitle ?? ""} onChange={(e) => set("musicTitle", e.target.value)} placeholder="Enchanted Valley" className={inputCls} />
+          </label>
+        </div>
+      </div>
+
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
+        <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.background}</h3>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.bgImage}</span>
+            <input value={form.bgImage ?? ""} onChange={(e) => set("bgImage", e.target.value)} placeholder="https://..." className={inputCls} />
+          </label>
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.bgOpacity} (0-1)</span>
+            <input value={form.bgOpacity ?? "0.15"} onChange={(e) => set("bgOpacity", e.target.value)} type="number" step="0.05" min="0" max="1" className={inputCls} />
+          </label>
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.bgBlur} (px)</span>
+            <input value={form.bgBlur ?? "20"} onChange={(e) => set("bgBlur", e.target.value)} type="number" min="0" max="100" className={inputCls} />
+          </label>
+        </div>
+        {form.bgImage && (
+          <div className="mt-3 relative w-full h-32 rounded-[12px] overflow-hidden border border-[var(--soft-line)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={form.bgImage} alt={dict.bgPreview} className="w-full h-full object-cover" style={{ opacity: Number(form.bgOpacity ?? 0.15), filter: `blur(${form.bgBlur ?? 20}px)` }} />
+          </div>
+        )}
+      </div>
+
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
+        <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.cursor}</h3>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.cursorUpload}</span>
+            <input value={form.cursorUrl ?? ""} onChange={(e) => set("cursorUrl", e.target.value)} placeholder="https://...cursor.png" className={inputCls} />
+          </label>
+          <label className="block">
+            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.cursorName}</span>
+            <input value={form.cursorName ?? ""} onChange={(e) => set("cursorName", e.target.value)} placeholder="custom" className={inputCls} />
           </label>
         </div>
       </div>

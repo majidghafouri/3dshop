@@ -77,6 +77,11 @@ export default async function BlogPage({ params }: { params: { locale: string } 
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 flex-wrap">
+                        {post.sourceType === "RSS" && (
+                          <span className="bg-[var(--teal-soft)] text-[var(--teal)] border border-[var(--teal-soft-3)] rounded-full px-3 py-1 text-[11px] font-[950]">
+                            {dict.blog.fromTheWeb}
+                          </span>
+                        )}
                         {post.tag && (
                           <span className="bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-3 py-1 text-[11px] font-[950]">
                             {post.tag}

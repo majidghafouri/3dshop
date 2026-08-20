@@ -21,6 +21,10 @@ export type BlogPostItem = {
   publishedAt: Date | null;
   title: string;
   excerpt: string | null;
+  sourceType: "ORIGINAL" | "RSS";
+  sourceUrl: string | null;
+  sourceAuthor: string | null;
+  sourceSiteName: string | null;
 };
 
 export type BlogPostDetail = BlogPostItem & { body: string };
@@ -37,6 +41,10 @@ export function mapBlogPost(post: BlogPostWithLocale): BlogPostItem {
     publishedAt: post.publishedAt,
     title: t?.title ?? post.slug,
     excerpt: t?.excerpt ?? null,
+    sourceType: post.sourceType,
+    sourceUrl: post.sourceUrl ?? null,
+    sourceAuthor: post.sourceAuthor ?? null,
+    sourceSiteName: post.sourceSiteName ?? null,
   };
 }
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Metadata } from "next";
-import { Locale, localePrefix, isLocale } from "@/lib/i18n";
+import { Locale, localePrefix, isLocale, formatDate } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import { buildMetadata, buildBreadcrumbJsonLd } from "@/lib/seo";
 import prisma from "@/lib/db";
@@ -11,6 +11,7 @@ import SpotlightCarousel from "@/components/SpotlightCarousel";
 import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
+import { blogPostInclude } from "@/lib/blog";
 
 export async function generateMetadata({
   params,
@@ -44,7 +45,7 @@ export default async function HomePage({
 
   const user = await getSessionUser();
 
-  const [featured, categories] = await Promise.all([
+  const [featured, categories, rssPosts] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true, isFeatured: true },
       include: productInclude(locale),
@@ -58,6 +59,12 @@ export default async function HomePage({
         children: { include: { translations: { where: { locale } } } },
       },
       orderBy: { sortOrder: "asc" },
+    }),
+    prisma.blogPost.findMany({
+      where: { isPublished: true, publishedAt: { lte: new Date() }, sourceType: "RSS" },
+      include: blogPostInclude(locale),
+      orderBy: { publishedAt: "desc" },
+      take: 3,
     }),
   ]);
 
@@ -376,6 +383,75 @@ export default async function HomePage({
           </Reveal>
         </div>
       </section>
+
+      {/* ================= LATEST FROM THE WEB ================= */}
+      {rssPosts.length > 0 && (
+        <section className="relative overflow-hidden py-[78px] max-sm:py-[58px]"
+          style={{
+            background:
+              "radial-gradient(circle at 86% 8%, rgba(var(--teal-rgb),0.06), transparent 30%), linear-gradient(180deg,var(--white),var(--bg-tint))",
+          }}
+        >
+          <div className="container-page">
+            <div className="mb-[38px]">
+              <Reveal>
+                <span className="kicker-pill">{dict.blog.fromTheWeb}</span>
+                <h2 className="mt-3 text-[clamp(26px,3vw,42px)] max-sm:text-[28px] leading-[1.35] tracking-[-0.9px] font-[1000] text-[var(--text)]">
+                  {dict.blog.latestArticle}
+                </h2>
+              </Reveal>
+            </div>
+            <Reveal>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {rssPosts.map((post) => {
+                  const t = post.translations[0];
+                  return (
+                    <Link
+                      key={post.id}
+                      href={`${prefix}/blog/${post.slug}`}
+                      className="group bg-[var(--surface)] border border-[var(--line)] rounded-[24px] overflow-hidden hover:shadow-[0_18px_48px_rgba(20,45,90,0.10)] hover:-translate-y-1 transition-all duration-300"
+                    >
+                      <div className="relative aspect-[16/9] overflow-hidden product-img-bg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={post.coverImage ?? ""}
+                          alt={t?.title ?? post.slug}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                        <span className="absolute top-3 right-3 bg-[var(--teal-soft)] text-[var(--teal)] border border-[var(--teal-soft-3)] rounded-full px-3 py-1 text-[11px] font-[950]">
+                          {dict.blog.fromTheWeb}
+                        </span>
+                      </div>
+                      <div className="p-5">
+                        <h3                           className="text-[15px] leading-[1.7] font-[1000] text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                          {t?.title ?? post.slug}
+                        </h3>
+                        {t?.excerpt && (
+                          <p className="mt-2 text-[13px] leading-[1.9] font-[750] text-[var(--muted)] line-clamp-2">
+                            {t.excerpt}
+                          </p>
+                        )}
+                        <div className="mt-3 flex items-center justify-between">
+                          {post.sourceSiteName && (
+                            <span className="text-[12px] font-[800] text-[var(--muted-3)]">
+                              {post.sourceSiteName}
+                            </span>
+                          )}
+                          {post.publishedAt && (
+                            <span className="text-[12px] font-[800] text-[var(--muted-4)]">
+                              {formatDate(post.publishedAt, locale)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* ================= CTA ================= */}
       {!user && (

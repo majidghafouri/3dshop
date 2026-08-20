@@ -19,6 +19,11 @@ export type ProductItem = {
   images: string[];
   musicUrl: string | null;
   musicTitle: string | null;
+  bgImage: string | null;
+  bgOpacity: number;
+  bgBlur: number;
+  cursorUrl: string | null;
+  cursorName: string | null;
   name: string;
   shortDescription: string | null;
   description: string | null;
@@ -45,6 +50,11 @@ export type LocaleProduct = {
   images: string[];
   musicUrl: string | null;
   musicTitle: string | null;
+  bgImage: string | null;
+  bgOpacity: number;
+  bgBlur: number;
+  cursorUrl: string | null;
+  cursorName: string | null;
   createdAt: Date;
   translations: {
     locale: string;
@@ -94,6 +104,11 @@ export function mapProduct(product: LocaleProduct): ProductItem {
     images: product.images,
     musicUrl: product.musicUrl,
     musicTitle: product.musicTitle,
+    bgImage: product.bgImage,
+    bgOpacity: product.bgOpacity,
+    bgBlur: product.bgBlur,
+    cursorUrl: product.cursorUrl,
+    cursorName: product.cursorName,
     name: t?.name ?? "",
     shortDescription: t?.shortDescription ?? null,
     description: t?.description ?? null,

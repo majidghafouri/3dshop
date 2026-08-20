@@ -49,6 +49,11 @@ export default async function EditProductPage({
     images: product.images,
     musicUrl: product.musicUrl ?? "",
     musicTitle: product.musicTitle ?? "",
+    bgImage: product.bgImage ?? "",
+    bgOpacity: String(product.bgOpacity),
+    bgBlur: String(product.bgBlur),
+    cursorUrl: product.cursorUrl ?? "",
+    cursorName: product.cursorName ?? "",
     categorySlug: product.categoryId
       ? (await prisma.category.findUnique({ where: { id: product.categoryId! } }))?.slug ?? ""
       : "",

@@ -102,6 +102,11 @@ model Product {
   images        String[]
   musicUrl      String?
   musicTitle    String?
+  bgImage       String?
+  bgOpacity     Float    @default(0.15)
+  bgBlur        Int      @default(20)
+  cursorUrl     String?
+  cursorName    String?
   category      Category?           @relation(fields: [categoryId], references: [id])
   translations  ProductTranslation[]
   cartItems     CartItem[]
@@ -138,6 +143,10 @@ model BlogPost {
   isPublished  Boolean               @default(false)
   isTrending   Boolean               @default(false)
   publishedAt  DateTime?
+  sourceType   BlogSourceType        @default(ORIGINAL)
+  sourceUrl    String?
+  sourceAuthor String?
+  sourceSiteName String?
   translations BlogPostTranslation[]
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
@@ -145,6 +154,7 @@ model BlogPost {
   @@index([isPublished, publishedAt])
   @@index([isTrending])
   @@index([category])
+  @@index([sourceType])
 }
 
 model BlogPostTranslation {
@@ -306,6 +316,11 @@ enum AnalyticsEventType {
   REMOVE_FROM_CART
   CHECKOUT_START
   ORDER_PLACED
+}
+
+enum BlogSourceType {
+  ORIGINAL
+  RSS
 }
 
 model AnalyticsEvent {

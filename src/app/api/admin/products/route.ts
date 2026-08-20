@@ -20,6 +20,11 @@ type ProductPayload = {
   images?: string[];
   musicUrl?: string;
   musicTitle?: string;
+  bgImage?: string;
+  bgOpacity?: number;
+  bgBlur?: number;
+  cursorUrl?: string;
+  cursorName?: string;
   name?: Record<string, string>;
   shortDescription?: Record<string, string>;
   description?: Record<string, string>;
@@ -74,6 +79,11 @@ export async function POST(req: NextRequest) {
       images: body.images?.filter(Boolean) ?? [],
       musicUrl: body.musicUrl?.trim() || null,
       musicTitle: body.musicTitle?.trim() || null,
+      bgImage: body.bgImage?.trim() || null,
+      bgOpacity: body.bgOpacity ?? 0.15,
+      bgBlur: body.bgBlur ?? 20,
+      cursorUrl: body.cursorUrl?.trim() || null,
+      cursorName: body.cursorName?.trim() || null,
       translations: {
         create: locales.map((loc) => ({
           locale: loc,

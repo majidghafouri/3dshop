@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/telegram-daily-post",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/blog-rss",
+      "schedule": "0 8 * * *"
     }
   ]
 }

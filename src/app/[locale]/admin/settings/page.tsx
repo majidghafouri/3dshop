@@ -5,6 +5,7 @@ import ContactSettingsManager from "@/components/admin/ContactSettingsManager";
 import ContactMessagesManager from "@/components/admin/ContactMessagesManager";
 import SettingsManager from "@/components/admin/SettingsManager";
 import EmailSettingsManager from "@/components/admin/EmailSettingsManager";
+import RssFeedManager from "@/components/admin/RssFeedManager";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,9 @@ export default async function AdminSettingsPage({
       <EmailSettingsManager dict={dict.admin.emailSettings} />
       <div className="mt-6">
         <ContactSettingsManager dict={dict.admin.contactSettings} />
+      </div>
+      <div className="mt-6">
+        <RssFeedManager dict={dict.admin.settings} />
       </div>
       <div className="mt-6">
         <ContactMessagesManager dict={dict.admin.contactMessages} />

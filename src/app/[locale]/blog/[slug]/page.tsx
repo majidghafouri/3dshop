@@ -73,6 +73,11 @@ export default async function BlogPostPage({
         <Reveal>
           <article className="mt-6">
             <div className="flex items-center gap-2 flex-wrap">
+              {post.sourceType === "RSS" && (
+                <span className="bg-[var(--teal-soft)] text-[var(--teal)] border border-[var(--teal-soft-3)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
+                  {dict.blog.fromTheWeb}
+                </span>
+              )}
               {post.tag && (
                 <span className="bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)] rounded-full px-3 py-1 text-[11.5px] font-[950]">
                   {post.tag}
@@ -95,10 +100,27 @@ export default async function BlogPostPage({
             </h1>
 
             <div className="mt-4 flex items-center gap-2 text-[13px] font-[800] text-[var(--muted-4)]">
-              <span className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--soft)] text-[var(--primary)] text-[13px] font-[1000]">
-                F
-              </span>
-              <span className="font-[950] text-[var(--text-2)]">Figureforge</span>
+              {post.sourceType === "RSS" && post.sourceUrl ? (
+                <a
+                  href={post.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-[var(--primary)] transition-colors"
+                >
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--teal-soft)] text-[var(--teal)] text-[13px] font-[1000]">
+                    {post.sourceSiteName?.[0]?.toUpperCase() || "W"}
+                  </span>
+                  <span className="font-[950] text-[var(--text-2)]">{post.sourceAuthor || post.sourceSiteName || dict.blog.sourceArticle}</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
+                </a>
+              ) : (
+                <>
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--soft)] text-[var(--primary)] text-[13px] font-[1000]">
+                    F
+                  </span>
+                  <span className="font-[950] text-[var(--text-2)]">Figureforge</span>
+                </>
+              )}
               {post.publishedAt && (
                 <>
                   <span className="opacity-60">•</span>

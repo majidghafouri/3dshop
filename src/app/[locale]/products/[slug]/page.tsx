@@ -88,8 +88,21 @@ export default async function ProductDetailPage({
       style={{
         background:
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
+        ...(p.cursorUrl ? { cursor: `url(${p.cursorUrl}) ${p.cursorName ?? "auto"}` } : {}),
       }}
     >
+      {p.bgImage && (
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${p.bgImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: p.bgOpacity,
+            filter: `blur(${p.bgBlur}px)`,
+          }}
+        />
+      )}
       <JsonLd data={JSON.parse(buildProductJsonLd({
         name: p.name,
         description: p.shortDescription || p.description || "",
@@ -109,7 +122,7 @@ export default async function ProductDetailPage({
         { name: dict.nav.allProducts, url: `${prefix}/products` },
         { name: p.name, url: "" },
       ], locale))} />
-      <div className="container-page">
+      <div className="container-page relative z-10">
         {/* breadcrumb */}
         <nav className="flex flex-wrap items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">
           <Link href={`${prefix}/`} className="hover:text-[var(--primary)] transition-colors">{dict.nav.home}</Link>
