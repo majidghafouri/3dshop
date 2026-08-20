@@ -88,14 +88,14 @@ export default async function ProductDetailPage({
       style={{
         background:
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
-        ...(p.cursorUrl ? { cursor: `url(${p.cursorUrl}) ${p.cursorName ?? "auto"}` } : {}),
+        ...(p.cursorUrl ? { cursor: `url(${p.cursorUrl}) 16 16, auto` } : {}),
       }}
     >
-      {p.bgImage && (
+      {(p.bgImage || p.images[0]) && (
         <div
           className="absolute inset-0 z-0 pointer-events-none"
           style={{
-            backgroundImage: `url(${p.bgImage})`,
+            backgroundImage: `url(${p.bgImage || p.images[0]})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: p.bgOpacity,

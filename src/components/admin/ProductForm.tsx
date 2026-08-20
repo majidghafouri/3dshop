@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
 import AudioUploader from "@/components/admin/AudioUploader";
+import SingleImageUploader from "@/components/admin/SingleImageUploader";
 
 const LOCALES = ["fa", "en", "ar"] as const;
 
@@ -334,11 +335,17 @@ export default function ProductForm({
 
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
         <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.background}</h3>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <label className="block">
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.bgImage}</span>
-            <input value={form.bgImage ?? ""} onChange={(e) => set("bgImage", e.target.value)} placeholder="https://..." className={inputCls} />
-          </label>
+            <SingleImageUploader
+              value={form.bgImage ?? ""}
+              onChange={(url) => set("bgImage", url)}
+              label={dict.imageUpload}
+              uploadingLabel={dict.imageUploading}
+              removeLabel={dict.imageRemove}
+            />
+          </div>
           <label className="block">
             <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.bgOpacity} (0-1)</span>
             <input value={form.bgOpacity ?? "0.15"} onChange={(e) => set("bgOpacity", e.target.value)} type="number" step="0.05" min="0" max="1" className={inputCls} />
@@ -348,25 +355,19 @@ export default function ProductForm({
             <input value={form.bgBlur ?? "20"} onChange={(e) => set("bgBlur", e.target.value)} type="number" min="0" max="100" className={inputCls} />
           </label>
         </div>
-        {form.bgImage && (
-          <div className="mt-3 relative w-full h-32 rounded-[12px] overflow-hidden border border-[var(--soft-line)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={form.bgImage} alt={dict.bgPreview} className="w-full h-full object-cover" style={{ opacity: Number(form.bgOpacity ?? 0.15), filter: `blur(${form.bgBlur ?? 20}px)` }} />
-          </div>
-        )}
       </div>
 
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[18px] p-5">
         <h3 className="text-[15px] font-[1000] text-[var(--text)]">{dict.cursor}</h3>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <label className="block">
-            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.cursorUpload}</span>
-            <input value={form.cursorUrl ?? ""} onChange={(e) => set("cursorUrl", e.target.value)} placeholder="https://...cursor.png" className={inputCls} />
-          </label>
-          <label className="block">
-            <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.cursorName}</span>
-            <input value={form.cursorName ?? ""} onChange={(e) => set("cursorName", e.target.value)} placeholder="custom" className={inputCls} />
-          </label>
+        <div className="mt-3">
+          <span className="text-[12px] font-[900] text-[var(--text-2)]">{dict.cursorUpload}</span>
+          <SingleImageUploader
+            value={form.cursorUrl ?? ""}
+            onChange={(url) => set("cursorUrl", url)}
+            label={dict.imageUpload}
+            uploadingLabel={dict.cursorUploading}
+            removeLabel={dict.cursorRemove}
+          />
         </div>
       </div>
 
