@@ -367,6 +367,7 @@ export default function ProductForm({
             label={dict.imageUpload}
             uploadingLabel={dict.cursorUploading}
             removeLabel={dict.cursorRemove}
+            size="small"
           />
         </div>
       </div>

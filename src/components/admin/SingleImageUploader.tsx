@@ -8,12 +8,14 @@ export default function SingleImageUploader({
   label,
   uploadingLabel,
   removeLabel,
+  size = "normal",
 }: {
   value: string;
   onChange: (url: string) => void;
   label: string;
   uploadingLabel?: string;
   removeLabel?: string;
+  size?: "normal" | "small";
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -38,10 +40,14 @@ export default function SingleImageUploader({
     }
   };
 
+  const boxCls = size === "small"
+    ? "w-20 h-20 rounded-[12px]"
+    : "w-full aspect-[4/3] rounded-[14px]";
+
   return (
     <div>
       {value ? (
-        <div className="relative w-full aspect-[4/3] rounded-[14px] overflow-hidden border border-[var(--line-2)] bg-[var(--surface-2)]">
+        <div className={`relative ${boxCls} overflow-hidden border border-[var(--line-2)] bg-[var(--surface-2)]`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="" className="w-full h-full object-cover" />
           <button
@@ -49,9 +55,9 @@ export default function SingleImageUploader({
             onClick={() => onChange("")}
             title={removeLabel}
             aria-label={removeLabel}
-            className="absolute bottom-1.5 left-1.5 grid place-items-center w-6 h-6 rounded-full bg-black/55 text-white hover:bg-[var(--danger)] transition-colors"
+            className="absolute bottom-1 left-1 grid place-items-center w-5 h-5 rounded-full bg-black/55 text-white hover:bg-[var(--danger)] transition-colors"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
         </div>
       ) : (
@@ -59,7 +65,7 @@ export default function SingleImageUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="w-full aspect-[4/3] rounded-[14px] border-2 border-dashed border-[var(--line-2)] text-[var(--muted-2)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors grid place-items-center text-[12.5px] font-[950] text-center leading-snug px-2"
+          className={`${boxCls} border-2 border-dashed border-[var(--line-2)] text-[var(--muted-2)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors grid place-items-center text-[11px] font-[950] text-center leading-snug px-1`}
         >
           {uploading ? uploadingLabel ?? "..." : `+ ${label}`}
         </button>
