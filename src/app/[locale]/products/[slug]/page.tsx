@@ -84,11 +84,14 @@ export default async function ProductDetailPage({
   if (p.sku) specs.push({ label: dict.products.detail.sku, value: p.sku });
 
   return (
-    <div className="relative overflow-hidden py-[40px] max-sm:py-[28px]"
+    <>
+    {p.cursorUrl && (
+      <style dangerouslySetInnerHTML={{ __html: `.custom-cursor,.custom-cursor *{cursor:url("${p.cursorUrl}") 0 0,auto!important}` }} />
+    )}
+    <div className={`relative overflow-hidden py-[40px] max-sm:py-[28px]${p.cursorUrl ? " custom-cursor" : ""}`}
       style={{
         background:
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
-        ...(p.cursorUrl ? { cursor: `url("${p.cursorUrl}") 0 0, auto` } : {}),
       }}
     >
       {(p.bgImage || p.images[0]) && (
@@ -295,5 +298,6 @@ export default async function ProductDetailPage({
         />
       )}
     </div>
+    </>
   );
 }
