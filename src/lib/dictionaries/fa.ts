@@ -467,6 +467,8 @@ export const fa = {
       title: "داشبورد",
       totalOrders: "کل سفارش‌ها",
       revenue: "درآمد",
+      canceled: "لغو شده",
+      canceledRevenue: "درآمد لغو شده",
       products: "محصولات",
       lowStock: "موجودی کم (≤۵)",
       categories: "دسته‌بندی‌ها",

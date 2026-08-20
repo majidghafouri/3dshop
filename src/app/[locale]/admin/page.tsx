@@ -12,27 +12,44 @@ export default async function AdminDashboardPage({
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
 
-  const [orderCount, revenueAgg, productCount, lowStock, categoryCount, recentOrders] =
-    await Promise.all([
-      prisma.order.count(),
-      prisma.order.aggregate({ _sum: { total: true } }),
-      prisma.product.count(),
-      prisma.product.count({ where: { stock: { lte: 5 } } }),
-      prisma.category.count(),
-      prisma.order.findMany({
-        include: { user: true, items: true },
-        orderBy: { createdAt: "desc" },
-        take: 6,
-      }),
-    ]);
+  const [
+    activeOrders,
+    cancelledOrders,
+    activeRevenue,
+    cancelledRevenue,
+    productCount,
+    lowStock,
+    categoryCount,
+    recentOrders,
+  ] = await Promise.all([
+    prisma.order.count({ where: { status: { not: "CANCELLED" } } }),
+    prisma.order.count({ where: { status: "CANCELLED" } }),
+    prisma.order.aggregate({
+      _sum: { total: true },
+      where: { status: { not: "CANCELLED" } },
+    }),
+    prisma.order.aggregate({
+      _sum: { total: true },
+      where: { status: "CANCELLED" },
+    }),
+    prisma.product.count(),
+    prisma.product.count({ where: { stock: { lte: 5 } } }),
+    prisma.category.count(),
+    prisma.order.findMany({
+      include: { user: true, items: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }),
+  ]);
 
   const d = dict.admin.dashboard;
-  const stats = [
-    { label: d.totalOrders, value: orderCount, icon: "📦" },
-    { label: d.revenue, value: `${(revenueAgg._sum.total ?? 0).toLocaleString("en-US")} T`, icon: "💰" },
-    { label: d.products, value: productCount, icon: "🗃️" },
-    { label: d.lowStock, value: lowStock, icon: "⚠️" },
-    { label: d.categories, value: categoryCount, icon: "🗂️" },
+  const fmt = (n: number) => n.toLocaleString("en-US");
+  const stats: { label: string; value: string; sub?: string; icon: string }[] = [
+    { label: d.totalOrders, value: fmt(activeOrders), sub: `${d.canceled}: ${fmt(cancelledOrders)}`, icon: "📦" },
+    { label: d.revenue, value: `${fmt(activeRevenue._sum.total ?? 0)} T`, sub: `${d.canceledRevenue}: ${fmt(cancelledRevenue._sum.total ?? 0)} T`, icon: "💰" },
+    { label: d.products, value: fmt(productCount), icon: "🗃️" },
+    { label: d.lowStock, value: fmt(lowStock), icon: "⚠️" },
+    { label: d.categories, value: fmt(categoryCount), icon: "🗂️" },
   ];
 
   return (
@@ -45,6 +62,9 @@ export default async function AdminDashboardPage({
             <div className="text-[22px]">{s.icon}</div>
             <p className="mt-2 text-[20px] font-[1000] text-[var(--text)]" dir="ltr">{s.value}</p>
             <p className="mt-0.5 text-[11.5px] font-[850] text-[var(--muted)]">{s.label}</p>
+            {s.sub && (
+              <p className="mt-1 text-[11px] font-[800] text-[var(--danger)]/80" dir="ltr">{s.sub}</p>
+            )}
           </div>
         ))}
       </div>

@@ -469,6 +469,8 @@ export const ar: typeof fa = {
       title: "لوحة المعلومات",
       totalOrders: "إجمالي الطلبات",
       revenue: "الإيرادات",
+      canceled: "ملغي",
+      canceledRevenue: "الإيرادات الملغاة",
       products: "المنتجات",
       lowStock: "مخزون منخفض (≤5)",
       categories: "الفئات",

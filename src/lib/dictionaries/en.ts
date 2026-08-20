@@ -469,6 +469,8 @@ export const en: typeof fa = {
       title: "Dashboard",
       totalOrders: "Total orders",
       revenue: "Revenue",
+      canceled: "Cancelled",
+      canceledRevenue: "Cancelled revenue",
       products: "Products",
       lowStock: "Low stock (≤5)",
       categories: "Categories",
