@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 type UsersDict = {
   title: string;
@@ -69,6 +70,8 @@ export default function UsersTable({
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "admin" | "verified">("all");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
@@ -163,8 +166,14 @@ export default function UsersTable({
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((u) => (
-                  <tr key={u.id} className="border-b border-[var(--line)] last:border-b-0 hover:bg-[var(--soft)] transition-colors">
+                {filtered.map((u) => {
+                  const basePath = pathname.replace(/\/admin\/users.*$/, "/admin/users");
+                  return (
+                  <tr
+                    key={u.id}
+                    onClick={() => router.push(`${basePath}/${u.id}`)}
+                    className="border-b border-[var(--line)] last:border-b-0 hover:bg-[var(--soft)] transition-colors cursor-pointer"
+                  >
                     <td className="px-4 py-3 text-[13px] font-[900] text-[var(--text)]">
                       {u.name || <span className="text-[var(--muted)]">—</span>}
                     </td>
@@ -210,7 +219,8 @@ export default function UsersTable({
                       {fmt(u.createdAt)}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

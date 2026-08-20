@@ -227,3 +227,173 @@ export async function getAnalyticsOverview(days = 30) {
 }
 
 export type AnalyticsOverview = Awaited<ReturnType<typeof getAnalyticsOverview>>;
+
+// ---------- Per-user analytics ----------
+
+type HourlyRow = { hour: number; day: number; cnt: bigint };
+type DailyUserRow = { day: Date; cnt: bigint };
+
+export async function getUserAnalytics(userId: string, days = 30) {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  const where = { userId, createdAt: { gte: since } };
+
+  const [
+    totalEvents,
+    firstActivity,
+    lastActivity,
+    dailyRows,
+    hourlyRows,
+    topPages,
+    topProducts,
+    topSearches,
+    topCategories,
+    sessionRows,
+  ] = await Promise.all([
+    prisma.analyticsEvent.count({ where: { userId } }),
+    prisma.analyticsEvent.findFirst({
+      where: { userId },
+      select: { createdAt: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.analyticsEvent.findFirst({
+      where: { userId },
+      select: { createdAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.$queryRaw<DailyUserRow[]>`
+      SELECT date_trunc('day', "createdAt") AS day, COUNT(*) AS cnt
+      FROM "AnalyticsEvent"
+      WHERE "userId" = ${userId} AND "createdAt" >= ${since}
+      GROUP BY day ORDER BY day ASC
+    `,
+    prisma.$queryRaw<HourlyRow[]>`
+      SELECT EXTRACT(HOUR FROM "createdAt")::int AS hour,
+             EXTRACT(DOW FROM "createdAt")::int AS day,
+             COUNT(*) AS cnt
+      FROM "AnalyticsEvent"
+      WHERE "userId" = ${userId} AND "createdAt" >= ${since}
+      GROUP BY hour, day ORDER BY day, hour
+    `,
+    prisma.analyticsEvent.groupBy({
+      by: ["path"],
+      where: { ...where, type: "PAGE_VIEW" },
+      _count: { _all: true },
+      orderBy: { _count: { path: "desc" } },
+      take: 10,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ["productId"],
+      where: {
+        userId,
+        type: { in: ["PRODUCT_VIEW", "ADD_TO_CART"] },
+        productId: { not: null },
+      },
+      _count: { _all: true },
+      orderBy: { _count: { productId: "desc" } },
+      take: 10,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ["query"],
+      where: { userId, type: "SEARCH", query: { not: null } },
+      _count: { _all: true },
+      orderBy: { _count: { query: "desc" } },
+      take: 10,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ["categorySlug"],
+      where: { userId, categorySlug: { not: null } },
+      _count: { _all: true },
+      orderBy: { _count: { categorySlug: "desc" } },
+      take: 10,
+    }),
+    prisma.analyticsEvent.findMany({
+      where: { userId, sessionId: { not: null } },
+      select: { sessionId: true },
+      distinct: ["sessionId"],
+    }),
+  ]);
+
+  // Resolve product names
+  const productIds = topProducts.map((p) => p.productId).filter(Boolean) as string[];
+  const categorySlugs = topCategories.map((c) => c.categorySlug).filter(Boolean) as string[];
+
+  const [products, categories] = await Promise.all([
+    productIds.length
+      ? prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: { id: true, slug: true, translations: { select: { name: true }, take: 1 } },
+        })
+      : [],
+    categorySlugs.length
+      ? prisma.category.findMany({
+          where: { slug: { in: categorySlugs } },
+          select: { slug: true, translations: { select: { name: true }, take: 1 } },
+        })
+      : [],
+  ]);
+
+  const productName = new Map(products.map((p) => [p.id, p.translations[0]?.name || p.slug]));
+  const categoryName = new Map(categories.map((c) => [c.slug, c.translations[0]?.name || c.slug]));
+
+  // Daily series
+  const dailyMap = new Map<string, number>();
+  for (const row of dailyRows) {
+    dailyMap.set(row.day.toISOString().slice(0, 10), Number(row.cnt));
+  }
+  const dailySeries: { date: string; label: string; count: number }[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since);
+    d.setDate(since.getDate() + i);
+    const iso = d.toISOString().slice(0, 10);
+    dailySeries.push({
+      date: iso,
+      label: `${d.getMonth() + 1}/${d.getDate()}`,
+      count: dailyMap.get(iso) ?? 0,
+    });
+  }
+
+  // Hourly heatmap (7 days × 24 hours)
+  const hourlyGrid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));
+  for (const row of hourlyRows) {
+    const dayIdx = row.day; // 0=Sun..6=Sat from EXTRACT(DOW)
+    if (dayIdx >= 0 && dayIdx < 7 && row.hour >= 0 && row.hour < 24) {
+      hourlyGrid[dayIdx][row.hour] = Number(row.cnt);
+    }
+  }
+
+  // Event type breakdown
+  const [pageViews, productViews, searches, cartAdds, checkoutStarts] = await Promise.all([
+    prisma.analyticsEvent.count({ where: { ...where, type: "PAGE_VIEW" } }),
+    prisma.analyticsEvent.count({ where: { ...where, type: "PRODUCT_VIEW" } }),
+    prisma.analyticsEvent.count({ where: { ...where, type: "SEARCH" } }),
+    prisma.analyticsEvent.count({ where: { ...where, type: "ADD_TO_CART" } }),
+    prisma.analyticsEvent.count({ where: { ...where, type: "CHECKOUT_START" } }),
+  ]);
+
+  return {
+    totalEvents,
+    firstActivity: firstActivity?.createdAt ?? null,
+    lastActivity: lastActivity?.createdAt ?? null,
+    uniqueSessions: sessionRows.length,
+    dailySeries,
+    hourlyGrid,
+    eventBreakdown: { pageViews, productViews, searches, cartAdds, checkoutStarts },
+    topPages: topPages.map((r) => ({ path: r.path, count: r._count._all })),
+    topProducts: topProducts.map((r) => ({
+      id: r.productId,
+      name: r.productId ? productName.get(r.productId) ?? r.productId : "—",
+      count: r._count._all,
+    })),
+    topSearches: topSearches.map((r) => ({ query: r.query, count: r._count._all })),
+    topCategories: topCategories.map((r) => ({
+      slug: r.categorySlug,
+      name: r.categorySlug ? categoryName.get(r.categorySlug) ?? r.categorySlug : "—",
+      count: r._count._all,
+    })),
+  };
+}
+
+export type UserAnalytics = Awaited<ReturnType<typeof getUserAnalytics>>;
