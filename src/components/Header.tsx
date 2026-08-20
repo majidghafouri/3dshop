@@ -41,6 +41,10 @@ export default function Header({
   const isAdmin = pathname.includes("/admin");
 
   useEffect(() => {
+    langSwitchRef.current = false;
+  }, [locale]);
+
+  useEffect(() => {
     const handler = () => {
       if (langSwitchRef.current) {
         langSwitchRef.current = false;
@@ -56,7 +60,7 @@ export default function Header({
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
-  }, [locale, router]);
+  }, [locale]);
 
   const nav = buildNav(dict, locale);
   const prefix = localePrefix(locale);
