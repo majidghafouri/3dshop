@@ -105,7 +105,7 @@ export async function PATCH(req: NextRequest) {
   if (body.isActive !== undefined) data.isActive = body.isActive;
 
   const coupon = await prisma.$transaction(async (tx) => {
-    const updated = await tx.coupon.update({ where: { id: body.id }, data });
+    await tx.coupon.update({ where: { id: body.id }, data });
     if (body.userIds !== undefined) {
       await tx.coupon.update({
         where: { id: body.id },
