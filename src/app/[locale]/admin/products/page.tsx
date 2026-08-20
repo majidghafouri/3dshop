@@ -20,8 +20,8 @@ export default async function AdminProductsPage({
 
   const products = await prisma.product.findMany({
     include: {
-      translations: { where: { locale: "fa" } },
-      category: { include: { translations: { where: { locale: "fa" } } } },
+      translations: { where: { locale } },
+      category: { include: { translations: { where: { locale } } } },
     },
     orderBy: { createdAt: "desc" },
     take: 200,

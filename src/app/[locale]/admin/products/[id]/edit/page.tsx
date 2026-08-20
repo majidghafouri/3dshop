@@ -24,7 +24,7 @@ export default async function EditProductPage({
       include: { translations: true },
     }),
     prisma.category.findMany({
-      include: { translations: { where: { locale: "fa" } } },
+      include: { translations: { where: { locale } } },
       orderBy: { sortOrder: "asc" },
     }),
   ]);

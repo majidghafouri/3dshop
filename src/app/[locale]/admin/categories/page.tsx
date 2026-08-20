@@ -17,7 +17,7 @@ export default async function AdminCategoriesPage({
 
   const categories = await prisma.category.findMany({
     include: {
-      translations: { where: { locale: "fa" } },
+      translations: { where: { locale } },
       _count: { select: { products: true } },
     },
     orderBy: { sortOrder: "asc" },

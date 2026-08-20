@@ -19,7 +19,7 @@ export default async function NewProductPage({
   const p = dict.admin.products;
 
   const categories = await prisma.category.findMany({
-    include: { translations: { where: { locale: "fa" } } },
+    include: { translations: { where: { locale } } },
     orderBy: { sortOrder: "asc" },
   });
 
