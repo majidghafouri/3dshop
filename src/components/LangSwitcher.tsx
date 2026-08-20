@@ -14,11 +14,9 @@ const labels: Record<Locale, { name: string; code: string }> = {
 export default function LangSwitcher({
   locale,
   dict,
-  onSwitch,
 }: {
   locale: Locale;
   dict: Dictionary;
-  onSwitch?: () => void;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -87,7 +85,7 @@ export default function LangSwitcher({
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  onSwitch?.();
+                  localStorage.setItem("locale", l);
                   router.replace(href);
                   setOpen(false);
                 }}

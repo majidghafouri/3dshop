@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Locale, localePrefix, locales, switchLocalePath, isLocale, defaultLocale } from "@/lib/i18n";
@@ -37,20 +37,18 @@ export default function Header({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const intentionalLocaleRef = useRef(false);
   const isAdmin = pathname.includes("/admin");
 
   useEffect(() => {
+    const saved = localStorage.getItem("locale") as Locale | null;
+    if (!saved || !isLocale(saved)) return;
     const pathLocale = pathname.split("/")[1] || "";
     const urlLocale = isLocale(pathLocale) ? (pathLocale as Locale) : defaultLocale;
-    if (urlLocale !== locale && !intentionalLocaleRef.current) {
-      const correctHref = switchLocalePath(pathname, urlLocale, locale);
+    if (urlLocale !== saved) {
+      const correctHref = switchLocalePath(pathname, urlLocale, saved);
       router.replace(correctHref);
     }
-    if (intentionalLocaleRef.current) {
-      intentionalLocaleRef.current = false;
-    }
-  }, [pathname, locale, router]);
+  }, [pathname, router]);
 
   const nav = buildNav(dict, locale);
   const prefix = localePrefix(locale);
@@ -157,7 +155,7 @@ export default function Header({
           <div className="max-sm:hidden flex items-center gap-2.5 max-xl:gap-2">
             <MusicToggle />
             <ThemeToggle />
-            <LangSwitcher locale={locale} dict={dict} onSwitch={() => { intentionalLocaleRef.current = true; }} />
+            <LangSwitcher locale={locale} dict={dict} />
           </div>
 
           <Link
@@ -221,7 +219,7 @@ export default function Header({
             <SearchBox locale={locale} dict={dict} />
             <div className="max-sm:hidden flex items-center gap-2.5">
               <MusicToggle />
-              <LangSwitcher locale={locale} dict={dict} onSwitch={() => { intentionalLocaleRef.current = true; }} />
+              <LangSwitcher locale={locale} dict={dict} />
             </div>
             <ThemeToggle />
             <Link
@@ -312,7 +310,7 @@ export default function Header({
                       type="button"
                       onClick={() => {
                         const href = switchLocalePath(pathname, locale, l, query ? `?${query}` : undefined);
-                        intentionalLocaleRef.current = true;
+                        localStorage.setItem("locale", l);
                         router.replace(href);
                         setMobileOpen(false);
                       }}
