@@ -559,6 +559,7 @@ export const fa = {
     orders: {
       title: "سفارش‌ها",
       noOrders: "هنوز سفارشی ثبت نشده است.",
+      filterAll: "همه",
     },
     appearance: {
       title: "ظاهر سایت",

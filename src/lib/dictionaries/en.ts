@@ -561,6 +561,7 @@ export const en: typeof fa = {
     orders: {
       title: "Orders",
       noOrders: "No orders yet.",
+      filterAll: "All",
     },
     appearance: {
       title: "Site Appearance",

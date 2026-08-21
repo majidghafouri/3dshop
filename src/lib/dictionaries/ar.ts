@@ -561,6 +561,7 @@ export const ar: typeof fa = {
     orders: {
       title: "الطلبات",
       noOrders: "لا توجد طلبات بعد.",
+      filterAll: "الكل",
     },
     appearance: {
       title: "مظهر الموقع",

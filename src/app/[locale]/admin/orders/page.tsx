@@ -1,31 +1,67 @@
 import { notFound } from "next/navigation";
-import { Locale, isLocale } from "@/lib/i18n";
+import { Locale, isLocale, localePrefix } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import prisma from "@/lib/db";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import OrderStatusFilter from "@/components/admin/OrderStatusFilter";
 
 export const dynamic = "force-dynamic";
 
+const ORDER_STATUSES = [
+  "PENDING",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
+
 export default async function AdminOrdersPage({
   params,
+  searchParams,
 }: {
   params: { locale: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const dict = getDictionary(locale);
   const p = dict.admin.orders;
   const statuses = dict.account.statuses;
+  const prefix = localePrefix(locale);
 
-  const orders = await prisma.order.findMany({
-    include: { user: true, items: { include: { product: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  const raw = searchParams.status;
+  const selectedStatuses = (typeof raw === "string" ? raw.split(",") : [])
+    .map((s) => s.trim().toUpperCase())
+    .filter((s): s is (typeof ORDER_STATUSES)[number] =>
+      (ORDER_STATUSES as readonly string[]).includes(s)
+    );
+
+  const [orders, statusGroups] = await Promise.all([
+    prisma.order.findMany({
+      where: selectedStatuses.length ? { status: { in: selectedStatuses } } : undefined,
+      include: { user: true, items: { include: { product: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    }),
+    prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+  ]);
+
+  const counts = Object.fromEntries(statusGroups.map((g) => [g.status, g._count._all]));
 
   return (
     <div>
       <h2 className="text-[18px] font-[1000] text-[var(--text)]">{p.title} ({orders.length})</h2>
+
+      <div className="mt-3">
+        <OrderStatusFilter
+          basePath={`${prefix}/admin/orders`}
+          selected={selectedStatuses}
+          counts={counts}
+          labels={statuses}
+          allLabel={p.filterAll}
+        />
+      </div>
 
       <div className="mt-4 space-y-3.5">
         {orders.length === 0 ? (
