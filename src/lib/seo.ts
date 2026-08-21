@@ -3,6 +3,17 @@ import { locales, localePrefix, Locale } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 
 export const SITE_NAME = "فیگرفورج | Figureforge";
+
+export function siteNameFor(locale?: Locale): string {
+  switch (locale) {
+    case "en":
+      return "Figureforge";
+    case "ar":
+      return "فيجرفورج";
+    default:
+      return "فیگرفورج";
+  }
+}
 export const SITE_URL = process.env.APP_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
 export interface SeoOptions {
@@ -74,18 +85,18 @@ export function buildMetadata(opts: SeoOptions): Metadata {
 
   const metadata: Metadata = {
     title: {
-      default: resolvedTitle || (dict?.meta?.title ?? SITE_NAME),
-      template: "%s | فیگرفورج",
+      default: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
+      template: `%s | ${siteNameFor(resolvedLocale)}`,
     },
     description: resolvedDescription || dict?.meta?.description,
     metadataBase: new URL(SITE_URL),
     alternates: buildHreflangAlternates(path) as Record<string, string>,
     openGraph: {
-      title: resolvedTitle || (dict?.meta?.title ?? SITE_NAME),
+      title: resolvedTitle || (dict?.meta?.title ?? siteNameFor(resolvedLocale)),
       description: resolvedDescription || dict?.meta?.description,
       type,
       url,
-      siteName: SITE_NAME,
+      siteName: siteNameFor(resolvedLocale),
       locale: resolvedLocale === "fa" ? "fa_IR" : resolvedLocale === "ar" ? "ar" : "en_US",
       images: ogImages,
     },
