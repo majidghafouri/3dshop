@@ -18,7 +18,7 @@ export default async function AdminAnalyticsPage({
 
   const rawDays = searchParams.days;
   const days = rawDays === "7" ? 7 : 30;
-  const data = await getAnalyticsOverview(days);
+  const data = await getAnalyticsOverview(days, locale);
   const t = data.totals;
   const d = dict.admin.analytics;
 

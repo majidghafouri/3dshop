@@ -38,7 +38,7 @@ export default async function UserDetailPage({
 
   if (!user) notFound();
 
-  const analytics = await getUserAnalytics(user.id);
+  const analytics = await getUserAnalytics(user.id, 30, locale);
 
   const totalSpent = user.orders.reduce((sum, o) => sum + o.total, 0);
 

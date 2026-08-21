@@ -67,7 +67,13 @@ export function isAnalyticsEventType(value: string): value is AnalyticsEventType
 
 type DailyRow = { day: Date; views: bigint; visitors: bigint };
 
-export async function getAnalyticsOverview(days = 30) {
+type TranslationRow = { locale: string; name: string };
+
+function translatedName(translations: TranslationRow[], locale: string, fallback: string) {
+  return translations.find((t) => t.locale === locale)?.name || translations[0]?.name || fallback;
+}
+
+export async function getAnalyticsOverview(days = 30, locale = "fa") {
   const since = new Date();
   since.setHours(0, 0, 0, 0);
   since.setDate(since.getDate() - (days - 1));
@@ -159,22 +165,22 @@ export async function getAnalyticsOverview(days = 30) {
     productIds.length
       ? prisma.product.findMany({
           where: { id: { in: productIds } },
-          select: { id: true, slug: true, translations: { select: { name: true }, take: 1 } },
+          select: { id: true, slug: true, translations: { select: { locale: true, name: true } } },
         })
       : [],
     categorySlugs.length
       ? prisma.category.findMany({
           where: { slug: { in: categorySlugs } },
-          select: { slug: true, translations: { select: { name: true }, take: 1 } },
+          select: { slug: true, translations: { select: { locale: true, name: true } } },
         })
       : [],
   ]);
 
   const productName = new Map(
-    products.map((p) => [p.id, p.translations[0]?.name || p.slug])
+    products.map((p) => [p.id, translatedName(p.translations, locale, p.slug)])
   );
   const categoryName = new Map(
-    categories.map((c) => [c.slug, c.translations[0]?.name || c.slug])
+    categories.map((c) => [c.slug, translatedName(c.translations, locale, c.slug)])
   );
 
   const dailyMap = new Map<string, { views: number; visitors: number }>();
@@ -233,7 +239,7 @@ export type AnalyticsOverview = Awaited<ReturnType<typeof getAnalyticsOverview>>
 type HourlyRow = { hour: number; day: number; cnt: bigint };
 type DailyUserRow = { day: Date; cnt: bigint };
 
-export async function getUserAnalytics(userId: string, days = 30) {
+export async function getUserAnalytics(userId: string, days = 30, locale = "fa") {
   const since = new Date();
   since.setHours(0, 0, 0, 0);
   since.setDate(since.getDate() - (days - 1));
@@ -324,19 +330,19 @@ export async function getUserAnalytics(userId: string, days = 30) {
     productIds.length
       ? prisma.product.findMany({
           where: { id: { in: productIds } },
-          select: { id: true, slug: true, translations: { select: { name: true }, take: 1 } },
+          select: { id: true, slug: true, translations: { select: { locale: true, name: true } } },
         })
       : [],
     categorySlugs.length
       ? prisma.category.findMany({
           where: { slug: { in: categorySlugs } },
-          select: { slug: true, translations: { select: { name: true }, take: 1 } },
+          select: { slug: true, translations: { select: { locale: true, name: true } } },
         })
       : [],
   ]);
 
-  const productName = new Map(products.map((p) => [p.id, p.translations[0]?.name || p.slug]));
-  const categoryName = new Map(categories.map((c) => [c.slug, c.translations[0]?.name || c.slug]));
+  const productName = new Map(products.map((p) => [p.id, translatedName(p.translations, locale, p.slug)]));
+  const categoryName = new Map(categories.map((c) => [c.slug, translatedName(c.translations, locale, c.slug)]));
 
   // Daily series
   const dailyMap = new Map<string, number>();
