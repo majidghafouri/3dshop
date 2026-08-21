@@ -1,0 +1,25 @@
+name: Import web articles
+
+on:
+  schedule:
+    # Twice daily: 03:00 and 15:00 UTC
+    - cron: "0 3,15 * * *"
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger web articles import
+        run: |
+          response=$(curl -s --max-time 600 \
+            -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.PROD_URL }}/api/cron/web-articles")
+          http_code=$(echo "$response" | tail -n1)
+          echo "HTTP $http_code"
+          echo "$response"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Web articles import failed with HTTP $http_code"
+            exit 1
+          fi

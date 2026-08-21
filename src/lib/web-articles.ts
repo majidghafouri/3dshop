@@ -460,13 +460,15 @@ function estimateReadingTime(text: string): number {
   return Math.max(2, Math.round(words / 200));
 }
 
+const SOURCE_REFERENCE_LABELS: Record<Locale, { label: string; article: string }> = {
+  en: { label: "Source", article: "Original Article" },
+  fa: { label: "منبع", article: "مقاله اصلی" },
+  ar: { label: "المصدر", article: "المقال الأصلي" },
+};
+
 function buildSourceReference(sourceUrl: string, siteName: string, locale: Locale): string {
-  const labels: Record<Locale, string> = {
-    en: "Source",
-    fa: "منبع",
-    ar: "المصدر",
-  };
-  return `\n\n---\n\n> 🌐 **${labels[locale]}:** [${siteName} — ${labels[locale] === "Source" ? "Original Article" : labels[locale] === "fa" ? "مقاله اصلی" : "المقال الأصلي"}](${sourceUrl})`;
+  const t = SOURCE_REFERENCE_LABELS[locale];
+  return `\n\n---\n\n> 🌐 **${t.label}:** [${siteName} — ${t.article}](${sourceUrl})`;
 }
 
 const TOPIC_LABELS: Record<string, Record<Locale, string>> = {
