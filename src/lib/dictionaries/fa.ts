@@ -412,6 +412,7 @@ export const fa = {
     curatedBadge: "گلچین شده",
     sourceArticle: "مقاله اصلی",
     latestArticle: "آخرین مقاله",
+    viewAllArticles: "مشاهده همه مقالات",
     readOriginal: "خواندن مقاله اصلی",
   },
   about: {

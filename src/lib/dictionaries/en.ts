@@ -414,6 +414,7 @@ export const en: typeof fa = {
     curatedBadge: "Curated",
     sourceArticle: "Original article",
     latestArticle: "Latest article",
+    viewAllArticles: "View all articles",
     readOriginal: "Read original article",
   },
   about: {

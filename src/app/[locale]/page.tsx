@@ -399,6 +399,13 @@ export default async function HomePage({
                 <h2 className="mt-3 text-[clamp(26px,3vw,42px)] max-sm:text-[28px] leading-[1.35] tracking-[-0.9px] font-[1000] text-[var(--text)]">
                   {dict.blog.latestArticle}
                 </h2>
+                <Link
+                  href={`${prefix}/blog`}
+                  className="mt-4 inline-flex items-center gap-2 rounded-[12px] border border-[var(--line)] bg-[var(--surface)] px-5 py-2.5 text-[13px] font-[950] text-[var(--text)] shadow-sm hover:border-[var(--primary)] hover:text-[var(--primary)] hover:-translate-y-0.5 transition-all"
+                >
+                  {dict.blog.viewAllArticles}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="rtl:rotate-180"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+                </Link>
               </Reveal>
             </div>
             <Reveal>
@@ -461,54 +468,6 @@ export default async function HomePage({
                   </Link>
                 );
               })()}
-              {rssPosts.length > 1 && (
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {rssPosts.slice(1, 3).map((post) => {
-                    const t = post.translations[0];
-                    return (
-                      <Link
-                        key={post.id}
-                        href={`${prefix}/blog/${post.slug}`}
-                        className="group bg-[var(--surface)] border border-[var(--line)] rounded-[22px] overflow-hidden hover:shadow-[0_18px_48px_rgba(20,45,90,0.10)] hover:-translate-y-1 transition-all duration-300"
-                      >
-                        <div className="relative aspect-[16/9] overflow-hidden product-img-bg">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={post.coverImage ?? ""}
-                            alt={t?.title ?? post.slug}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                          />
-                          <span className="absolute top-3 right-3 bg-[var(--teal-soft)] text-[var(--teal)] border border-[var(--teal-soft-3)] rounded-full px-3 py-1 text-[11px] font-[950]">
-                            {dict.blog.fromTheWeb}
-                          </span>
-                        </div>
-                        <div className="p-5">
-                          <h3 className="text-[15px] leading-[1.7] font-[1000] text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2">
-                            {t?.title ?? post.slug}
-                          </h3>
-                          {t?.excerpt && (
-                            <p className="mt-2 text-[13px] leading-[1.9] font-[750] text-[var(--muted)] line-clamp-2">
-                              {t.excerpt}
-                            </p>
-                          )}
-                          <div className="mt-3 flex items-center justify-between">
-                            {post.sourceSiteName && (
-                              <span className="text-[12px] font-[800] text-[var(--muted-3)]">
-                                {post.sourceSiteName}
-                              </span>
-                            )}
-                            {post.publishedAt && (
-                              <span className="text-[12px] font-[800] text-[var(--muted-4)]">
-                                {formatDate(post.publishedAt, locale)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
             </Reveal>
           </div>
         </section>

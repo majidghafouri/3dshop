@@ -414,6 +414,7 @@ export const ar: typeof fa = {
     curatedBadge: "مختارات",
     sourceArticle: "المقال الأصلي",
     latestArticle: "آخر مقال",
+    viewAllArticles: "عرض جميع المقالات",
     readOriginal: "قراءة المقال الأصلي",
   },
   about: {

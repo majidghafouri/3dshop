@@ -312,6 +312,28 @@ function extractMeta(html: string): {
   };
 }
 
+function normalizeImgUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.hostname.replace(/^www\./, "")}${u.pathname.replace(/\/+$/, "")}`.toLowerCase();
+  } catch {
+    return url.toLowerCase();
+  }
+}
+
+function removeCoverImage(markdown: string, imageUrl: string | null): string {
+  if (!imageUrl) return markdown;
+  const coverNorm = normalizeImgUrl(imageUrl);
+  const cleaned = markdown
+    .split("\n")
+    .filter((line) => {
+      const m = line.trim().match(/^!\[[^\]]*\]\(([^)\s]+)\)$/);
+      return !(m && normalizeImgUrl(m[1]) === coverNorm);
+    })
+    .join("\n");
+  return cleaned.replace(/\n{3,}/g, "\n\n").trim();
+}
+
 export async function scrapeArticle(
   url: string,
 ): Promise<{
@@ -333,13 +355,14 @@ export async function scrapeArticle(
     const html = await res.text();
     const meta = extractMeta(html);
     const markdown = extractContentBlocks(html, url);
+    const image = meta.image ? absUrl(meta.image, url) : null;
 
     return {
       title: meta.title || stripTags(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "") || "Untitled",
       siteName: meta.siteName || new URL(url).hostname.replace(/^www\./, ""),
-      image: meta.image ? absUrl(meta.image, url) : null,
+      image,
       description: meta.description?.slice(0, 500) || null,
-      markdown: markdown.slice(0, MAX_BODY_CHARS),
+      markdown: removeCoverImage(markdown, image).slice(0, MAX_BODY_CHARS),
     };
   } catch {
     return null;
