@@ -1,0 +1,576 @@
+import { put } from "@vercel/blob";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
+import crypto from "crypto";
+import prisma from "@/lib/db";
+import { Locale } from "@/lib/i18n";
+import RssParser from "rss-parser";
+
+const UA = "FigureforgeBot/1.0 (+https://figurforgj.com)";
+const MAX_BODY_CHARS = 7000;
+const MAX_ARTICLES_PER_RUN = 2;
+
+const parser = new RssParser({
+  timeout: 15_000,
+  headers: { "User-Agent": UA },
+});
+
+export type WebArticleCandidate = {
+  url: string;
+  title?: string;
+  snippet?: string;
+  image?: string;
+  sourceName?: string;
+  topic?: string;
+};
+
+// ---------- Discovery ----------
+
+const SEARCH_QUERIES: { query: string; topic: string }[] = [
+  { query: "3D printing anime figures resin guide 2026", topic: "printing" },
+  { query: "best anime figure collecting tips beginners", topic: "collecting" },
+  { query: "how to paint 3D printed resin miniatures", topic: "painting" },
+  { query: "resin 3D printer settings anime figures detailed", topic: "printing" },
+  { query: "anime figure care display cleaning guide", topic: "collecting" },
+  { query: "SLA resin printing tips miniatures high detail", topic: "printing" },
+  { query: "scale figure collecting 2026 recommended", topic: "collecting" },
+];
+
+const FALLBACK_FEEDS = [
+  { url: "https://all3dp.com/feed/", name: "All3DP", topic: "printing" },
+  { url: "https://3dprintingindustry.com/feed/", name: "3D Printing Industry", topic: "printing" },
+  { url: "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=us", name: "Anime News Network", topic: "collecting" },
+  { url: "https://blog.teacherspayteachers.com/feed/", name: "Miniatures Blog", topic: "painting" },
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+async function discoverViaSerpApi(): Promise<WebArticleCandidate[]> {
+  const API_KEY = process.env.SERPAPI_KEY || process.env.SERP_API_KEY;
+  if (!API_KEY) return [];
+
+  const candidates: WebArticleCandidate[] = [];
+
+  try {
+    const { query, topic } = pickRandom(SEARCH_QUERIES);
+    const res = await fetch(
+      `https://serpapi.com/search.json?q=${encodeURIComponent(query)}&num=8&hl=en&api_key=${API_KEY}`,
+      { headers: { "User-Agent": UA } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    const results: Array<{
+      title?: string;
+      snippet?: string;
+      link?: string;
+      thumbnail?: string;
+    }> = data.organic_results || [];
+
+    for (const r of results) {
+      if (r.link && r.title && !r.link.includes("youtube.com") && !r.link.includes("reddit.com")) {
+        candidates.push({
+          url: r.link,
+          title: r.title,
+          snippet: r.snippet,
+          image: r.thumbnail,
+          topic,
+        });
+      }
+    }
+  } catch {
+    // serpapi failed silently
+  }
+
+  return candidates;
+}
+
+async function discoverViaRss(): Promise<WebArticleCandidate[]> {
+  const candidates: WebArticleCandidate[] = [];
+
+  for (const feed of FALLBACK_FEEDS) {
+    try {
+      const parsed = await parser.parseURL(feed.url);
+      for (const item of parsed.items.slice(0, 5)) {
+        if (!item.title || !item.link) continue;
+        const image =
+          item.enclosure?.url ||
+          item.content?.match(/<img[^>]+src="([^"]+)"/)?.[1] ||
+          null;
+        candidates.push({
+          url: item.link,
+          title: item.title,
+          snippet: item.contentSnippet?.slice(0, 500),
+          image: image ?? undefined,
+          sourceName: parsed.title || feed.name,
+          topic: feed.topic,
+        });
+      }
+    } catch {
+      // feed failed — continue with others
+    }
+  }
+
+  return candidates;
+}
+
+export async function discoverCandidates(): Promise<WebArticleCandidate[]> {
+  const serpCandidates = await discoverViaSerpApi();
+  if (serpCandidates.length > 0) return serpCandidates;
+  return discoverViaRss();
+}
+
+// ---------- Scraping ----------
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&#\d+;/g, (m) => {
+      const code = parseInt(m.slice(2, -1), 10);
+      return String.fromCharCode(code);
+    });
+}
+
+function absUrl(href: string, base: string): string {
+  if (!href) return "";
+  if (href.startsWith("data:")) return href;
+  try {
+    return new URL(href, base).href;
+  } catch {
+    return href;
+  }
+}
+
+function stripTags(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+function inlineToMarkdown(html: string, baseUrl: string): string {
+  let text = html;
+
+  // preserve <a href> links
+  text = text.replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, inner) => {
+    const url = absUrl(href, baseUrl);
+    const content = stripTags(decodeEntities(inner)).trim();
+    return content ? `[${content}](${url})` : "";
+  });
+
+  // preserve <strong>/<b>
+  text = text.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, _tag, inner) => {
+    return `**${stripTags(decodeEntities(inner)).trim()}**`;
+  });
+
+  // strip remaining tags
+  text = stripTags(text);
+  text = decodeEntities(text);
+  text = text.replace(/\s+/g, " ").trim();
+  return text;
+}
+
+function extractContentBlocks(html: string, baseUrl: string): string {
+  // Remove noise
+  let cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<aside[\s\S]*?<\/aside>/gi, "")
+    .replace(/<form[\s\S]*?<\/form>/gi, "")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
+    .replace(/<svg[\s\S]*?<\/svg>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+
+  // Try to find <article> content
+  const articleMatch = cleaned.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i);
+  if (articleMatch) cleaned = articleMatch[1];
+  else {
+    const mainMatch = cleaned.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+    if (mainMatch) cleaned = mainMatch[1];
+  }
+
+  const lines: string[] = [];
+  const seen = new Set<string>();
+
+  // Process headings
+  cleaned.replace(/<h([2-4])\b[^>]*>([\s\S]*?)<\/h\1>/gi, (_m, level, inner) => {
+    const text = inlineToMarkdown(inner, baseUrl);
+    if (text && !seen.has(text)) {
+      seen.add(text);
+      lines.push("");
+      lines.push(`${"#".repeat(parseInt(level))} ${text}`);
+      lines.push("");
+    }
+    return "";
+  });
+
+  // Process blockquotes
+  cleaned.replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/gi, (_m, inner) => {
+    const text = stripTags(decodeEntities(inner)).replace(/\s+/g, " ").trim();
+    if (text && !seen.has(text)) {
+      seen.add(text);
+      lines.push("");
+      lines.push(`> ${text}`);
+      lines.push("");
+    }
+    return "";
+  });
+
+  // Process lists
+  cleaned.replace(/<(ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _type, listContent) => {
+    const items: string[] = [];
+    listContent.replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (_lm: string, liInner: string) => {
+      const text = inlineToMarkdown(liInner, baseUrl);
+      if (text && !seen.has(text)) {
+        seen.add(text);
+        items.push(`- ${text}`);
+      }
+      return "";
+    });
+    if (items.length > 0) {
+      lines.push("");
+      items.forEach((item) => lines.push(item));
+      lines.push("");
+    }
+    return "";
+  });
+
+  // Process images standalone
+  cleaned.replace(/<img\b([^>]*)>/gi, (_m, attrs) => {
+    const srcMatch = attrs.match(/src="([^"]*)"/i);
+    const altMatch = attrs.match(/alt="([^"]*)"/i);
+    if (srcMatch?.[1]) {
+      const src = absUrl(srcMatch[1], baseUrl);
+      const alt = altMatch?.[1] ? decodeEntities(altMatch[1]).trim() : "";
+      if (src && !src.startsWith("data:") && !seen.has(src)) {
+        seen.add(src);
+        lines.push("");
+        lines.push(`![${alt}](${src})`);
+        lines.push("");
+      }
+    }
+    return "";
+  });
+
+  // Process paragraphs
+  cleaned.replace(/<p\b[^>]*>([\s\S]*?)<\/p>/gi, (_m, inner) => {
+    const text = inlineToMarkdown(inner, baseUrl);
+    if (text && text.length > 20 && !seen.has(text)) {
+      seen.add(text);
+      lines.push("");
+      lines.push(text);
+      lines.push("");
+    }
+    return "";
+  });
+
+  // Fallback: process remaining text blocks
+  if (lines.length < 3) {
+    const remaining = stripTags(cleaned);
+    const words = remaining.split(/\s+/);
+    for (let i = 0; i < Math.min(words.length, 1500); i += 30) {
+      const chunk = words.slice(i, i + 30).join(" ").trim();
+      if (chunk.length > 20 && !seen.has(chunk)) {
+        seen.add(chunk);
+        lines.push("");
+        lines.push(chunk);
+        lines.push("");
+      }
+    }
+  }
+
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function extractMeta(html: string): {
+  title: string | null;
+  image: string | null;
+  siteName: string | null;
+  description: string | null;
+} {
+  const getMeta = (prop: string): string | null => {
+    // property="..." or name="..."
+    const regex = new RegExp(`<meta[^>]*(?:property|name)=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i");
+    const match = html.match(regex);
+    if (match?.[1]) return decodeEntities(match[1]).trim();
+    // content="..." ... property="..."
+    const regex2 = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*(?:property|name)=["']${prop}["']`, "i");
+    const match2 = html.match(regex2);
+    return match2?.[1] ? decodeEntities(match2[1]).trim() : null;
+  };
+
+  return {
+    title: getMeta("og:title") || getMeta("twitter:title"),
+    image: getMeta("og:image") || getMeta("twitter:image"),
+    siteName: getMeta("og:site_name"),
+    description: getMeta("og:description") || getMeta("description"),
+  };
+}
+
+export async function scrapeArticle(
+  url: string,
+): Promise<{
+  title: string;
+  siteName: string | null;
+  image: string | null;
+  description: string | null;
+  markdown: string;
+} | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA },
+      redirect: "follow",
+    });
+    if (!res.ok) return null;
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("text/html")) return null;
+
+    const html = await res.text();
+    const meta = extractMeta(html);
+    const markdown = extractContentBlocks(html, url);
+
+    return {
+      title: meta.title || stripTags(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "") || "Untitled",
+      siteName: meta.siteName || new URL(url).hostname.replace(/^www\./, ""),
+      image: meta.image ? absUrl(meta.image, url) : null,
+      description: meta.description?.slice(0, 500) || null,
+      markdown: markdown.slice(0, MAX_BODY_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Translation ----------
+
+async function gtxTranslate(text: string, target: "fa" | "ar"): Promise<string | null> {
+  if (!text.trim()) return text;
+  try {
+    const res = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text.slice(0, 4500))}`,
+      { headers: { "User-Agent": UA } },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const out = Array.isArray(data?.[0])
+      ? data[0].map((s: unknown) => (Array.isArray(s) ? s[0] : "")).join("")
+      : null;
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+
+async function translateInChunks(text: string, target: "fa" | "ar"): Promise<string> {
+  if (!text.trim()) return text;
+  if (text.length < 3000) {
+    const result = await gtxTranslate(text, target);
+    return result || text;
+  }
+
+  const paragraphs = text.split(/\n\n+/);
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const p of paragraphs) {
+    if (current.length + p.length + 2 > 2800) {
+      if (current) chunks.push(current);
+      current = p;
+    } else {
+      current = current ? `${current}\n\n${p}` : p;
+    }
+  }
+  if (current) chunks.push(current);
+
+  const results = await Promise.all(chunks.map((c) => gtxTranslate(c, target)));
+  return results.map((r, i) => r || chunks[i]).join("\n\n");
+}
+
+export async function translateArticle(
+  en: { title: string; excerpt: string; body: string },
+  target: "fa" | "ar",
+): Promise<{ title: string; excerpt: string; body: string }> {
+  const [title, excerpt, body] = await Promise.all([
+    gtxTranslate(en.title, target),
+    en.excerpt ? gtxTranslate(en.excerpt, target) : Promise.resolve(null),
+    translateInChunks(en.body, target),
+  ]);
+  return {
+    title: title || en.title,
+    excerpt: excerpt || en.excerpt,
+    body,
+  };
+}
+
+// ---------- Cover image ----------
+
+async function downloadCover(imageUrl: string): Promise<string | null> {
+  if (!imageUrl) return null;
+  try {
+    const res = await fetch(imageUrl, { headers: { "User-Agent": UA } });
+    if (!res.ok) return null;
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("image/")) return null;
+
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length > 8 * 1024 * 1024) return null;
+
+    const ext = ct.includes("png") ? ".png" : ct.includes("webp") ? ".webp" : ".jpg";
+    const filename = `web-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`;
+    const pathname = `uploads/web-articles/${filename}`;
+
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const blob = await put(pathname, buffer, { access: "public", addRandomSuffix: false });
+      return blob.url;
+    }
+    const dir = path.join(process.cwd(), "public", "uploads", "web-articles");
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, filename), buffer);
+    return `/uploads/web-articles/${filename}`;
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Helpers ----------
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 100);
+}
+
+function djb2(str: string): string {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(36);
+}
+
+function estimateReadingTime(text: string): number {
+  const words = text.replace(/<[^>]*>/g, "").split(/\s+/).length;
+  return Math.max(2, Math.round(words / 200));
+}
+
+function buildSourceReference(sourceUrl: string, siteName: string, locale: Locale): string {
+  const labels: Record<Locale, string> = {
+    en: "Source",
+    fa: "منبع",
+    ar: "المصدر",
+  };
+  return `\n\n---\n\n> 🌐 **${labels[locale]}:** [${siteName} — ${labels[locale] === "Source" ? "Original Article" : labels[locale] === "fa" ? "مقاله اصلی" : "المقال الأصلي"}](${sourceUrl})`;
+}
+
+const TOPIC_LABELS: Record<string, Record<Locale, string>> = {
+  printing: { en: "3D Printing", fa: "چاپ سه‌بعدی", ar: "الطباعة ثلاثية الأبعاد" },
+  collecting: { en: "Collecting", fa: "کلکسیون", ar: "جمع التماثيل" },
+  painting: { en: "Painting", fa: "نقاشی", ar: "الرسوم" },
+};
+
+// ---------- Main pipeline ----------
+
+export type ImportResult = {
+  slug: string;
+  title: string;
+  status: "imported" | "skipped" | "failed";
+  error?: string;
+};
+
+export async function importWebArticle(candidate: WebArticleCandidate): Promise<ImportResult> {
+  const slug = `web-${slugify(candidate.title || "article")}-${djb2(candidate.url)}`;
+
+  const existing = await prisma.blogPost.findFirst({
+    where: { sourceUrl: candidate.url },
+  });
+  if (existing) return { slug, title: candidate.title || slug, status: "skipped" };
+
+  const existingSlug = await prisma.blogPost.findUnique({ where: { slug } });
+  if (existingSlug) return { slug, title: candidate.title || slug, status: "skipped" };
+
+  const scraped = await scrapeArticle(candidate.url);
+  if (!scraped) return { slug, title: candidate.title || slug, status: "failed", error: "scrape_failed" };
+
+  const coverImage = await downloadCover(scraped.image || candidate.image || "");
+
+  const siteName = scraped.siteName || candidate.sourceName || new URL(candidate.url).hostname;
+  const topic = candidate.topic || "collecting";
+
+  // Build en translation
+  const enBody = scraped.markdown + buildSourceReference(candidate.url, siteName, "en");
+  const enExcerpt = scraped.description?.slice(0, 300) || null;
+  const tagLabel = TOPIC_LABELS[topic] || TOPIC_LABELS.collecting;
+
+  const [fa, ar] = await Promise.all([
+    translateArticle({ title: scraped.title, excerpt: enExcerpt || "", body: scraped.markdown }, "fa"),
+    translateArticle({ title: scraped.title, excerpt: enExcerpt || "", body: scraped.markdown }, "ar"),
+  ]);
+
+  const faBody = fa.body + buildSourceReference(candidate.url, siteName, "fa");
+  const arBody = ar.body + buildSourceReference(candidate.url, siteName, "ar");
+
+  const readingTime = estimateReadingTime(scraped.markdown);
+
+  await prisma.blogPost.create({
+    data: {
+      slug,
+      coverImage: coverImage || scraped.image,
+      category: topic,
+      readingTime,
+      isPublished: true,
+      isTrending: false,
+      publishedAt: new Date(),
+      sourceType: "RSS",
+      sourceUrl: candidate.url,
+      sourceAuthor: siteName,
+      sourceSiteName: siteName,
+      translations: {
+        create: [
+          {
+            locale: "fa",
+            tag: tagLabel.fa,
+            title: fa.title,
+            excerpt: fa.excerpt || enExcerpt,
+            body: faBody,
+          },
+          {
+            locale: "en",
+            tag: tagLabel.en,
+            title: scraped.title,
+            excerpt: enExcerpt,
+            body: enBody,
+          },
+          {
+            locale: "ar",
+            tag: tagLabel.ar,
+            title: ar.title,
+            excerpt: ar.excerpt || enExcerpt,
+            body: arBody,
+          },
+        ],
+      },
+    },
+  });
+
+  return { slug, title: scraped.title, status: "imported" };
+}
+
+export async function importWebArticles(max = MAX_ARTICLES_PER_RUN): Promise<ImportResult[]> {
+  const candidates = await discoverCandidates();
+  const results: ImportResult[] = [];
+
+  for (const candidate of candidates) {
+    if (results.filter((r) => r.status === "imported").length >= max) break;
+    const result = await importWebArticle(candidate);
+    results.push(result);
+  }
+
+  return results;
+}

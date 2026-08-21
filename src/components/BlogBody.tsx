@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 function renderInline(text: string, key: number) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]*\]\([^)]*\))/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return (
@@ -18,6 +18,26 @@ function renderInline(text: string, key: number) {
         >
           {part.slice(1, -1)}
         </code>
+      );
+    }
+    const linkMatch = part.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
+    if (linkMatch) {
+      const [, href, url] = linkMatch;
+      const isExternal = /^https?:\/\//.test(url);
+      return (
+        <a
+          key={`${key}-${i}`}
+          href={url}
+          {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="inline-flex items-center gap-1 text-[var(--primary)] underline underline-offset-2 decoration-[var(--primary)]/30 hover:decoration-[var(--primary)] transition-colors"
+        >
+          {href}
+          {isExternal && (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />
+            </svg>
+          )}
+        </a>
       );
     }
     return <span key={`${key}-${i}`}>{part}</span>;
@@ -84,6 +104,25 @@ export default function BlogBody({ body }: { body: string }) {
     }
     if (/^\d+\. /.test(line)) {
       list.push({ type: "ol", text: line.replace(/^\d+\. /, "") });
+      continue;
+    }
+    if (/^!\[.*\]\(.*\)$/.test(line.trim())) {
+      key = flushList(key);
+      const imgMatch = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (imgMatch) {
+        const [, alt, src] = imgMatch;
+        blocks.push(
+          <div key={key++} className="my-4 rounded-[14px] overflow-hidden border border-[var(--line-4)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-auto"
+              loading="lazy"
+            />
+          </div>,
+        );
+      }
       continue;
     }
     if (line.startsWith("> ")) {
