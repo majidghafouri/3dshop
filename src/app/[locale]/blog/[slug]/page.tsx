@@ -47,6 +47,23 @@ export default async function BlogPostPage({
           "radial-gradient(circle_at_90%_6%,rgba(var(--primary-rgb),0.07),transparent_30%), linear-gradient(180deg,var(--bg),var(--bg-grad))",
       }}
     >
+      {post.coverImage && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[440px] max-sm:h-[320px] overflow-hidden z-0"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={post.coverImage}
+            alt=""
+            className="w-full h-full object-cover scale-125 blur-[64px] opacity-40"
+            style={{
+              maskImage: "linear-gradient(to bottom, black 15%, transparent 95%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black 15%, transparent 95%)",
+            }}
+          />
+        </div>
+      )}
       <JsonLd data={JSON.parse(buildArticleJsonLd({
         title: post.title,
         description: post.excerpt || "",
@@ -61,7 +78,7 @@ export default async function BlogPostPage({
         { name: dict.nav.blog, url: `${prefix}/blog` },
         { name: post.title, url: "" },
       ], locale))} />
-      <div className="container-page max-w-[820px]">
+      <div className="container-page max-w-[820px] relative z-10">
         <nav className="flex flex-wrap items-center gap-2 text-[12.5px] font-[800] text-[var(--muted)]">
           <Link href={`${prefix}/`} className="hover:text-[var(--primary)] transition-colors">{dict.nav.home}</Link>
           <span>/</span>
