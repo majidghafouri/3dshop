@@ -50,7 +50,7 @@ export default async function BlogPostPage({
       {post.coverImage && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[440px] max-sm:h-[320px] overflow-hidden z-0"
+          className="pointer-events-none absolute inset-0 overflow-hidden z-0"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -58,8 +58,8 @@ export default async function BlogPostPage({
             alt=""
             className="w-full h-full object-cover scale-125 blur-[64px] opacity-40"
             style={{
-              maskImage: "linear-gradient(to bottom, black 15%, transparent 95%)",
-              WebkitMaskImage: "linear-gradient(to bottom, black 15%, transparent 95%)",
+              maskImage: "linear-gradient(to bottom, black 5%, transparent 92%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black 5%, transparent 92%)",
             }}
           />
         </div>
