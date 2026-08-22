@@ -49,8 +49,8 @@ export default function NewsletterSignup({
         body: JSON.stringify({ email: value, locale }),
       });
       if (!res.ok) throw new Error("failed");
-      const data = await res.json();
-      if (data?.already) {
+      const body = await res.json();
+      if (body?.data?.already) {
         setDone("already");
         return;
       }
