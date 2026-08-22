@@ -10,6 +10,7 @@ type NewsletterDict = {
   busy: string;
   success: string;
   successNewEmail: string;
+  already: string;
   loggedInAs: string;
   useRegisteredHint: string;
   errorInvalid: string;
@@ -29,7 +30,7 @@ export default function NewsletterSignup({
 }) {
   const [email, setEmail] = useState(userEmail ?? "");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<null | "registered" | "other">(null);
+  const [done, setDone] = useState<null | "registered" | "other" | "already">(null);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (e?: React.FormEvent) => {
@@ -48,6 +49,11 @@ export default function NewsletterSignup({
         body: JSON.stringify({ email: value, locale }),
       });
       if (!res.ok) throw new Error("failed");
+      const data = await res.json();
+      if (data?.already) {
+        setDone("already");
+        return;
+      }
       const isRegistered = !!userEmail && value === userEmail.toLowerCase();
       setDone(isRegistered ? "registered" : "other");
     } catch {
@@ -71,8 +77,12 @@ export default function NewsletterSignup({
       </p>
 
       {done ? (
-        <p className="mt-3 text-[13px] font-[900] text-[var(--success)]">
-          {done === "other" ? dict.successNewEmail : dict.success}
+        <p
+          className={`mt-3 text-[13px] font-[900] ${
+            done === "already" ? "text-[var(--warning-text)]" : "text-[var(--success)]"
+          }`}
+        >
+          {done === "other" ? dict.successNewEmail : done === "already" ? dict.already : dict.success}
         </p>
       ) : (
         <form onSubmit={submit} className="mt-3 flex items-stretch gap-2 max-sm:flex-col">

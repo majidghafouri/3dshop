@@ -27,6 +27,9 @@ export async function POST(req: NextRequest) {
   if (result.status === "error") {
     return fail("Subscription failed, please try again", 500);
   }
+  if (result.status === "already") {
+    return ok({ subscribed: true, already: true });
+  }
 
-  return ok({ subscribed: true });
+  return ok({ subscribed: true, already: false });
 }
