@@ -771,6 +771,22 @@ export const ar: typeof fa = {
         days: ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
         noData: "لا توجد بيانات متاحة",
       },
+      timeline: {
+        title: "الخط الزمني للنشاط",
+        adminTitle: "سجل نشاط المشرف",
+        session: "جلسة",
+        noActivity: "لا يوجد نشاط مسجل في هذه الفترة.",
+        events: {
+          PAGE_VIEW: "مشاهدة صفحة",
+          PRODUCT_VIEW: "مشاهدة منتج",
+          CATEGORY_VIEW: "مشاهدة فئة",
+          SEARCH: "بحث",
+          ADD_TO_CART: "أضاف إلى السلة",
+          REMOVE_FROM_CART: "أزال من السلة",
+          CHECKOUT_START: "بدأ الدفع",
+          ORDER_PLACED: "أنشأ طلبًا",
+        },
+      },
       message: {
         title: "إرسال رسالة",
         subtitle: "إرسال بريد إلكتروني لهذا المستخدم",

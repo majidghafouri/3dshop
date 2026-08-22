@@ -771,6 +771,22 @@ export const en: typeof fa = {
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         noData: "No data available",
       },
+      timeline: {
+        title: "Activity timeline",
+        adminTitle: "Admin activity log",
+        session: "Session",
+        noActivity: "No recorded activity in this period.",
+        events: {
+          PAGE_VIEW: "Viewed page",
+          PRODUCT_VIEW: "Viewed product",
+          CATEGORY_VIEW: "Viewed category",
+          SEARCH: "Searched",
+          ADD_TO_CART: "Added to cart",
+          REMOVE_FROM_CART: "Removed from cart",
+          CHECKOUT_START: "Started checkout",
+          ORDER_PLACED: "Placed order",
+        },
+      },
       message: {
         title: "Send Message",
         subtitle: "Send an email to this user",

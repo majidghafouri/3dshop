@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Locale, isLocale, localePrefix } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
 import prisma from "@/lib/db";
-import { getUserAnalytics } from "@/lib/analytics";
+import { getUserAnalytics, getUserActivityTimeline } from "@/lib/analytics";
 import UserDetailCard from "@/components/admin/UserDetailCard";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +39,7 @@ export default async function UserDetailPage({
   if (!user) notFound();
 
   const analytics = await getUserAnalytics(user.id, 30, locale);
+  const timeline = await getUserActivityTimeline(user.id, 14, 500);
 
   const totalSpent = user.orders.reduce((sum, o) => sum + o.total, 0);
 
@@ -95,6 +96,8 @@ export default async function UserDetailPage({
             count: Number(c.count),
           })),
       }}
+      timeline={timeline}
+      showSessions={true}
       backHref={`${prefix}/admin/users`}
     />
   );

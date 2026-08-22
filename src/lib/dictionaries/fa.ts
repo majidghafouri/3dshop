@@ -769,6 +769,22 @@ export const fa = {
         days: ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"],
         noData: "داده‌ای موجود نیست",
       },
+      timeline: {
+        title: "خط زمانی فعالیت",
+        adminTitle: "گزارش فعالیت ادمین",
+        session: "نشست",
+        noActivity: "فعالیتی در این بازه ثبت نشده است.",
+        events: {
+          PAGE_VIEW: "مشاهده صفحه",
+          PRODUCT_VIEW: "مشاهده محصول",
+          CATEGORY_VIEW: "مشاهده دسته‌بندی",
+          SEARCH: "جستجو",
+          ADD_TO_CART: "افزودن به سبد",
+          REMOVE_FROM_CART: "حذف از سبد",
+          CHECKOUT_START: "شروع پرداخت",
+          ORDER_PLACED: "ثبت سفارش",
+        },
+      },
       message: {
         title: "ارسال پیام",
         subtitle: "ارسال ایمیل به این کاربر",

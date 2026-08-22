@@ -472,3 +472,88 @@ export async function getUserAnalytics(userId: string, days = 30, locale = "fa")
 }
 
 export type UserAnalytics = Awaited<ReturnType<typeof getUserAnalytics>>;
+
+// ---------- Per-user activity timeline ----------
+
+export type TimelineEvent = {
+  time: string;
+  type: string;
+  target: string | null;
+};
+
+export type TimelineSession = {
+  sessionId: string | null;
+  events: TimelineEvent[];
+};
+
+export type TimelineDay = {
+  date: string;
+  sessions: TimelineSession[];
+};
+
+export async function getUserActivityTimeline(
+  userId: string,
+  days = 14,
+  take = 500,
+): Promise<TimelineDay[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  const events = await prisma.analyticsEvent.findMany({
+    where: { userId, createdAt: { gte: since } },
+    select: {
+      createdAt: true,
+      type: true,
+      path: true,
+      sessionId: true,
+      productId: true,
+      categorySlug: true,
+      query: true,
+    },
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+
+  const dayMap = new Map<string, Map<string, TimelineSession>>();
+  for (const e of events) {
+    const iso = e.createdAt.toISOString().slice(0, 10);
+    let sessionMap = dayMap.get(iso);
+    if (!sessionMap) {
+      sessionMap = new Map();
+      dayMap.set(iso, sessionMap);
+    }
+    const sid = e.sessionId ?? "-";
+    let session = sessionMap.get(sid);
+    if (!session) {
+      session = { sessionId: e.sessionId, events: [] };
+      sessionMap.set(sid, session);
+    }
+    const target =
+      e.type === "SEARCH"
+        ? e.query
+        : e.type === "CATEGORY_VIEW"
+          ? e.categorySlug
+          : e.type === "PRODUCT_VIEW" || e.type === "ADD_TO_CART"
+            ? e.productId
+            : e.path;
+    session.events.push({
+      time: e.createdAt.toISOString(),
+      type: e.type,
+      target: target ? target.slice(0, 120) : null,
+    });
+  }
+
+  const result: TimelineDay[] = Array.from(dayMap.entries())
+    .sort(([a], [b]) => (a < b ? 1 : -1))
+    .map(([date, sessionMap]) => ({
+      date,
+      sessions: Array.from(sessionMap.values()).map((s) => ({
+        ...s,
+        // chronological within a session so it reads like a story
+        events: [...s.events].sort((a, b) => (a.time < b.time ? -1 : 1)),
+      })),
+    }));
+
+  return result;
+}

@@ -31,6 +31,13 @@ type UserDetailDict = {
     days: string[];
     noData: string;
   };
+  timeline: {
+    title: string;
+    adminTitle: string;
+    session: string;
+    noActivity: string;
+    events: Record<string, string>;
+  };
   message: {
     title: string;
     subtitle: string;
@@ -89,6 +96,21 @@ type Analytics = {
   topProducts: { id: string; name: string; count: number }[];
   topSearches: { query: string; count: number }[];
   topCategories: { slug: string; name: string; count: number }[];
+};
+
+type TimelineEvent = { time: string; type: string; target: string | null };
+type TimelineSession = { sessionId: string | null; events: TimelineEvent[] };
+type TimelineDay = { date: string; sessions: TimelineSession[] };
+
+const EVENT_STYLES: Record<string, string> = {
+  PAGE_VIEW: "bg-[var(--soft)] text-[var(--primary)]",
+  PRODUCT_VIEW: "bg-[var(--soft)] text-[var(--primary)]",
+  CATEGORY_VIEW: "bg-[var(--soft)] text-[var(--primary)]",
+  SEARCH: "bg-[rgba(var(--teal-rgb),0.14)] text-[var(--teal-2)]",
+  ADD_TO_CART: "bg-[var(--warning-soft-2)] text-[var(--warning-text)]",
+  REMOVE_FROM_CART: "bg-[var(--danger-soft)] text-[var(--danger)]",
+  CHECKOUT_START: "bg-[rgba(var(--primary-rgb),0.12)] text-[var(--primary)]",
+  ORDER_PLACED: "bg-[var(--success-soft)] text-[var(--success)]",
 };
 
 const TEMPLATES: Record<string, Record<string, { subject: string; body: string }>> = {
@@ -189,12 +211,16 @@ export default function UserDetailCard({
   locale,
   user,
   analytics,
+  timeline,
+  showSessions,
   backHref,
 }: {
   dict: UserDetailDict;
   locale: string;
   user: User;
   analytics: Analytics;
+  timeline: TimelineDay[];
+  showSessions: boolean;
   backHref: string;
 }) {
   const [template, setTemplate] = useState("");
@@ -204,6 +230,12 @@ export default function UserDetailCard({
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   const fmt = (d: string) => new Date(d).toLocaleDateString("en-CA");
+  const timeFmt = (d: string) =>
+    new Date(d).toLocaleTimeString(locale === "fa" ? "fa-IR" : locale === "ar" ? "ar" : "en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   const fmtDateTime = (d: string) =>
     new Date(d).toLocaleString(locale === "fa" ? "fa-IR" : locale === "ar" ? "ar" : "en-US", {
       year: "numeric",
@@ -518,6 +550,94 @@ export default function UserDetailCard({
             ))}
           </ListEmpty>
         </Card>
+      </div>
+
+      {/* Activity timeline */}
+      <div className="mt-5 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-5">
+        <h3 className="text-[14px] font-[1000] text-[var(--text)]">
+          🕘 {showSessions ? dict.timeline.adminTitle : dict.timeline.title}
+        </h3>
+        {timeline.length === 0 ? (
+          <p className="mt-3 text-[12.5px] font-[850] text-[var(--muted)]">{dict.timeline.noActivity}</p>
+        ) : (
+          <div className="mt-4 max-h-[520px] overflow-y-auto pl-1 space-y-5">
+            {timeline.map((day) => (
+              <div key={day.date}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-[950] bg-[var(--soft)] text-[var(--primary)] border border-[var(--line-4)]"
+                    dir="ltr"
+                  >
+                    📅 {fmt(day.date)}
+                  </span>
+                  <span className="flex-1 h-px bg-[var(--line)]" />
+                </div>
+
+                {day.sessions.map((session, si) => {
+                  const first = session.events[0];
+                  const last = session.events[session.events.length - 1];
+                  return (
+                    <div
+                      key={si}
+                      className="relative mr-3 pr-4 border-s-2 border-[var(--line)] ms-2"
+                    >
+                      {showSessions && (
+                        <div className="flex items-center gap-2 flex-wrap py-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] -ms-[23px] me-1 ring-4 ring-[var(--surface)]" />
+                          <span className="text-[10.5px] font-[1000] text-[var(--text-2)]">
+                            🔹 {dict.timeline.session} #
+                            {(session.sessionId ?? "-").slice(0, 8)}
+                          </span>
+                          <span className="text-[10px] font-[850] text-[var(--muted-2)]" dir="ltr">
+                            {timeFmt(first.time)} → {timeFmt(last.time)} · {session.events.length}
+                          </span>
+                        </div>
+                      )}
+                      <div className={showSessions ? "py-1 space-y-1" : "space-y-1"}>
+                        {session.events.map((ev, ei) => (
+                          <div
+                            key={ei}
+                            className="relative flex items-center gap-2 flex-wrap text-[11.5px] py-0.5"
+                          >
+                            <span
+                              className={`absolute w-1.5 h-1.5 rounded-full -ms-[21px] ${
+                                ev.type === "ORDER_PLACED"
+                                  ? "bg-[var(--success)]"
+                                  : "bg-[var(--muted-2)]"
+                              }`}
+                            />
+                            <span
+                              className="font-[900] tabular-nums text-[var(--muted)] w-[38px]"
+                              dir="ltr"
+                            >
+                              {timeFmt(ev.time)}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-[1px] text-[10px] font-[950] ${
+                                EVENT_STYLES[ev.type] ?? "bg-[var(--soft)] text-[var(--primary)]"
+                              }`}
+                            >
+                              {dict.timeline.events[ev.type] ?? ev.type}
+                            </span>
+                            {ev.target && (
+                              <span
+                                className="truncate font-[800] text-[var(--muted-3)] max-w-[280px]"
+                                dir="ltr"
+                                title={ev.target}
+                              >
+                                {ev.target}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Send message */}
