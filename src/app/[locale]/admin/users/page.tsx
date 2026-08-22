@@ -46,6 +46,15 @@ export default async function AdminUsersPage({
 
   const totalRevenue = orderCounts._sum.total ?? 0;
 
+  const lastActiveRows = await prisma.analyticsEvent.groupBy({
+    by: ["userId"],
+    where: { userId: { in: users.map((u) => u.id) } },
+    _max: { createdAt: true },
+  });
+  const lastActiveMap = new Map(
+    lastActiveRows.map((r) => [r.userId as string, r._max.createdAt])
+  );
+
   return (
     <UsersTable
       dict={dict.admin.users}
@@ -59,6 +68,7 @@ export default async function AdminUsersPage({
         locale: u.locale,
         role: u.role,
         createdAt: u.createdAt.toISOString(),
+        lastActiveAt: lastActiveMap.get(u.id)?.toISOString() ?? null,
         orderCount: u._count.orders,
       }))}
       stats={{

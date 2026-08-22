@@ -731,6 +731,7 @@ export const en: typeof fa = {
         verified: "Status",
         locale: "Language",
         joined: "Joined",
+        lastActive: "Last active",
         orders: "Orders",
         user: "User",
         admin: "Admin",

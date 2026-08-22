@@ -731,6 +731,7 @@ export const ar: typeof fa = {
         verified: "الحالة",
         locale: "اللغة",
         joined: "تاريخ التسجيل",
+        lastActive: "آخر نشاط",
         orders: "الطلبات",
         user: "مستخدم",
         admin: "مدير",

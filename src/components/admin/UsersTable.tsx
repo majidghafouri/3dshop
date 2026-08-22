@@ -23,6 +23,7 @@ type UsersDict = {
     verified: string;
     locale: string;
     joined: string;
+    lastActive: string;
     orders: string;
     user: string;
     admin: string;
@@ -46,6 +47,7 @@ type UserRow = {
   locale: string;
   role: string;
   createdAt: string;
+  lastActiveAt: string | null;
   orderCount: number;
 };
 
@@ -88,6 +90,15 @@ export default function UsersTable({
   });
 
   const fmt = (d: string) => new Date(d).toLocaleDateString("en-CA");
+  const fmtDateTime = (d: string) =>
+    new Date(d).toLocaleString("en-CA", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
 
   return (
     <div>
@@ -162,6 +173,7 @@ export default function UsersTable({
                   <th className="px-4 py-3 text-[11.5px] font-[950] text-[var(--muted)] uppercase tracking-wide">{dict.table.verified}</th>
                   <th className="px-4 py-3 text-[11.5px] font-[950] text-[var(--muted)] uppercase tracking-wide">{dict.table.locale}</th>
                   <th className="px-4 py-3 text-[11.5px] font-[950] text-[var(--muted)] uppercase tracking-wide">{dict.table.orders}</th>
+                  <th className="px-4 py-3 text-[11.5px] font-[950] text-[var(--muted)] uppercase tracking-wide">{dict.table.lastActive}</th>
                   <th className="px-4 py-3 text-[11.5px] font-[950] text-[var(--muted)] uppercase tracking-wide">{dict.table.joined}</th>
                 </tr>
               </thead>
@@ -214,6 +226,23 @@ export default function UsersTable({
                     </td>
                     <td className="px-4 py-3 text-[13px] font-[950] text-[var(--text)]" dir="ltr">
                       {u.orderCount}
+                    </td>
+                    <td className="px-4 py-3 text-[12px] font-[850] text-[var(--muted)] whitespace-nowrap" dir="ltr">
+                      {u.lastActiveAt ? (
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              Date.now() - new Date(u.lastActiveAt).getTime() <
+                              7 * 86400000
+                                ? "bg-[var(--success)]"
+                                : "bg-[var(--muted-2)]"
+                            }`}
+                          />
+                          {fmtDateTime(u.lastActiveAt)}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--muted)]">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-[12px] font-[850] text-[var(--muted)]" dir="ltr">
                       {fmt(u.createdAt)}

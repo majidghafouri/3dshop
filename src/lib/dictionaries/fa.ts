@@ -729,6 +729,7 @@ export const fa = {
         verified: "وضعیت",
         locale: "زبان",
         joined: "تاریخ عضویت",
+        lastActive: "آخرین فعالیت",
         orders: "سفارش‌ها",
         user: "کاربر",
         admin: "مدیر",
