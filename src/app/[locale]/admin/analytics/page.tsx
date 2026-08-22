@@ -119,8 +119,8 @@ export default async function AdminAnalyticsPage({
       </div>
 
       {/* activity heatmap */}
-      <div className="mt-5 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-5">
-        <h3 className="text-[13.5px] font-[1000] text-[var(--text)] mb-4">{d.activity}</h3>
+      <div className="mt-5 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] px-6 pt-6 pb-4 max-sm:px-4">
+        <h3 className="text-[13.5px] font-[1000] text-[var(--text)] mb-5">{d.activity}</h3>
         <ActivityHeatmap
           series={activity}
           locale={locale}

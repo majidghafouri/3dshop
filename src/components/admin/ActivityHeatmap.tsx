@@ -83,7 +83,7 @@ export default function ActivityHeatmap({
 
   return (
     <div dir="ltr">
-      <div className="overflow-x-auto pb-1">
+      <div className="overflow-x-auto px-2 -mx-2 pt-3 pb-[140px] -mb-[126px]">
         <div className="inline-block min-w-full">
           {/* month labels */}
           <div className="flex gap-[3px] mb-1.5 text-[10px] font-[850] text-[var(--muted-2)]">
