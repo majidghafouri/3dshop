@@ -593,6 +593,11 @@ export const fa = {
       topSearches: "جستجوهای پرتکرار",
       topReferrers: "منبع ورود بازدیدکنندگان",
       noData: "داده‌ای در این بازه ثبت نشده است.",
+      activity: "فعالیت کاربران",
+      registeredUsers: "کاربران عضو",
+      guestUsers: "مهمان‌ها",
+      less: "کمتر",
+      more: "بیشتر",
     },
     settings: {
       title: "تنظیمات و کلیدها",

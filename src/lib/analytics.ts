@@ -234,6 +234,75 @@ export async function getAnalyticsOverview(days = 30, locale = "fa") {
 
 export type AnalyticsOverview = Awaited<ReturnType<typeof getAnalyticsOverview>>;
 
+// ---------- Daily activity heatmap (GitHub-style) ----------
+
+type ActivityRow = {
+  day: Date;
+  views: bigint;
+  unique_users: bigint;
+  registered: bigint;
+  guests: bigint;
+};
+
+export type DailyActivity = {
+  date: string;
+  label: string;
+  views: number;
+  uniqueUsers: number;
+  registeredUsers: number;
+  guestUsers: number;
+};
+
+export async function getDailyActivity(days = 365): Promise<DailyActivity[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  let rows: ActivityRow[] = [];
+  try {
+    rows = await prisma.$queryRaw<ActivityRow[]>`
+      SELECT date_trunc('day', "createdAt") AS day,
+             COUNT(*) FILTER (WHERE type = 'PAGE_VIEW') AS views,
+             COUNT(DISTINCT COALESCE("userId", 's:' || "sessionId")) AS unique_users,
+             COUNT(DISTINCT "userId") AS registered,
+             COUNT(DISTINCT "sessionId") FILTER (WHERE "userId" IS NULL) AS guests
+      FROM "AnalyticsEvent"
+      WHERE "createdAt" >= ${since}
+      GROUP BY day ORDER BY day ASC
+    `;
+  } catch (err) {
+    console.error("[analytics] daily activity query failed", err);
+    return [];
+  }
+
+  const map = new Map<string, Omit<DailyActivity, "date" | "label">>();
+  for (const row of rows) {
+    map.set(row.day.toISOString().slice(0, 10), {
+      views: Number(row.views),
+      uniqueUsers: Number(row.unique_users),
+      registeredUsers: Number(row.registered),
+      guestUsers: Number(row.guests),
+    });
+  }
+
+  const series: DailyActivity[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since);
+    d.setDate(since.getDate() + i);
+    const iso = d.toISOString().slice(0, 10);
+    const row = map.get(iso);
+    series.push({
+      date: iso,
+      label: `${d.getMonth() + 1}/${d.getDate()}`,
+      views: row?.views ?? 0,
+      uniqueUsers: row?.uniqueUsers ?? 0,
+      registeredUsers: row?.registeredUsers ?? 0,
+      guestUsers: row?.guestUsers ?? 0,
+    });
+  }
+  return series;
+}
+
 // ---------- Per-user analytics ----------
 
 type HourlyRow = { hour: number; day: number; cnt: bigint };

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Locale, isLocale, localePrefix } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n-dictionaries";
-import { getAnalyticsOverview } from "@/lib/analytics";
+import { getAnalyticsOverview, getDailyActivity } from "@/lib/analytics";
+import ActivityHeatmap from "@/components/admin/ActivityHeatmap";
 
 export default async function AdminAnalyticsPage({
   params,
@@ -19,6 +20,7 @@ export default async function AdminAnalyticsPage({
   const rawDays = searchParams.days;
   const days = rawDays === "7" ? 7 : 30;
   const data = await getAnalyticsOverview(days, locale);
+  const activity = await getDailyActivity(365);
   const t = data.totals;
   const d = dict.admin.analytics;
 
@@ -114,6 +116,24 @@ export default async function AdminAnalyticsPage({
           <span>{data.dailySeries[0]?.label}</span>
           <span>{data.dailySeries[data.dailySeries.length - 1]?.label}</span>
         </div>
+      </div>
+
+      {/* activity heatmap */}
+      <div className="mt-5 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] p-5">
+        <h3 className="text-[13.5px] font-[1000] text-[var(--text)] mb-4">{d.activity}</h3>
+        <ActivityHeatmap
+          series={activity}
+          locale={locale}
+          dict={{
+            activity: d.activity,
+            views: d.views,
+            uniqueVisitors: d.uniqueVisitors,
+            registeredUsers: d.registeredUsers,
+            guestUsers: d.guestUsers,
+            less: d.less,
+            more: d.more,
+          }}
+        />
       </div>
 
       {/* lists */}

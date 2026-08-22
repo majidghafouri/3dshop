@@ -595,6 +595,11 @@ export const en: typeof fa = {
       topSearches: "Top searches",
       topReferrers: "Top referrers",
       noData: "No data recorded in this period.",
+      activity: "User activity",
+      registeredUsers: "Registered users",
+      guestUsers: "Guest users",
+      less: "Less",
+      more: "More",
     },
     settings: {
       title: "Settings & Keys",

@@ -595,6 +595,11 @@ export const ar: typeof fa = {
       topSearches: "عمليات البحث المتكررة",
       topReferrers: "مصادر الزوار",
       noData: "لا توجد بيانات مسجلة في هذه الفترة.",
+      activity: "نشاط المستخدمين",
+      registeredUsers: "المستخدمون المسجلون",
+      guestUsers: "الزوار",
+      less: "أقل",
+      more: "أكثر",
     },
     settings: {
       title: "الإعدادات والمفاتيح",
