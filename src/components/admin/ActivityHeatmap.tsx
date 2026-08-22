@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { DailyActivity } from "@/lib/analytics";
 
 type HeatmapDict = {
@@ -11,10 +12,10 @@ type HeatmapDict = {
 };
 
 const COLORS = [
-  "var(--line-2)",
-  "rgba(var(--primary-rgb),0.22)",
-  "rgba(var(--primary-rgb),0.45)",
-  "rgba(var(--primary-rgb),0.7)",
+  "var(--hm-empty)",
+  "rgba(var(--primary-rgb),0.35)",
+  "rgba(var(--primary-rgb),0.55)",
+  "rgba(var(--primary-rgb),0.78)",
   "var(--primary)",
 ];
 
@@ -72,11 +73,12 @@ export default function ActivityHeatmap({
     }
   });
 
-  const tipAlign = (wi: number) => {
+  const tipPos = (wi: number, ri: number): CSSProperties => {
     const n = weeks.length;
-    if (wi >= n - 7) return { right: "-8px" };
-    if (wi <= 1) return { left: "-8px" };
-    return { left: "50%", transform: "translateX(-50%)" };
+    const horiz: CSSProperties =
+      wi >= n - 7 ? { right: "-8px" } : wi <= 1 ? { left: "-8px" } : { left: "50%", transform: "translateX(-50%)" };
+    // top rows: show tooltip below the square so it never clips at the card edge
+    return ri <= 2 ? { top: "calc(100% + 6px)", ...horiz } : { bottom: "calc(100% + 6px)", ...horiz };
   };
 
   return (
@@ -116,8 +118,8 @@ export default function ActivityHeatmap({
                           style={{ background: COLORS[bucket(cell.views)] }}
                         />
                         <div
-                          className="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col gap-0.5 bg-black/85 text-white text-[10.5px] font-[850] rounded-[8px] px-2.5 py-1.5 whitespace-nowrap z-20 shadow-lg pointer-events-none"
-                          style={tipAlign(wi)}
+                          className="absolute hidden group-hover:flex flex-col gap-0.5 bg-black/85 text-white text-[10.5px] font-[850] rounded-[8px] px-2.5 py-1.5 whitespace-nowrap z-20 shadow-lg pointer-events-none"
+                          style={tipPos(wi, ri)}
                         >
                           <span className="opacity-80">{dateFmt.format(new Date(`${cell.date}T00:00:00Z`))}</span>
                           <span>👁 {dict.views}: {cell.views.toLocaleString("en-US")}</span>
