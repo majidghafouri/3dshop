@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { DailyActivity } from "@/lib/analytics";
 
@@ -19,6 +22,8 @@ const COLORS = [
   "var(--primary)",
 ];
 
+const TIP_HALF = 95;
+
 export default function ActivityHeatmap({
   series,
   dict,
@@ -28,6 +33,9 @@ export default function ActivityHeatmap({
   dict: HeatmapDict;
   locale: string;
 }) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [tip, setTip] = useState<{ cell: DailyActivity; style: CSSProperties } | null>(null);
+
   if (series.length === 0) return null;
 
   const max = Math.max(...series.map((d) => d.views), 1);
@@ -53,14 +61,12 @@ export default function ActivityHeatmap({
   const wdFmt = new Intl.DateTimeFormat(locale === "fa" ? "fa-IR" : locale, { weekday: "short" });
   const moFmt = new Intl.DateTimeFormat(locale === "fa" ? "fa-IR" : locale, { month: "short", timeZone: "UTC" });
 
-  // Weekday labels for rows 1/3/5 (Mon/Wed/Fri) taken from first full week
   const weekdayLabels = new Map<number, string>();
   for (const row of [1, 3, 5]) {
     const ref = weeks[1]?.[row];
     if (ref) weekdayLabels.set(row, wdFmt.format(new Date(`${ref.date}T00:00:00Z`)));
   }
 
-  // Month labels above columns when a new month starts within the week
   const monthLabels: { col: number; label: string }[] = [];
   let lastMonth = -1;
   weeks.forEach((w, col) => {
@@ -73,17 +79,26 @@ export default function ActivityHeatmap({
     }
   });
 
-  const tipPos = (wi: number, ri: number): CSSProperties => {
-    const n = weeks.length;
-    const horiz: CSSProperties =
-      wi >= n - 7 ? { right: "-8px" } : wi <= 1 ? { left: "-8px" } : { left: "50%", transform: "translateX(-50%)" };
-    // top rows: show tooltip below the square so it never clips at the card edge
-    return ri <= 2 ? { top: "calc(100% + 6px)", ...horiz } : { bottom: "calc(100% + 6px)", ...horiz };
+  // Tooltip is anchored to the whole heatmap frame (the parent card), never
+  // inside the scrollable/clipped grid, so it can never be cropped.
+  const show = (cell: DailyActivity, el: HTMLElement) => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const wr = wrap.getBoundingClientRect();
+    const sr = el.getBoundingClientRect();
+    const cx = sr.left - wr.left + sr.width / 2;
+    const topY = sr.top - wr.top;
+    const x = Math.min(Math.max(cx, TIP_HALF), Math.max(wr.width - TIP_HALF, TIP_HALF));
+    const style: CSSProperties =
+      topY < 110
+        ? { left: x, top: topY + sr.height + 10 }
+        : { left: x, bottom: wr.height - topY + 10 };
+    setTip({ cell, style });
   };
 
   return (
-    <div dir="ltr">
-      <div className="overflow-x-auto px-2 -mx-2 pt-3 pb-[140px] -mb-[126px]">
+    <div ref={wrapRef} className="relative" dir="ltr">
+      <div className="overflow-x-auto">
         <div className="inline-block min-w-full">
           {/* month labels */}
           <div className="flex gap-[3px] mb-1.5 text-[10px] font-[850] text-[var(--muted-2)]">
@@ -112,25 +127,16 @@ export default function ActivityHeatmap({
                 <div key={wi} className="flex flex-col gap-[3px]">
                   {w.map((cell, ri) =>
                     cell ? (
-                      <div key={ri} className="relative group">
-                        <div
-                          className="w-[11px] h-[11px] rounded-[3px] transition-transform duration-150 group-hover:scale-125"
-                          style={{ background: COLORS[bucket(cell.views)] }}
-                        />
-                        <div
-                          className="absolute hidden group-hover:flex flex-col gap-0.5 bg-black/85 text-white text-[10.5px] font-[850] rounded-[8px] px-2.5 py-1.5 whitespace-nowrap z-20 shadow-lg pointer-events-none"
-                          style={tipPos(wi, ri)}
-                        >
-                          <span className="opacity-80">{dateFmt.format(new Date(`${cell.date}T00:00:00Z`))}</span>
-                          <span>👁 {dict.views}: {cell.views.toLocaleString("en-US")}</span>
-                          <span>🧑‍🤝‍🧑 {dict.uniqueVisitors}: {cell.uniqueUsers.toLocaleString("en-US")}</span>
-                          <span>✅ {dict.registeredUsers}: {cell.registeredUsers.toLocaleString("en-US")}</span>
-                          <span>👤 {dict.guestUsers}: {cell.guestUsers.toLocaleString("en-US")}</span>
-                        </div>
-                      </div>
+                      <div
+                        key={ri}
+                        className="w-[11px] h-[11px] rounded-[3px] transition-transform duration-150 hover:scale-125 cursor-pointer"
+                        style={{ background: COLORS[bucket(cell.views)] }}
+                        onMouseEnter={(e) => show(cell, e.currentTarget)}
+                        onMouseLeave={() => setTip(null)}
+                      />
                     ) : (
                       <div key={ri} className="w-[11px] h-[11px]" />
-                    )
+                    ),
                   )}
                 </div>
               ))}
@@ -138,6 +144,20 @@ export default function ActivityHeatmap({
           </div>
         </div>
       </div>
+
+      {/* card-level tooltip */}
+      {tip && (
+        <div
+          className="absolute z-30 flex flex-col gap-0.5 bg-black/85 text-white text-[10.5px] font-[850] rounded-[8px] px-2.5 py-1.5 whitespace-nowrap shadow-lg pointer-events-none w-max"
+          style={tip.style}
+        >
+          <span className="opacity-80">{dateFmt.format(new Date(`${tip.cell.date}T00:00:00Z`))}</span>
+          <span>👁 {dict.views}: {tip.cell.views.toLocaleString("en-US")}</span>
+          <span>🧑‍🤝‍🧑 {dict.uniqueVisitors}: {tip.cell.uniqueUsers.toLocaleString("en-US")}</span>
+          <span>✅ {dict.registeredUsers}: {tip.cell.registeredUsers.toLocaleString("en-US")}</span>
+          <span>👤 {dict.guestUsers}: {tip.cell.guestUsers.toLocaleString("en-US")}</span>
+        </div>
+      )}
 
       {/* legend */}
       <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] font-[850] text-[var(--muted-2)]">
