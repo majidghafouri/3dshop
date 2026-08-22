@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/seo";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export type SubscribeResult = {
-  status: "subscribed" | "resubscribed" | "already" | "invalid" | "error";
+  status: "subscribed" | "already" | "invalid" | "error";
 };
 
 export async function subscribeEmail(
@@ -22,23 +22,15 @@ export async function subscribeEmail(
   try {
     const existing = await prisma.newsletterSubscriber.findUnique({
       where: { email },
-      select: { id: true, isActive: true },
+      select: { id: true },
     });
 
-    if (existing?.isActive) {
+    // Any email that has ever subscribed is considered taken.
+    if (existing) {
       return { status: "already" };
     }
 
     const token = randomBytes(24).toString("hex");
-
-    if (existing) {
-      // Previously unsubscribed — reactivate with a fresh token.
-      await prisma.newsletterSubscriber.update({
-        where: { id: existing.id },
-        data: { isActive: true, locale, ...(userId ? { userId } : {}), unsubscribeToken: token },
-      });
-      return { status: "resubscribed" };
-    }
 
     await prisma.newsletterSubscriber.create({
       data: {

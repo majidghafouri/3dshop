@@ -85,7 +85,7 @@ export default function NewsletterSignup({
           {done === "other" ? dict.successNewEmail : done === "already" ? dict.already : dict.success}
         </p>
       ) : (
-        <form onSubmit={submit} className="mt-3 flex items-stretch gap-2 max-sm:flex-col">
+        <form onSubmit={submit} className="mt-3 flex items-stretch gap-2 max-w-[420px] max-sm:flex-col">
           <input
             type="email"
             inputMode="email"
