@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { Locale } from "@/lib/i18n";
+import { notifySubscribersOfNewPost } from "@/lib/newsletter";
 
 export type LocalizedText = { fa: string; en: string; ar: string };
 
@@ -823,6 +824,8 @@ export async function generateDailyPost(
       },
     });
   }
+
+  await notifySubscribersOfNewPost(post.id);
 
   return { slug, title };
 }

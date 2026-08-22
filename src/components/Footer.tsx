@@ -3,10 +3,13 @@ import Link from "next/link";
 import { Locale, localePrefix, locales } from "@/lib/i18n";
 import { Dictionary } from "@/lib/i18n-dictionaries";
 import Logo from "@/components/Logo";
+import NewsletterSignup from "@/components/NewsletterSignup";
+import { getSessionUser } from "@/lib/auth";
 
-export default function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export default async function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const prefix = localePrefix(locale);
   const langLabels: Record<Locale, string> = { fa: "فارسی", en: "English", ar: "العربية" };
+  const sessionUser = await getSessionUser().catch(() => null);
 
   return (
     <footer
@@ -65,6 +68,15 @@ export default function Footer({ locale, dict }: { locale: Locale; dict: Diction
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Newsletter */}
+        <div className="mt-2">
+          <NewsletterSignup
+            dict={dict.newsletter}
+            locale={locale}
+            userEmail={sessionUser?.email ?? null}
+          />
         </div>
 
         {/* Bottom bar */}

@@ -4,6 +4,7 @@ import path from "path";
 import crypto from "crypto";
 import prisma from "@/lib/db";
 import { Locale } from "@/lib/i18n";
+import { notifySubscribersOfNewPost } from "@/lib/newsletter";
 import RssParser from "rss-parser";
 
 const UA = "FigureforgeBot/1.0 (+https://figurforgj.com)";
@@ -594,6 +595,13 @@ export async function importWebArticles(max = MAX_ARTICLES_PER_RUN): Promise<Imp
   for (const candidate of candidates) {
     if (results.filter((r) => r.status === "imported").length >= max) break;
     const result = await importWebArticle(candidate);
+    if (result.status === "imported" && result.slug) {
+      const post = await prisma.blogPost.findUnique({
+        where: { slug: result.slug },
+        select: { id: true },
+      });
+      if (post) await notifySubscribersOfNewPost(post.id);
+    }
     results.push(result);
   }
 
