@@ -771,7 +771,7 @@ export const fa = {
       },
       timeline: {
         title: "خط زمانی فعالیت",
-        adminTitle: "گزارش فعالیت ادمین",
+        adminTitle: "گزارش فعالیت کاربر",
         session: "نشست",
         noActivity: "فعالیتی در این بازه ثبت نشده است.",
         events: {

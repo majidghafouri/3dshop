@@ -773,7 +773,7 @@ export const ar: typeof fa = {
       },
       timeline: {
         title: "الخط الزمني للنشاط",
-        adminTitle: "سجل نشاط المشرف",
+        adminTitle: "سجل نشاط المستخدم",
         session: "جلسة",
         noActivity: "لا يوجد نشاط مسجل في هذه الفترة.",
         events: {

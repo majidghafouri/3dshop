@@ -773,7 +773,7 @@ export const en: typeof fa = {
       },
       timeline: {
         title: "Activity timeline",
-        adminTitle: "Admin activity log",
+        adminTitle: "User activity log",
         session: "Session",
         noActivity: "No recorded activity in this period.",
         events: {
